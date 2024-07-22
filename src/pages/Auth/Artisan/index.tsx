@@ -28,7 +28,7 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
             )}
             <View 
             style={{paddingTop : insets.top + 10  }}
-            className="flex-1 z-20 p-4">
+            className="flex-1 z-20 ">
                 <View className='flex-row justify-center py-2 mb-5'>
                     <Motion.View
                         initial={{ backgroundColor: isEnabled ? COLORS.primary : 'red', scale: 0 }}
@@ -50,25 +50,27 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
                 <ScrollView horizontal className="mb-4">
                     <View
                         style={{ width: WINDOW_WIDTH * .7 }}
-                        className="bg-purple-100 p-4 rounded-lg flex-1 mr-2">
+                        className="bg-purple-100 p-4 ml-4 rounded-lg border-2 border-purple-600 flex-1 mr-2">
                         <Text className="text-purple-600 text-5xl font-bold">10</Text>
                         <Text className="text-gray-500 text-xl">New Leads</Text>
                     </View>
                     <View
                         style={{ width: WINDOW_WIDTH * .7 }}
-                        className="bg-green-100 p-4 rounded-lg flex-1 mx-2">
+                        className="bg-green-100 p-4 rounded-lg  border-2 border-green-600 flex-1 mx-2">
                         <Text className="text-green-600 text-5xl font-bold">1200</Text>
                         <Text className="text-gray-500  text-xl">Chiffre d'affaire</Text>
                     </View>
                     <View
                         style={{ width: WINDOW_WIDTH * .7 }}
-                        className="bg-red-100 p-4 rounded-lg flex-1 ml-2">
+                        className="bg-red-100 p-4 rounded-lg flex-1  border-2 border-red-600 ml-2">
                         <Text className="text-red-600 text-5xl font-bold">4</Text>
                         <Text className="text-gray-500 text-xl">(40%) Accepted leads</Text>
                     </View>
                 </ScrollView>
 
                 {/* Shortcuts */}
+                <View className='p-3'>
+
                 <Text className="text-xl font-bold mb-4">Shortcuts</Text>
                 <View className=" justify-between gap-3">
                     <TouchableOpacity
@@ -86,7 +88,7 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
                         </LinearGradient>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('Leads')}
+                        onPress={() => navigation.navigate('MyLeads')}
                         className="flex-1">
                         <LinearGradient
                             colors={['#8e24aa', '#ab47bc']}
@@ -95,7 +97,7 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
                             className="p-4 rounded-2xl flex justify-between"
                         >
                             <MaterialCommunityIcons name="account-group-outline" size={38} color="white" />
-                            <Text className="text-white mt-8 font-bold text-xl">Leads</Text>
+                            <Text className="text-white mt-8 font-bold text-xl">My Leads</Text>
                         </LinearGradient>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -112,6 +114,7 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
                         </LinearGradient>
                     </TouchableOpacity>
                 </View>
+            </View>
             </View>
         </ScrollView>
     )

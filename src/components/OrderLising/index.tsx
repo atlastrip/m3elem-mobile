@@ -116,7 +116,7 @@ const OrderListing = ({ navigation }: any) => {
     );
 };
 
-export const LocationView = ({ order }: any) => {
+export const LocationView = ({ order , navigation = null }: any) => {
     if (order.locationType === 'address') {
         return <Text style={styles.locationDetail}>Address: {order.locationDetails}</Text>;
     } else if (order.locationType === 'zipCode') {
@@ -124,6 +124,9 @@ export const LocationView = ({ order }: any) => {
     } else if (order.locationType === 'currentLocation') {
         const { latitude, longitude } = order.locationDetails;
         return (
+            <TouchableOpacity
+            onPress={navigation ? ()=>navigation.navigate('MapViewArtisan' , { marker : { latitude, longitude } }) : ()=>{} }
+            >
             <MapView
                 style={styles.map}
                 scrollEnabled={false}
@@ -133,9 +136,10 @@ export const LocationView = ({ order }: any) => {
                     latitudeDelta: 0.01,
                     longitudeDelta: 0.01,
                 }}
-            >
+                >
                 <Marker coordinate={{ latitude, longitude }} />
             </MapView>
+                </TouchableOpacity>
         );
     } else {
         return <Text style={styles.locationDetail}>Unknown location type</Text>;

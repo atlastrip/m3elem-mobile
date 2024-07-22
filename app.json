@@ -81,7 +81,8 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "country": "ma"
+      "country": "ma",
+      "currency": "mad"
     }
     // "extra": {
     //   "eas": {

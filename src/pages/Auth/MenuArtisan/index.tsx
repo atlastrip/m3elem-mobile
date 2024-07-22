@@ -112,7 +112,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
     
     {
       name: "How to use",
-      icon: <MaterialIcons name="model-training" color="white" size={20} />,
+      icon: <MaterialIcons name="menu-book" color="white" size={20} />,
       colorIcon: "purple",
       onPress: () =>
         navigation.navigate("WebView", {
@@ -131,7 +131,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
         navigation.navigate("MyLeads"),
     },
     {
-      name: "Transactions",
+      name: "Balance and transactions",
       icon: <MaterialIcons name="money" color="white" size={20} />,
       colorIcon: "blue",
       onPress: () =>
@@ -152,6 +152,13 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       colorIcon: "red",
       onPress: () =>
         navigation.navigate("Notification"),
+    },
+    {
+      name: "Payment methods",
+      icon: <MaterialIcons name="payments" color="white" size={20} />,
+      colorIcon: "#7b0bb8",
+      onPress: () =>
+        navigation.navigate("PaymentMethod"),
     },
     {
       name: "Contact us",

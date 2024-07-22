@@ -259,7 +259,7 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
           {(SignedUser ) && (
             <View className="px-3">
               <TouchableOpacity
-                style={{ backgroundColor: COLORS.primary + 40 }}
+                style={{ backgroundColor: COLORS.primary + 20 }}
                 onPress={handleLoginWithSignedUser}
                 className="rounded-2xl border-2 border-primary-500 outline-2 outline-offset-2 outline-primary-500 p-3" >
                 <Text className="text-center text-base text-primary-500 font-semibold">

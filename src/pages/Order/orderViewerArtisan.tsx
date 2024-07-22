@@ -51,6 +51,7 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
                     text: "OK",
 
                     onPress: () => {
+                        order.user = {fullName : "hello" , phone : "+2126 77883344"}
                         setShowConfetti(true);
                         setTimeout(() => setShowConfetti(false), 4000); // hide confetti after 3 seconds
                     }
@@ -79,7 +80,7 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
                         <Text style={styles.orderId}>{order.title}</Text>
                         <Text >{order.description}</Text>
                         <Text style={styles.label}>Location:</Text>
-                        <LocationView order={order} />
+                        <LocationView navigation={navigation} order={order} />
                     </View>
                     <View className='px-3'>
                         <Text style={styles.label}>Images:</Text>

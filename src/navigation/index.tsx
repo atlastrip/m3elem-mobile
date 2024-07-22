@@ -74,6 +74,8 @@ import orderViewerArtisan from "@/pages/Order/orderViewerArtisan";
 import OrderViewerArtisan from "@/pages/Order/orderViewerArtisan";
 import Transactions from "@/pages/Auth/Artisan/Transactions";
 import MyLeads from "@/pages/Auth/Artisan/MyLeads";
+import PaymentMethodPage from "@/pages/Auth/Artisan/PaymentMethod";
+import MapViewArtisan from "@/pages/Auth/Artisan/Map";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -129,6 +131,7 @@ export type IPages =
   | "Statistics"
   | "AddProduct"
   | "Notification"
+  | "PaymentMethod"
   | "Transactions"
   | "MyLeads"
   ;
@@ -196,6 +199,22 @@ const GroupParametreArtisan = () => {
       <Stack.Screen
         name="Notification"
         component={NotificationsPage}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="PaymentMethod"
+        component={PaymentMethodPage}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="MapViewArtisan"
+        component={MapViewArtisan}
         options={{
           headerShown: false,
           presentation: 'modal',

@@ -146,7 +146,7 @@ const MyLeads = ({ navigation }: any) => {
                     ))}
                   </ScrollView>
                   <Text style={styles.label}>Location:</Text>
-                  <LocationView order={order} />
+                  <LocationView navigation={navigation} order={order} />
                 </TouchableOpacity>
 
               </View>

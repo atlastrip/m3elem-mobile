@@ -206,19 +206,19 @@ export default function Order({ route }: any) {
     }, [pros])
     const dispatch = useDispatch();
     const state = useSelector((state: any) => state?.user?.confetti);
+    const [Search, setSearch] = useState("");
     // Define snap points
     const snapPoints = useMemo(() => ['50%', "80%"], []);
-    const scrollViewRef = useRef<any>(null)
-    const [Search, setSearch] = useState("");
-    const scrollToEnd = () => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-    };
     useEffect(() => {
         if (!!!professions?.length) {
             openBottomSheet()
         }
     }, [professions])
-
+    
+    const scrollViewRef = useRef<any>(null)
+    const scrollToEnd = () => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+    };
 
     return (
         <GestureHandlerRootView >

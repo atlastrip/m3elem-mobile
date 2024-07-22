@@ -47,17 +47,17 @@ const OrderView = ({ route }: any) => {
                 <ScrollView style={[styles.container, { paddingTop: insets.top + 10 }]}>
                     <Text style={styles.title}>Order #{order.id}</Text>
                     <Text className='text-xl font-semibold'>{order.title}</Text>
-                    <Text  className='text-lg'>{order.description}</Text>
+                    <Text className='text-lg'>{order.description}</Text>
 
                     <Text style={styles.title}>Professions</Text>
-                    {order?.professions?.map((profession: any ,i : any) => (
+                    {order?.professions?.map((profession: any, i: any) => (
                         <View key={i} style={styles.professionSection}>
                             <Text style={styles.professionName}>{profession.name}</Text>
                             <Text style={styles.professionText}>{profession.text}</Text>
 
                             {/* <Text style={styles.label}>Reviews:</Text> */}
                             {reviews
-                                .filter((review : any)=> review.professionId === profession.id)
+                                .filter((review: any) => review.professionId === profession.id)
                                 .map((review) => (
                                     <View key={review.id} style={styles.reviewItem}>
                                         <Text style={styles.reviewUser}>{review.user}</Text>

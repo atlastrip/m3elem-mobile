@@ -9,29 +9,39 @@ import {
 } from "@expo/vector-icons";
 import { COLORS } from 'constants/theme';
 
-const NotificationsPage = () => {
+const PaymentMethodPage = () => {
 
     const [isEnabled, setIsEnabled] = useState<any>({
-        "Application Push notifications": true,
-        "Email": false,
-        "Phone": false
+        "Cash on delivery": true,
     });
     const toggleSwitch = (name: string) => setIsEnabled((v: any) => { return { ...v, [name]: !isEnabled?.[name] || false } });
     const Menu2 = [
         {
-            name: "Application Push notifications",
+            name: "Cash on delivery",
             icon: <MaterialIcons name="notifications" color="white" size={20} />,
             colorIcon: "red",
             onPress: () => { }
         },
         {
-            name: "Email",
+            name: "Apple pay",
             icon: <MaterialIcons name="email" color="white" size={20} />,
             colorIcon: "blue",
             onPress: () => { }
         },
         {
-            name: "Phone",
+            name: "Google pay",
+            icon: <MaterialIcons name="phone" color="white" size={20} />,
+            colorIcon: "green",
+            onPress: () => { }
+        },
+        {
+            name: "Bank transfer",
+            icon: <MaterialIcons name="phone" color="white" size={20} />,
+            colorIcon: "green",
+            onPress: () => { }
+        },
+        {
+            name: "Check",
             icon: <MaterialIcons name="phone" color="white" size={20} />,
             colorIcon: "green",
             onPress: () => { }
@@ -40,7 +50,7 @@ const NotificationsPage = () => {
     return (
         <View className="">
             <View className="my-2">
-                <Text className='font-bold text-xl text-center'>Manage notifications</Text>
+                <Text className='font-bold text-xl text-center'>Manage payment methods</Text>
             </View>
 
             <View className="px-3">
@@ -52,16 +62,7 @@ const NotificationsPage = () => {
                         <View>
                             <View className="flex-row justify-between p-4 pl-5">
                                 <View className="flex-row">
-                                    <View
-                                        style={{
-                                            backgroundColor: menu.colorIcon,
-                                            aspectRatio: 1,
-                                        }}
-                                        className="p-[1px] rounded-md items-center justify-center"
-                                    >
-                                        {menu.icon}
-                                    </View>
-                                    <Text className="text-lg font-bold  text-black ml-4">
+                                    <Text className="text-lg font-bold  text-black">
                                         {menu.name}
                                     </Text>
                                 </View>
@@ -87,4 +88,4 @@ const NotificationsPage = () => {
     )
 }
 
-export default NotificationsPage
+export default PaymentMethodPage
