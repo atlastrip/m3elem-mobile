@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import Constants from 'expo-constants';
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import ConfettiCannon from "react-native-confetti-cannon";
 import { View, Text, TextInput, Button, TouchableOpacity, Image, FlatList, StyleSheet, Alert, ActivityIndicator, ScrollView } from 'react-native';
@@ -214,11 +215,13 @@ export default function Order({ route }: any) {
             openBottomSheet()
         }
     }, [professions])
-    
+
     const scrollViewRef = useRef<any>(null)
     const scrollToEnd = () => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
     };
+const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
+
 
     return (
         <GestureHandlerRootView >
@@ -241,29 +244,24 @@ export default function Order({ route }: any) {
                         <View className="mb-4">
                             <View className='flex-row items-center justify-between'>
                                 <Text className="text-xl font-bold mb-2">Selected professionals</Text>
-                                <TouchableOpacity
+                                {/* <TouchableOpacity
                                     style={{ backgroundColor: COLORS.primary }}
                                     onPress={openBottomSheet}
                                     className='py-2 rounded-full px-3'>
                                     <Text className="text-white font-bold">
                                         {!!!professions ? "Add professional" : "Change"}
-
-
                                     </Text>
-                                </TouchableOpacity>
-
+                                </TouchableOpacity> */}
                             </View>
                             <ScrollView horizontal
                                 ref={scrollViewRef}
-
                             >
-
                                 {(professions || [])?.sort((a: any, b: any) => a?.text.toLowerCase().localeCompare(b.text.toLowerCase()))?.map((e: any, i: any) => (
                                     <TouchableOpacity
                                         // onPress={() => setSelectedProfession({ name: e.text, img: e.img, id: e.id })}
                                         key={i}
                                         className={` p-1 min-w-[100px] `} >
-                                        <View className='p-3 flex-row items-center justify-center w-fit shadow-sm bg-white border-primary-500/20 border-2 rounded-md  px-5 '>
+                                        <View className='p-3 flex-row items-center justify-center w-fit shadow-sm bg-white border-primary-500/20 border-2 rounded-lg px-5 '>
                                             <Image style={{ width: 50, height: 50 }} resizeMode='contain' source={{ uri: e.img }} />
                                             <Text className={`text-lg text-primary-500 font-bold text-center`} >
                                                 {e.text}
@@ -304,8 +302,7 @@ export default function Order({ route }: any) {
                             <Text className="text-base font-semibold mb-2">When:</Text>
                             <TouchableOpacity
                                 onPress={() => setShowDatePicker(true)} // Show date picker
-                                className="text-black bg-gray-600 placeholder:text-black border border-black/25 w-full rounded-lg text-xl p-1 mb-3 flex-row"
-                            >
+                                className="text-black bg-gray-600 placeholder:text-black border border-black/25 w-full rounded-lg text-xl p-1 mb-3 flex-row" >
                                 <DateTimePicker
                                     value={date}
                                     mode="date"
@@ -330,31 +327,29 @@ export default function Order({ route }: any) {
                             <View className="flex-row justify-between mb-4">
                                 <TouchableOpacity
                                     onPress={() => handleLocationMethod('address')}
-                                    style={[styles.locationButton, locationMethod === 'address' && styles.selectedLocation]}
-                                >
+                                    style={[styles.locationButton, locationMethod === 'address' && styles.selectedLocation]} >
                                     <MaterialCommunityIcons size={32} color={locationMethod === 'address' ? "white" : "black"} name="home-map-marker" />
                                     <Text
                                         style={{ color: locationMethod === 'address' ? "white" : "black" }}
-
                                         className="text-center">Use Address</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity
+                                {country === 'usa' && (
+                                    <TouchableOpacity
                                     onPress={() => handleLocationMethod('zipCode')}
                                     style={[styles.locationButton, locationMethod === 'zipCode' && styles.selectedLocation]}
-                                >
+                                    >
                                     <MaterialCommunityIcons size={32} color={locationMethod === 'zipCode' ? "white" : "black"} name="map-marker-radius-outline" />
-
                                     <Text
-
                                         style={{ color: locationMethod === 'zipCode' ? "white" : "black" }}
                                         className="text-center">Use Zip Code</Text>
                                 </TouchableOpacity>
+                                    )}
+
                                 <TouchableOpacity
                                     onPress={() => handleLocationMethod('currentLocation')}
                                     style={[styles.locationButton, locationMethod === 'currentLocation' && styles.selectedLocation]}
                                 >
                                     <MaterialIcons size={32} name="my-location" color={locationMethod === 'currentLocation' ? "white" : "black"} />
-
                                     <Text
                                         style={{ color: locationMethod === 'currentLocation' ? "white" : "black" }}
                                         className="text-center">Use Current Location</Text>

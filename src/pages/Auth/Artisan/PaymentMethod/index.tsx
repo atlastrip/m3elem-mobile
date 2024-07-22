@@ -8,6 +8,10 @@ import {
     FontAwesome6
 } from "@expo/vector-icons";
 import { COLORS } from 'constants/theme';
+import Constants from 'expo-constants';
+
+const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
+
 
 const PaymentMethodPage = () => {
 
@@ -15,7 +19,27 @@ const PaymentMethodPage = () => {
         "Cash on delivery": true,
     });
     const toggleSwitch = (name: string) => setIsEnabled((v: any) => { return { ...v, [name]: !isEnabled?.[name] || false } });
-    const Menu2 = [
+    const MenuMA = [
+        {
+            name: "Cash on delivery",
+            icon: <MaterialIcons name="notifications" color="white" size={20} />,
+            colorIcon: "red",
+            onPress: () => { }
+        },
+        {
+            name: "Bank transfer",
+            icon: <MaterialIcons name="phone" color="white" size={20} />,
+            colorIcon: "green",
+            onPress: () => { }
+        },
+        {
+            name: "Check",
+            icon: <MaterialIcons name="phone" color="white" size={20} />,
+            colorIcon: "green",
+            onPress: () => { }
+        },
+    ]
+    const MenuUSA = [
         {
             name: "Cash on delivery",
             icon: <MaterialIcons name="notifications" color="white" size={20} />,
@@ -55,7 +79,7 @@ const PaymentMethodPage = () => {
 
             <View className="px-3">
 
-                {Menu2?.map((menu, idx) => (
+                {(country === 'ma' ? MenuMA : MenuUSA)?.map((menu, idx) => (
                     <View key={idx}
                         style={{ backgroundColor: '#00000010' }}
                         className="rounded-lg  mb-3">
@@ -74,7 +98,7 @@ const PaymentMethodPage = () => {
                                     value={isEnabled?.[menu?.name]}
                                 />
                             </View>
-                            {idx !== Menu2.length - 1 && (
+                            {idx !== (country === 'ma' ? MenuMA : MenuUSA).length - 1 && (
                                 <View className="flex-row justify-end">
                                     <View className="w-10/12 h-[1px] bg-white/10" />
                                 </View>
