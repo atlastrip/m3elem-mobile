@@ -18,7 +18,7 @@
       [
         "expo-notifications",
         {
-          "expo-notifications": "Autorisez les notifications de Pantofit."
+          "expo-notifications": "Autorisez les notifications de m3elem."
         }
       ],
       [
@@ -89,5 +89,10 @@
     //     "projectId": "3cc3bdc7-71bf-48d4-ac2d-357b6af213cd"
     //   }
     // }
+  },
+  "deepLinking": {
+    "prefixes": [
+      "https://m3elem.vercel.app"
+    ]
   }
 }

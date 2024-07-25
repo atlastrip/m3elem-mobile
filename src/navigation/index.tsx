@@ -3,7 +3,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Alert, Platform, StatusBar, Text, View } from "react-native";
+import { Alert, Linking, Platform, StatusBar, Text, View } from "react-native";
 import { TabBarIcon } from "../components/index";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -456,6 +456,41 @@ function BottomTabNavigatorUser() {
 }
 
 function RootNavigator() {
+  useEffect(() => {
+    const handleDeepLink = (event) => {
+      const route = parseUrl(event.url);
+      if (route) {
+        navigationRef.current?.navigate(route.name, { id: route.params.id });
+      }
+    };
+
+    const getInitialUrl = async () => {
+      const initialUrl = await Linking.getInitialURL();
+      if (initialUrl) {
+        const route = parseUrl(initialUrl);
+        if (route) {
+          navigationRef.current?.navigate(route.name, { id: route.params.id });
+        }
+      }
+    };
+
+    getInitialUrl();
+    Linking.addEventListener('url', handleDeepLink);
+
+    return () => {
+      Linking.removeEventListener('url', handleDeepLink);
+    };
+  }, []);
+
+  const parseUrl = (url) => {
+    const regex = /https:\/\/m3elem.vercel.app\/en\/pro\/artisan\/(\w+)/;
+    const match = url.match(regex);
+    if (match && match[1]) {
+      return { name: 'Artisan', params: { id: match[1] } };
+    }
+    return null;
+  };
+
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
@@ -583,7 +618,7 @@ function RootNavigator() {
                         options={{
                           headerShown: false,
                         }}
-                        name="Explore"
+                        name="Explore_"
                         component={BottomTabNavigatorUser}
                       />
                       <Stack.Screen
@@ -764,6 +799,10 @@ export default function Navigation() {
   if (!appIsReady) {
     return null;
   }
+
+  
+
+  
 
   return (
     <PaperProvider>

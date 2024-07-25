@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Image, ScrollView, Switch, TouchableOpacity, View } from 'react-native'
+import { Dimensions, Image, ScrollView, Switch, TouchableOpacity, View } from 'react-native'
 import { Text } from 'react-native'
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,21 +14,21 @@ const ArtisanHomePage = ({ navigation }: any) => {
     const insets = useSafeAreaInsets();
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(v => !v);
-const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
-
+    const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
+    const WINDOW_WIDTH = Dimensions.get('window').width;
 
     return (
-        <ScrollView style={{ flex: 1}}>
+        <ScrollView style={{ flex: 1 }}>
             {country == 'ma' && (
-                
-                <Image source={require('./Orders/images/paint-morocco.jpg')} className='opacity-10' style={{width : WINDOW_WIDTH , height : WINDOW_HEIGHT , position : "absolute" , top : 0, left : 0 }} />
+
+                <Image source={require('./Orders/images/paint-morocco.jpg')} className='opacity-10' style={{ width: WINDOW_WIDTH, height: WINDOW_HEIGHT, position: "absolute", top: 0, left: 0 }} />
             )}
             {country == 'usa' && (
-                <Image source={require('./Orders/images/flag-usa.jpg')} className='opacity-10' style={{width : WINDOW_WIDTH , height : WINDOW_HEIGHT , position : "absolute" , top : 0, left : 0 }} />
+                <Image source={require('./Orders/images/flag-usa.jpg')} className='opacity-10' style={{ width: WINDOW_WIDTH, height: WINDOW_HEIGHT, position: "absolute", top: 0, left: 0 }} />
             )}
-            <View 
-            style={{paddingTop : insets.top + 10  }}
-            className="flex-1 z-20 ">
+            <View
+                style={{ paddingTop: insets.top + 10 }}
+                className="flex-1 z-20 ">
                 <View className='flex-row justify-center py-2 mb-5'>
                     <Motion.View
                         initial={{ backgroundColor: isEnabled ? COLORS.primary : 'red', scale: 0 }}
@@ -47,7 +47,11 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
                         />
                     </Motion.View>
                 </View>
-                <ScrollView horizontal className="mb-4">
+                <ScrollView
+                    snapToInterval={WINDOW_WIDTH * 0.7 + 16}
+                    snapToAlignment="center"
+                    decelerationRate="fast"
+                    horizontal className="mb-4">
                     <View
                         style={{ width: WINDOW_WIDTH * .7 }}
                         className="bg-purple-100 p-4 ml-4 rounded-lg border-2 border-purple-600 flex-1 mr-2">
@@ -58,11 +62,11 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
                         style={{ width: WINDOW_WIDTH * .7 }}
                         className="bg-green-100 p-4 rounded-lg  border-2 border-green-600 flex-1 mx-2">
                         <Text className="text-green-600 text-5xl font-bold">1200</Text>
-                        <Text className="text-gray-500  text-xl">Chiffre d'affaire</Text>
+                        <Text className="text-gray-500  text-xl">Turnover</Text>
                     </View>
                     <View
                         style={{ width: WINDOW_WIDTH * .7 }}
-                        className="bg-red-100 p-4 rounded-lg flex-1  border-2 border-red-600 ml-2">
+                        className="bg-red-100 p-4 mr-4 rounded-lg flex-1  border-2 border-red-600 ml-2">
                         <Text className="text-red-600 text-5xl font-bold">4</Text>
                         <Text className="text-gray-500 text-xl">(40%) Accepted leads</Text>
                     </View>
@@ -70,51 +74,50 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
 
                 {/* Shortcuts */}
                 <View className='p-3'>
+                    <Text className="text-xl font-bold mb-4">Shortcuts</Text>
+                    <View className=" justify-between gap-3">
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('MyQrCode')}
+                            className="flex-1">
+                            <LinearGradient
+                                colors={['#4caf50', '#4fa866']}
 
-                <Text className="text-xl font-bold mb-4">Shortcuts</Text>
-                <View className=" justify-between gap-3">
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate('MyQrCode')}
-                        className="flex-1">
-                        <LinearGradient
-                            colors={['#4caf50', '#4fa866']}
-
-                            start={[0, 0]}
-                            end={[1, 1]}
-                            className="p-4 rounded-2xl flex justify-between"
-                        >
-                            <FontAwesome name="qrcode" size={38} color="white" />
-                            <Text className="text-white mt-8 font-bold text-xl">My QRcode, request review</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate('MyLeads')}
-                        className="flex-1">
-                        <LinearGradient
-                            colors={['#8e24aa', '#ab47bc']}
-                            start={[0, 0]}
-                            end={[1, 1]}
-                            className="p-4 rounded-2xl flex justify-between"
-                        >
-                            <MaterialCommunityIcons name="account-group-outline" size={38} color="white" />
-                            <Text className="text-white mt-8 font-bold text-xl">My Leads</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate('Menu')}
-                        className="flex-1">
-                        <LinearGradient
-                            colors={['#f44336', '#e57373']}
-                            start={[0, 0]}
-                            end={[1, 1]}
-                            className="p-4 rounded-2xl flex justify-between"
-                        >
-                            <MaterialCommunityIcons name="account-outline" size={38} color="white" />
-                            <Text className="text-white mt-8 font-bold text-xl">Profile</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
+                                start={[0, 0]}
+                                end={[1, 1]}
+                                className="p-4 rounded-2xl flex justify-between"
+                            >
+                                <FontAwesome name="qrcode" size={38} color="white" />
+                                <Text className="text-white mt-8 font-bold text-xl">My QRcode, request review</Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('MyLeads')}
+                            className="flex-1">
+                            <LinearGradient
+                                colors={['#8e24aa', '#ab47bc']}
+                                start={[0, 0]}
+                                end={[1, 1]}
+                                className="p-4 rounded-2xl flex justify-between"
+                            >
+                                <MaterialCommunityIcons name="account-group-outline" size={38} color="white" />
+                                <Text className="text-white mt-8 font-bold text-xl">My Leads</Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('Menu')}
+                            className="flex-1">
+                            <LinearGradient
+                                colors={['#f44336', '#e57373']}
+                                start={[0, 0]}
+                                end={[1, 1]}
+                                className="p-4 rounded-2xl flex justify-between"
+                            >
+                                <MaterialCommunityIcons name="account-outline" size={38} color="white" />
+                                <Text className="text-white mt-8 font-bold text-xl">Profile</Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
             </View>
         </ScrollView>
     )
