@@ -1,10 +1,12 @@
-import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Animate from "react-native-reanimated"
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { COLORS } from 'constants/theme';
-
+import { getToken, getUser } from '@/helpers/getToken';
+import Constants from 'expo-constants';
+import { useIsFocused } from '@react-navigation/native';
 
 const dummyOrders = [
     {
@@ -59,19 +61,169 @@ const dummyOrders = [
 
 
 const OrderListing = ({ navigation }: any) => {
+    const [loading, setLoading] = useState(false);
+    const [leads, setLeads]: any = useState([]);
+    const [unlocked, setUnlocked] = useState(false);
+    const [user, setUser]: any = useState(null);
+    const isFocused = useIsFocused();
+    // const {
+    //     data,
+    //     error,
+    //     loading,
+    //     fetchMore,
+    // } = useLeadsQuery({
+    //     fetchPolicy: 'network-only',
+    // })
+
+
+
+
+
+    const getLeads = async () => {
+
+        const token = await getToken();
+        const user: any = await getUser();
+        setUser(user);
+        console.log('====================================');
+        console.log('token', token);
+        console.log('====================================');
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            setLoading(true);
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                        query getLeadsThatMatchUserProfessionals {
+                            getLeadsThatMatchUserProfessionals {
+                                    id
+                                    title
+                                    description
+                                    status
+                                    images
+                                    owner {
+                                    id
+                                    leads {
+                                        id
+                                    }
+                                    firstName
+                                    lastName
+                                    phone
+                                    imageProfile
+                                    }
+                                    professionals {
+                                    id
+                                    text
+                                    img
+                                    }
+                                    artisantUnlockedLead {
+                                    id
+                                    }
+                                    location
+                                }
+                                }
+
+                        `,
+
+                    }),
+                }
+            );
+
+            const json = await res.json();
+            setLeads(json.data.getLeadsThatMatchUserProfessionals || []);
+
+            setLoading(false);
+        } catch (err: any) {
+            setLoading(false);
+            Alert.alert("error", JSON.stringify(err.message, undefined, 2));
+            // Alert.alert(json?.detail);
+        }
+    }
+
+
+
+
+    useEffect(() => {
+        getLeads();
+    }, [isFocused]);
+
+
+
+
+
+    const HandleUnlock = async (id: any) => {
+        const token = await getToken();
+        const user: any = await getUser();
+        setUser(user);
+        console.log('====================================');
+        console.log('token', token);
+        console.log('====================================');
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+
+
+        try {
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                        mutation unlockLead($input: LeadUnlockInput) {
+                                unlockLead(input: $input) {
+                                    id
+                                }
+                        }
+
+                        `,
+                        variables: {
+                            input: {
+                                id: id
+                            }
+                        }
+
+                    }),
+                }
+            );
+
+            const json = await res.json();
+            console.log('====================================');
+            console.log('json', json);
+            console.log('====================================');
+            await getLeads();
+        } catch (error: any) {
+            return Alert.alert(error.message)
+        }
+    }
+
+
+
     return (
         <ScrollView style={styles.container}>
-            {dummyOrders.map((order) => (
-                <View key={order.id} style={styles.orderCard}>
-                    {/* <Text style={styles.orderId}>Order #{order.id}</Text> */}
-                    <TouchableOpacity 
-                            onPress={() => navigation.navigate('OrderView', { order })}
-                            >
-                    <Text style={styles.orderId}>{order.title}</Text>
-                    <Text >{order.description}</Text>
-                    {/* <Text style={styles.label}>Professions:</Text>
+            {leads.map((order: any) => (
+                <View key={order?.id} style={styles.orderCard}>
+                    {/* <Text style={styles.orderId}>Order #{order?.id}</Text> */}
+                    <TouchableOpacity
+                    // onPress={() => navigation.navigate('OrderView', { order })}
+                    >
+                        <Text style={styles.orderId}>{order?.title}</Text>
+                        <Text >{order?.description}</Text>
+                        {/* <Text style={styles.label}>Professions:</Text>
                     <View style={styles.professionList}>
-                        {order.professions.map((profession) => (
+                        {order?.professions.map((profession) => (
                             <View key={profession.id} style={styles.professionItem}>
                                 <View
                                     style={{ backgroundColor: COLORS.primary }}
@@ -81,65 +233,86 @@ const OrderListing = ({ navigation }: any) => {
                             </View>
                         ))}
                     </View> */}
-                    <Text style={styles.label}>Images:</Text>
-                    <ScrollView
+                        <Text style={styles.label}>Images:</Text>
+                        <ScrollView
 
-                        horizontal>
-                        {order.images.map((image, index) => (
-                            <Image
-                                key={index + Math.random()} source={{ uri: image }} style={styles.image} />
-                        ))}
-                    </ScrollView>
-                    <Text style={styles.label}>Location:</Text>
-                    <LocationView order={order} />
+                            horizontal>
+                            {order?.images.map((image: any, index: any) => (
+                                <Image
+                                    key={index + Math.random()} source={{ uri: image }} style={styles.image} />
+                            ))}
+                        </ScrollView>
+                        <Text style={styles.label}>Location:</Text>
+                        <LocationView order={order} />
                     </TouchableOpacity>
-                    <View className='border-t-2 flex-row border-gray-100' >
-                        {/* onPress={() => navigation.navigate('OrderView', { order })}  */}
-                        <TouchableOpacity className='w-1/3 mt-1 items-center border-r-2 py-2 border-gray-100'
-                        >
-                            <MaterialCommunityIcons name="close" color="red" size={28} />
-                        </TouchableOpacity>
-                        <TouchableOpacity className='w-1/3 mt-1 items-center border-r-2 py-2 border-gray-100'
-                        >
-                            <MaterialCommunityIcons name="check" color="green" size={28} />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('OrderView', { order })}
-                            className='w-1/3 mt-1 items-center py-2 '
-                        >
-                            <MaterialCommunityIcons name="eye" color="purple" size={28} />
-                        </TouchableOpacity>
-                    </View>
+
+                    {
+
+                        order?.artisantUnlockedLead.map((e: any) => e?.id)?.includes(JSON.parse(user)?.id)
+                            ? <TouchableOpacity
+                                onPress={() => navigation.navigate('OrderView', { order, user: user })}
+                                className='w-[100%] mt-1 items-center py-2 '
+                            >
+                                <MaterialCommunityIcons name="eye" color="purple" size={28} />
+
+                            </TouchableOpacity>
+                            :
+                            <View className='border-t-2 flex-row border-gray-100' >
+                                {/* onPress={() => navigation.navigate('OrderView', { order })}  */}
+                                <TouchableOpacity className='w-1/3 mt-1 items-center border-r-2 py-2 border-gray-100'
+                                >
+                                    <MaterialCommunityIcons name="close" color="red" size={28} />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        HandleUnlock(order?.id)
+                                    }}
+
+                                    className='w-1/3 mt-1 items-center border-r-2 py-2 border-gray-100'
+                                >
+                                    <MaterialCommunityIcons name="check" color="green" size={28} />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => navigation.navigate('OrderView', { order })}
+                                    className='w-1/3 mt-1 items-center py-2 '
+                                >
+                                    <MaterialCommunityIcons name="eye" color="purple" size={28} />
+
+
+                                </TouchableOpacity>
+
+                            </View>
+                    }
                 </View>
             ))}
         </ScrollView>
     );
 };
 
-export const LocationView = ({ order , navigation = null }: any) => {
-    if (order.locationType === 'address') {
-        return <Text style={styles.locationDetail}>Address: {order.locationDetails}</Text>;
-    } else if (order.locationType === 'zipCode') {
-        return <Text style={styles.locationDetail}>Zip Code: {order.locationDetails}</Text>;
-    } else if (order.locationType === 'currentLocation') {
-        const { latitude, longitude } = order.locationDetails;
+export const LocationView = ({ order, navigation = null }: any) => {
+    if (order?.locationType === 'address') {
+        return <Text style={styles.locationDetail}>Address: {order?.locationDetails}</Text>;
+    } else if (order?.locationType === 'zipCode') {
+        return <Text style={styles.locationDetail}>Zip Code: {order?.locationDetails}</Text>;
+    } else if (order?.locationType === 'currentLocation') {
+        const { latitude, longitude } = order?.locationDetails;
         return (
             <TouchableOpacity
-            onPress={navigation ? ()=>navigation.navigate('MapViewArtisan' , { marker : { latitude, longitude } }) : ()=>{} }
+                onPress={navigation ? () => navigation.navigate('MapViewArtisan', { marker: { latitude, longitude } }) : () => { }}
             >
-            <MapView
-                style={styles.map}
-                scrollEnabled={false}
-                initialRegion={{
-                    latitude: latitude,
-                    longitude: longitude,
-                    latitudeDelta: 0.01,
-                    longitudeDelta: 0.01,
-                }}
+                <MapView
+                    style={styles.map}
+                    scrollEnabled={false}
+                    initialRegion={{
+                        latitude: latitude,
+                        longitude: longitude,
+                        latitudeDelta: 0.01,
+                        longitudeDelta: 0.01,
+                    }}
                 >
-                <Marker coordinate={{ latitude, longitude }} />
-            </MapView>
-                </TouchableOpacity>
+                    <Marker coordinate={{ latitude, longitude }} />
+                </MapView>
+            </TouchableOpacity>
         );
     } else {
         return <Text style={styles.locationDetail}>Unknown location type</Text>;

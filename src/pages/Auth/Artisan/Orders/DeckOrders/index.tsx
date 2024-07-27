@@ -1,17 +1,167 @@
 import { LocationView } from '@/components/OrderLising';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Image } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { COLORS } from 'constants/theme';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import ImageViewing from 'react-native-image-viewing';
-
+import Constants from 'expo-constants';
+import { getToken, getUser } from '@/helpers/getToken';
+import { useIsFocused } from '@react-navigation/native';
 
 
 const SwiperComponent = ({ navigation }: any) => {
 
     const [showConfetti, setShowConfetti] = useState(false);
+    const [leads, setLeads] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+
+
+    const isFocused = useIsFocused();
+
+    const getNextLead = async () => {
+        const token = await getToken();
+        const user: any = await getUser();
+        // setUser(user);
+        console.log('====================================');
+        console.log('token', token);
+        console.log('====================================');
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+
+
+        try {
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                        
+                                mutation  getNextLead($id: String!,$direction: String!,$show:Boolean!){
+                                getNextLead(id: $id,direction: $direction,show: $show){
+                                    id
+                                    title
+                                    description
+                                    status
+                                    images
+                                    owner{
+                                    id
+                                    }
+                                    location 
+                                }
+                                }
+
+                        `,
+                        variables: {
+                            input: {
+                                id: '1',
+                                direction: 'RIGHT',
+                                show: false
+                            }
+                        }
+
+                    }),
+                }
+            );
+
+            const json = await res.json();
+            console.log('====================================');
+            console.log('json', json);
+            console.log('====================================');
+            // await getLeads();
+        } catch (error: any) {
+            return Alert.alert(error.message)
+        }
+    }
+
+
+
+
+    const getLeads = async () => {
+
+        const token = await getToken();
+        const user: any = await getUser();
+        // setUser(user);
+        console.log('====================================');
+        console.log('token', token);
+        console.log('====================================');
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            setLoading(true);
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                        query getLeadsThatMatchUserProfessionals {
+                            getLeadsThatMatchUserProfessionals {
+                                    id
+                                    title
+                                    description
+                                    status
+                                    images
+                                    owner {
+                                    id
+                                    leads {
+                                        id
+                                    }
+                                    firstName
+                                    lastName
+                                    phone
+                                    imageProfile
+                                    }
+                                    professionals {
+                                    id
+                                    text
+                                    img
+                                    }
+                                    artisantUnlockedLead {
+                                    id
+                                    }
+                                    location
+                                }
+                                }
+
+                        `,
+
+                    }),
+                }
+            );
+
+            const json = await res.json();
+            setLeads(json.data.getLeadsThatMatchUserProfessionals || []);
+
+            setLoading(false);
+        } catch (err: any) {
+            setLoading(false);
+            Alert.alert("error", JSON.stringify(err.message, undefined, 2));
+            // Alert.alert(json?.detail);
+        }
+    }
+
+
+
+
+    useEffect(() => {
+        getLeads();
+    }, [isFocused]);
+
+
+
 
     const dummyOrders = [
         {
@@ -103,38 +253,43 @@ const SwiperComponent = ({ navigation }: any) => {
                 visible={isModalVisible}
                 onRequestClose={() => setIsModalVisible(false)}
             /> */}
-            <Swiper
-                ref={(swiper) => { swiperRef = swiper }}
-                cards={dummyOrders}
-                renderCard={(order) => (
-                    <View style={styles.card}>
-                        <ImageViewing
-                            images={order?.images.map(uri => ({ uri }))}
-                            imageIndex={currentImageIndex}
-                            visible={isModalVisible}
-                            onRequestClose={() => setIsModalVisible(false)}
-                        />
-                        <Image source={{ uri: order.images?.[0] }} className='w-full h-64' />
-                        <View className='p-3'>
+            {
+                leads.length === 0 ? <Text>
+                    waiting for leads...
+                </Text>
+                    :
+                    <Swiper
+                        ref={(swiper) => { swiperRef = swiper }}
+                        cards={leads}
+                        renderCard={(order) => (
+                            <View style={styles.card}>
+                                <ImageViewing
+                                    images={order?.images.map((uri: any) => ({ uri }))}
+                                    imageIndex={currentImageIndex}
+                                    visible={isModalVisible}
+                                    onRequestClose={() => setIsModalVisible(false)}
+                                />
+                                <Image source={{ uri: order.images?.[0] }} className='w-full h-64' />
+                                <View className='p-3'>
 
-                            <Text style={styles.orderId}>{order.title}</Text>
-                            <Text >{order.description}</Text>
-                            <Text style={styles.label}>Professions:</Text>
-                            <View style={styles.professionList}>
-                                {order.professions.map((profession) => (
-                                    <View key={profession.id} style={styles.professionItem}>
-                                        <View
-                                            style={{ backgroundColor: COLORS.primary }}
-                                            className='p-1 rounded-full px-3'>
-                                            <Text className="text-white font-bold text-lg">{profession.name}</Text>
-                                        </View>
+                                    <Text style={styles.orderId}>{order.title}</Text>
+                                    <Text >{order.description}</Text>
+                                    <Text style={styles.label}>Professions:</Text>
+                                    <View style={styles.professionList}>
+                                        {order.professionals.map((profession: any) => (
+                                            <View key={profession.id} style={styles.professionItem}>
+                                                <View
+                                                    style={{ backgroundColor: COLORS.primary }}
+                                                    className='p-1 rounded-full px-3'>
+                                                    <Text className="text-white font-bold text-lg">{profession.text}</Text>
+                                                </View>
+                                            </View>
+                                        ))}
                                     </View>
-                                ))}
-                            </View>
-                            <Text style={styles.label}>Location:</Text>
-                            <LocationView order={order} />
-                        </View>
-                        {/* <ScrollView
+                                    <Text style={styles.label}>Location:</Text>
+                                    <LocationView order={order} />
+                                </View>
+                                {/* <ScrollView
 
                             horizontal>
                             {order.images.map((image, index) => (
@@ -142,40 +297,41 @@ const SwiperComponent = ({ navigation }: any) => {
                                     key={index + Math.random()} source={{ uri: image }} style={styles.image} />
                             ))}
                         </ScrollView> */}
-                        <View className='px-3'>
-                        <Text style={styles.label}>Images:</Text>
+                                <View className='px-3'>
+                                    <Text style={styles.label}>Images:</Text>
 
-                            <ScrollView horizontal>
-                                {order.images.map((uri, index) => (
-                                    <TouchableOpacity key={index} onPress={() => navigation.navigate('ImagePreview', { images: order.images })}>
-                                        <View className="w-24 h-24 bg-gray-200 rounded-lg mr-2">
-                                            <Image
-                                                source={{ uri }}
-                                                className="w-24 h-24 rounded-lg"
-                                            />
-                                        </View>
-                                    </TouchableOpacity>
-                                ))}
-                            </ScrollView>
-                        </View>
+                                    <ScrollView horizontal>
+                                        {order?.images?.map((uri: any, index: any) => (
+                                            <TouchableOpacity key={index} onPress={() => navigation.navigate('ImagePreview', { images: order.images })}>
+                                                <View className="w-24 h-24 bg-gray-200 rounded-lg mr-2">
+                                                    <Image
+                                                        source={{ uri }}
+                                                        className="w-24 h-24 rounded-lg"
+                                                    />
+                                                </View>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </ScrollView>
+                                </View>
 
 
 
-                    </View>
-                )}
+                            </View>
+                        )}
 
-                onSwipedLeft={(cardIndex) => {
-                    setSelectedIndex(cardIndex)
-                    return (cardIndex + 1) === dummyOrders.length && navigation.goBack()
-                }}
-                onSwipedRight={(cardIndex) => {
-                    setSelectedIndex(cardIndex)
-                    return (cardIndex + 1) === dummyOrders.length && navigation.goBack()
-                }}
-                cardIndex={0}
-                backgroundColor={'transparent'}
-                stackSize={9}
-            />
+                        onSwipedLeft={(cardIndex) => {
+                            setSelectedIndex(cardIndex)
+                            return (cardIndex + 1) === dummyOrders.length && navigation.goBack()
+                        }}
+                        onSwipedRight={(cardIndex) => {
+                            setSelectedIndex(cardIndex)
+                            return (cardIndex + 1) === dummyOrders.length && navigation.goBack()
+                        }}
+                        cardIndex={0}
+                        backgroundColor={'transparent'}
+                        stackSize={9}
+                    />
+            }
             <View style={styles.buttonsContainer}>
                 <TouchableOpacity
                     className='bg-red-600 justify-center items-center'
@@ -200,6 +356,7 @@ const SwiperComponent = ({ navigation }: any) => {
                 </TouchableOpacity>
             </View>
             {showConfetti && <ConfettiCannon count={200} origin={{ x: -10, y: 0 }} />}
+
         </View>
     );
 };

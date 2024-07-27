@@ -29,7 +29,7 @@ import * as Device from "expo-device";
 import { COLORS } from "../../../constants/theme";
 import { Button } from "react-native";
 import window from "../../../constants/Layout";
-
+import Constants from "expo-constants";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -48,8 +48,8 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
   const insets = useSafeAreaInsets();
 
   const [Loading, setLoading] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("elhanouniazeddine00@gmail.com");
+  const [password, setPassword] = useState("123");
   const [ShowPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const [identity, setIdentity] = useState<
@@ -76,7 +76,7 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
     headers.append("Content-Type", "application/json");
     try {
       const res = await fetch(
-        "https://m3elem-app-ecj9f.ondigitalocean.app/m3elem",
+        Constants.expoConfig?.extra?.apiUrl as string,
         {
           method: "POST",
           headers,
@@ -101,7 +101,7 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
       );
 
       const json = await res.json();
-      console.info({ json: json.data?.login?.user });
+      console.info({ json: json.data?.login });
       if (json?.user) {
         await AsyncStorage.setItem(
           "@token",
@@ -132,7 +132,7 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
     headers.append("Content-Type", "application/json");
     try {
       const res = await fetch(
-        "https://m3elem-app-ecj9f.ondigitalocean.app/m3elem",
+        Constants.expoConfig?.extra?.apiUrl as string,
         {
           method: "POST",
           headers,
@@ -162,8 +162,9 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
       );
 
       const json = await res.json();
-      console.info({ json: json.data?.login?.user });
       if (json.data?.login?.user) {
+        console.info('user',json.data?.login.user);
+        console.info('token',json.data?.login.token);
 
         await AsyncStorage.setItem(
           "@token",
@@ -173,7 +174,7 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
         await AsyncStorage.setItem("@signed-user", JSON.stringify({ email: em || username, password: ps || password }));
         dispatch(isLogin(true));
         dispatch(setUser(json.data?.login?.user));
-        console.log({ user: json.data?.login?.user })
+        // console.log({ user: json.data?.login?.user })
         // const token = await registerForPushNotificationsAsync();
         // console.info({ token });
 
@@ -289,7 +290,7 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
                   value={password}
                   onChangeText={setPassword}
                   className="text-black border-b border-[#2B61E3] text-lg p-3 mb-3"
-                  keyboardType="visible-password"
+                  keyboardType="default"
                   placeholderTextColor={"#00000050"}
                   placeholder="Enter your password"
                   textContentType="password"

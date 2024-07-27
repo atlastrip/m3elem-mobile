@@ -81,14 +81,11 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
+      "apiUrl": "http://192.168.1.56:4000/m3elem",
       "country": "ma",
       "currency": "mad"
     }
-    // "extra": {
-    //   "eas": {
-    //     "projectId": "3cc3bdc7-71bf-48d4-ac2d-357b6af213cd"
-    //   }
-    // }
+
   },
   "deepLinking": {
     "prefixes": [

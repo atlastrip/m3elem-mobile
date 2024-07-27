@@ -16,7 +16,7 @@ const OrderView = ({ route }: any) => {
     const { order } = route.params;
     const insets = useSafeAreaInsets();
 
-    const [reviews, setReviews] = useState([]); // Replace with actual reviews if available
+    const [reviews, setReviews]:any = useState([]); // Replace with actual reviews if available
     const [newReview, setNewReview] = useState({ user: '', comment: '', rating: '', professionId: '' });
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
@@ -50,7 +50,7 @@ const OrderView = ({ route }: any) => {
                     <Text className='text-lg'>{order.description}</Text>
 
                     <Text style={styles.title}>Professions</Text>
-                    {order?.professions?.map((profession: any, i: any) => (
+                    {order?.professionals?.map((profession: any, i: any) => (
                         <View key={i} style={styles.professionSection}>
                             <Text style={styles.professionName}>{profession.name}</Text>
                             <Text style={styles.professionText}>{profession.text}</Text>
@@ -58,7 +58,7 @@ const OrderView = ({ route }: any) => {
                             {/* <Text style={styles.label}>Reviews:</Text> */}
                             {reviews
                                 .filter((review: any) => review.professionId === profession.id)
-                                .map((review) => (
+                                .map((review:any) => (
                                     <View key={review.id} style={styles.reviewItem}>
                                         <Text style={styles.reviewUser}>{review.user}</Text>
                                         <Text style={styles.reviewComment}>{review.comment}</Text>

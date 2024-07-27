@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import ConfettiCannon from 'react-native-confetti-cannon';
-import React, { useState, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, TextInput, Button, Alert, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -13,12 +13,14 @@ import { Rating } from 'react-native-ratings';
 import { LocationView } from '@/components/OrderLising';
 import { COLORS } from 'constants/theme';
 import { MaterialIcons } from "@expo/vector-icons";
-
+import Constants from 'expo-constants';
+import { getToken, getUser } from '@/helpers/getToken';
 
 
 const OrderViewerArtisan = ({ route, navigation }: any) => {
-    const { order } = route.params;
+    const { order, user } = route.params;
     const insets = useSafeAreaInsets();
+    const [isUnlocked, setIsUnlocked] = useState(false);
 
     const [reviews, setReviews] = useState([]); // Replace with actual reviews if available
     const [newReview, setNewReview] = useState({ user: '', comment: '', rating: '', professionId: '' });
@@ -51,7 +53,7 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
                     text: "OK",
 
                     onPress: () => {
-                        order.user = {fullName : "hello" , phone : "+2126 77883344"}
+                        HandleUnlock(order.id);
                         setShowConfetti(true);
                         setTimeout(() => setShowConfetti(false), 4000); // hide confetti after 3 seconds
                     }
@@ -61,16 +63,97 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
     };
 
     const handlePhoneCall = () => {
-        Linking.openURL('tel:'+order?.user?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', ''));
+        Linking.openURL('tel:' + order?.owner?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', ''));
     };
 
     const handleWhatsApp = () => {
-        const url = 'whatsapp://send?phone='+order?.user?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', '')+'&text=Hello';
+        const url = 'whatsapp://send?phone=' + order?.owner?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', '') + '&text=Hello';
         Linking.openURL(url).catch(() => {
             Alert.alert('Make sure WhatsApp is installed on your device');
         });
     };
-    
+
+
+
+    const HandleUnlock = async (id: any) => {
+        console.log('id', id);
+        
+        const token:any = await getToken();
+        const newUser:any = await getUser();
+      
+        if (!token) {
+            Alert.alert('You need to login first');
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+
+
+        try {
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                        mutation unlockLead($input: LeadUnlockInput) {
+                                unlockLead(input: $input) {
+                                    id
+                                    title
+                                    description
+                                    status
+                                    images
+                                    owner {
+                                    id
+                                    leads {
+                                        id
+                                    }
+                                    firstName
+                                    lastName
+                                    phone
+                                    imageProfile
+                                    }
+                                    professionals {
+                                    id
+                                    text
+                                    img
+                                    }
+                                    artisantUnlockedLead {
+                                    id
+                                    }
+                                    location
+                                }
+                        }
+
+                        `,
+                        variables: {
+                            input: {
+                                id: id
+                            }
+                        }
+
+                    }),
+                }
+            );
+
+            const lead = await res.json();
+            
+            setIsUnlocked((lead.data.unlockLead?.artisantUnlockedLead || [])?.map((e: any) => e?.id)?.includes(JSON.parse(newUser)?.id));
+        } catch (error: any) {
+            return Alert.alert(error.message)
+        }
+    }
+
+
+
+    useEffect(() => {
+        if (order?.artisantUnlockedLead?.length > 0) {
+            setIsUnlocked((order?.artisantUnlockedLead || [])?.map((e: any) => e?.id)?.includes(JSON.parse(user)?.id));
+        }
+    }, [isUnlocked]);
+
     return (
         <View style={{ flex: 1 }}>
             <ScrollView style={styles.container}>
@@ -100,15 +183,22 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
                     </View>
                 </View>
                 <View className="p-3 bg-red">
-                    {order?.user ? (
+                    {isUnlocked ? (
                         <TouchableOpacity className='flex-row p-3 justify-between rounded-lg bg-gray-100'>
-                            <View className='w-12 h-12 rounded-full bg-gray-400' ></View>
+                            {
+                                order?.owner?.imageProfile ? (
+                                    <Image source={{ uri: order?.owner?.imageProfile }} className='w-12 h-12 rounded-full' />
+                                ) : (
+                                    <View className='w-12 h-12 rounded-full bg-gray-400' ></View>
+                                )
+                            }
+                            {/* <View className='w-12 h-12 rounded-full bg-gray-400' ></View> */}
                             <View className='ml-3 flex-grow' >
-                                <Text className='font-bold text-left text-lg' >
-                                    {order?.user?.fullName}
+                                <Text className='font-bold text-left text-sm break-words' >
+                                    {order?.owner?.firstName} {order?.owner?.lastName}
                                 </Text>
-                                <Text className='font-bold text-left text-lg ' >
-                                    {order?.user?.phone}
+                                <Text className='font-bold text-left text-sm ' >
+                                    {order?.owner?.phone}
                                 </Text>
                             </View>
                             <View className='flex-row items-center'>
@@ -117,7 +207,7 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
                                         <Ionicons name="logo-whatsapp" size={18} />
                                     </Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={handlePhoneCall}  style={{ backgroundColor: COLORS.primary }} className='w-10 h-10 justify-center items-center rounded-lg'>
+                                <TouchableOpacity onPress={handlePhoneCall} style={{ backgroundColor: COLORS.primary }} className='w-10 h-10 justify-center items-center rounded-lg'>
                                     <Text className='font-bold text-full text-white' >
                                         <MaterialIcons name="phone" size={18} />
                                     </Text>
@@ -125,9 +215,30 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
                             </View>
                         </TouchableOpacity>
                     ) : (
-                        <View className="px-3">
-                            <ButtonPrimary className='mt-3' Loading={false} setLoading={() => { }} onPress={handleAlert} text="Unlock now" />
-                        </View>
+
+
+                        order?.artisantUnlockedLead?.length > 0 ?
+
+
+                            isUnlocked ?
+                                <View className="px-3">
+                                    <Text className='text-center text-lg font-bold'>You have unlocked this lead
+                                    </Text>
+                                </View>
+                                :
+                                <View
+                                    // onPress={() => HandleUnlock(order.id)}
+                                    className="px-3">
+                                    <ButtonPrimary className='mt-3' Loading={false} setLoading={() => { }} onPress={handleAlert} text="Unlock now" />
+                                </View>
+                            :
+                            <View
+                                // onPress={() => HandleUnlock(order.id)}
+                                className="px-3">
+                                <ButtonPrimary className='mt-3' Loading={false} setLoading={() => { }} onPress={handleAlert} text="Unlock now" />
+                            </View>
+
+
                     )}
                 </View>
                 <View className='my-20' />
