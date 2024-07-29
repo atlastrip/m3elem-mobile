@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { Dimensions, Image, ScrollView, Switch, TouchableOpacity, View } from 'react-native'
 import { Text } from 'react-native'
-import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome, MaterialCommunityIcons , MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SHADOWS } from 'constants/theme';
 import { Motion } from '@legendapp/motion';
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '@gorhom/bottom-sheet';
 import Constants from 'expo-constants';
+import ScrollingText from '@/components/ScrollText/indeX';
 
 
 const ArtisanHomePage = ({ navigation }: any) => {
@@ -75,47 +76,65 @@ const ArtisanHomePage = ({ navigation }: any) => {
                 {/* Shortcuts */}
                 <View className='p-3'>
                     <Text className="text-xl font-bold mb-4">Shortcuts</Text>
-                    <View className=" justify-between gap-3">
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('MyQrCode')}
-                            className="flex-1">
-                            <LinearGradient
-                                colors={['#4caf50', '#4fa866']}
+                    <View className="justify-between gap-3 ">
+                        <View className="flex-row ">
+                            <TouchableOpacity
+                                onPress={() => navigation.navigate('Transactions')}
+                                className="flex-1 mr-2">
+                                <LinearGradient
+                                    colors={['blue', '#05f']}
 
-                                start={[0, 0]}
-                                end={[1, 1]}
-                                className="p-4 rounded-2xl flex justify-between"
-                            >
-                                <FontAwesome name="qrcode" size={38} color="white" />
-                                <Text className="text-white mt-8 font-bold text-xl">My QRcode, request review</Text>
-                            </LinearGradient>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('MyLeads')}
-                            className="flex-1">
-                            <LinearGradient
-                                colors={['#8e24aa', '#ab47bc']}
-                                start={[0, 0]}
-                                end={[1, 1]}
-                                className="p-4 rounded-2xl flex justify-between"
-                            >
-                                <MaterialCommunityIcons name="account-group-outline" size={38} color="white" />
-                                <Text className="text-white mt-8 font-bold text-xl">My Leads</Text>
-                            </LinearGradient>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('Menu')}
-                            className="flex-1">
-                            <LinearGradient
-                                colors={['#f44336', '#e57373']}
-                                start={[0, 0]}
-                                end={[1, 1]}
-                                className="p-4 rounded-2xl flex justify-between"
-                            >
-                                <MaterialCommunityIcons name="account-outline" size={38} color="white" />
-                                <Text className="text-white mt-8 font-bold text-xl">Profile</Text>
-                            </LinearGradient>
-                        </TouchableOpacity>
+                                    start={[0, 0]}
+                                    end={[1, 1]}
+                                    className="p-4 rounded-2xl flex justify-between"
+                                >
+                                     <MaterialIcons name="money" color="white" size={38} />
+                                    <Text className="text-white mt-8 font-bold text-xl">Balance and transactions</Text>
+                                </LinearGradient>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => navigation.navigate('MyQrCode')}
+                                className="flex-1 ml-2">
+                                <LinearGradient
+                                    colors={['#4caf50', '#4fa866']}
+
+                                    start={[0, 0]}
+                                    end={[1, 1]}
+                                    className="p-4 rounded-2xl flex justify-between"
+                                >
+                                    <FontAwesome name="qrcode" size={38} color="white" />
+                                    <Text className="text-white mt-8 font-bold text-xl">My QRcode, request review</Text>
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        </View>
+                        <View className="flex-row ">
+                            <TouchableOpacity
+                                onPress={() => navigation.navigate('MyLeads')}
+                                className="flex-1 mr-2">
+                                <LinearGradient
+                                    colors={['#8e24aa', '#ab47bc']}
+                                    start={[0, 0]}
+                                    end={[1, 1]}
+                                    className="p-4 rounded-2xl flex justify-between"
+                                >
+                                    <MaterialCommunityIcons name="account-group-outline" size={38} color="white" />
+                                    <Text className="text-white mt-8 font-bold text-xl">My Leads</Text>
+                                </LinearGradient>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => navigation.navigate('Menu')}
+                                className="flex-1 ml-2">
+                                <LinearGradient
+                                    colors={['#f44336', '#e57373']}
+                                    start={[0, 0]}
+                                    end={[1, 1]}
+                                    className="p-4 rounded-2xl flex justify-between"
+                                >
+                                    <MaterialCommunityIcons name="account-outline" size={38} color="white" />
+                                    <Text className="text-white mt-8 font-bold text-xl">Profile</Text>
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </View>

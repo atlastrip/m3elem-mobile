@@ -2,7 +2,9 @@ import OrderListing, { LocationView } from '@/components/OrderLising';
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '@gorhom/bottom-sheet';
 import { COLORS, SHADOWS } from 'constants/theme';
 import React, { useRef, useState } from 'react'
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Linking } from 'react-native';
 
 
 const dummyOrders = [
@@ -10,9 +12,9 @@ const dummyOrders = [
     id: 1,
     title: "I want create new home",
     description: "I want create new home using one of the best artisans in morocco can you help me please im in casablanca",
-    user : {
-      fullName : 'Hello brother',
-      phone : '+212666-811678'
+    user: {
+      fullName: 'Hello brother',
+      phone: '+212666-811678'
     },
     professions: [
       { name: 'Electrician', text: 'Electrical work', id: 'e1' },
@@ -29,9 +31,9 @@ const dummyOrders = [
     id: 2,
     title: "I want create new home",
     description: "I want create new home using one of the best artisans in morocco can you help me please im in casablanca",
-    user : {
-      fullName : 'Hello brother',
-      phone : '+212666-811678'
+    user: {
+      fullName: 'Hello brother',
+      phone: '+212666-811678'
     },
     professions: [
       { name: 'Painter', text: 'Painting', id: 'pa1' },
@@ -47,9 +49,9 @@ const dummyOrders = [
     id: 3,
     title: "I want create new home",
     description: "I want create new home using one of the best artisans in morocco can you help me please im in casablanca",
-    user : {
-      fullName : 'Hello brother',
-      phone : '+212666-811678'
+    user: {
+      fullName: 'Hello brother',
+      phone: '+212666-811678'
     },
     professions: [
       { name: 'Gardener', text: 'Gardening', id: 'g1' },
@@ -68,8 +70,25 @@ const dummyOrders = [
   },
 ];
 
+const directLeads = [
+  {
+    user: {
+      fullName: "Holla emortal",
+      phone: "0666778899",
+      isDone: false
+    },
+  },
+  {
+    user: {
+      fullName: "Tiffany mira",
+      phone: "0666098819",
+      isDone: true
+    },
+  },
+]
 
 const MyLeads = ({ navigation }: any) => {
+
   const [SelectedType, setSelectedType] = useState("Accepted leads");
   const scrollToElement = (scrollViewRef: any, elementIndex: number) => {
     if (scrollViewRef.current) {
@@ -77,6 +96,37 @@ const MyLeads = ({ navigation }: any) => {
     }
   };
   const scrollViewRef1 = useRef<any>(null);
+  const handlePhoneCall = (user: any) => {
+    Linking.openURL('tel:' + user?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', ''));
+  };
+
+  const handleWhatsApp = (user: any) => {
+    const url = 'whatsapp://send?phone=' + user?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', '') + '&text=Hello';
+    Linking.openURL(url).catch(() => {
+      Alert.alert('Make sure WhatsApp is installed on your device');
+    });
+  };
+  const handleDone = (user: any) => {
+    Alert.alert("Mark this direct lead", "", [
+      {
+        text: "Spam",
+        style: "destructive",
+        onPress: () => {
+        }
+      }, {
+        text: "Done",
+        style: "default",
+        onPress: () => {
+
+        }
+      },
+      {
+        text: "cancel",
+        onPress: () => {
+        }
+      },
+    ]);
+  };
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={{ flex: 1 }}>
@@ -129,32 +179,6 @@ const MyLeads = ({ navigation }: any) => {
           style={{ flex: 1 }} horizontal >
 
           <View className="px-3" style={{ width: WINDOW_WIDTH, flex: 1, minHeight: WINDOW_HEIGHT }} >
-            {dummyOrders.map((order) => (
-              <View key={order.id} style={styles.orderCard}>
-                {/* <Text style={styles.orderId}>Order #{order.id}</Text> */}
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('OrderView', { order })}
-                >
-                  <Text style={styles.orderId}>{order.title}</Text>
-                  <Text >{order.description}</Text>
-                  <Text style={styles.label}>Images:</Text>
-                  <ScrollView
-                    horizontal>
-                    {order.images.map((image, index) => (
-                      <Image
-                        key={index + Math.random()} source={{ uri: image }} style={styles.image} />
-                    ))}
-                  </ScrollView>
-                  <Text style={styles.label}>Location:</Text>
-                  <LocationView navigation={navigation} order={order} />
-                </TouchableOpacity>
-
-              </View>
-            ))}
-
-          </View>
-          <View style={{ width: WINDOW_WIDTH, flex: 1, minHeight: WINDOW_HEIGHT }} >
-          <View className="px-3" style={{ width: WINDOW_WIDTH, flex: 1, minHeight: WINDOW_HEIGHT }} >
             {dummyOrders.reverse().map((order) => (
               <View key={order.id} style={styles.orderCard}>
                 {/* <Text style={styles.orderId}>Order #{order.id}</Text> */}
@@ -179,6 +203,67 @@ const MyLeads = ({ navigation }: any) => {
             ))}
 
           </View>
+          <View style={{ width: WINDOW_WIDTH, flex: 1, minHeight: WINDOW_HEIGHT }} >
+            <View className="px-3" style={{ width: WINDOW_WIDTH, flex: 1, minHeight: WINDOW_HEIGHT }} >
+              {directLeads.map((order, i) => (
+                <View key={i} style={styles.orderCard}>
+                  <View className='flex-row justify-between '>
+                    <View className='w-12 h-12 rounded-full bg-gray-400' ></View>
+                    <View className='ml-3 flex-grow' >
+                      <Text className='font-bold text-left text-lg' >
+                        {order?.user?.fullName}
+                      </Text>
+                      <Text className='font-bold text-left text-lg ' >
+                        {order?.user?.phone}
+                      </Text>
+                    </View>
+                    <View className='flex-row items-center'>
+                      <TouchableOpacity onPress={() => handleWhatsApp(order?.user)} style={{ backgroundColor: COLORS.primary }} className='w-10 h-10 mr-1 justify-center items-center rounded-lg'>
+                        <Text className='font-bold text-full text-white' >
+                          <Ionicons name="logo-whatsapp" size={18} />
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handlePhoneCall(order?.user)} style={{ backgroundColor: COLORS.primary }} className='w-10 h-10 justify-center items-center rounded-lg'>
+                        <Text className='font-bold text-full text-white' >
+                          <MaterialIcons name="phone" size={18} />
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+
+                  <View className='border-t-2 border-gray-100 py-1 mt-1  flex-row' >
+                    <View className='w-1/2 border-r-2 border-gray-100' >
+                      <Text className='text-center text-lg'>
+                        Today • 12:30
+                      </Text>
+                    </View>
+                    <View className='w-1/2 ' >
+                      {!order?.user?.isDone ? (
+
+                        <TouchableOpacity onPress={() => handleDone(order?.user)}>
+                          <Text className='text-right underline text-primary-500 text-lg'>
+                            Mark as
+                          </Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <View className="flex-row items-end justify-end">
+
+                          <Text className='text-right pb-0 mb-0 text-lg'>
+                            Done
+                          </Text>
+                          <View className='text-right pb-1 justify-end text-lg'>
+                            <MaterialIcons name="check" size={18} />
+                          </View>
+                        </View>
+                      )}
+                    </View>
+
+                  </View>
+                </View>
+              ))}
+
+
+            </View>
           </View>
         </ScrollView>
 
