@@ -255,15 +255,6 @@ const SwiperComponent = ({ navigation }: any) => {
 
 
 
-    if (loadingUnlock) {
-        return <View style={styles.container}>
-            <Text>
-                Unlocking lead...
-            </Text>
-        </View>
-    }
-
-
     useEffect(() => {
         if (leads.length > 0) {
             setGetLeadFromSwiper(leads[0])
@@ -271,50 +262,59 @@ const SwiperComponent = ({ navigation }: any) => {
     }, [leads]);
 
     return (
-        <View style={styles.container}>
-            {/* <ImageViewing
+        <>
+            {
+                loadingUnlock ?
+                    <View style={styles.container}>
+                        <Text>
+                            Unlocking lead...
+                        </Text>
+                    </View>
+                    :
+                    <View style={styles.container}>
+                        {/* <ImageViewing
                 images={dummyOrders[SelectedIndex]?.images.map(uri => ({ uri }))}
                 imageIndex={currentImageIndex}
                 visible={isModalVisible}
                 onRequestClose={() => setIsModalVisible(false)}
             /> */}
-            {
-                leads.length === 0 ? <Text>
-                    waiting for leads...
-                </Text>
-                    :
-                    <Swiper
-                        ref={(swiper) => { swiperRef = swiper }}
-                        cards={leads}
-                        renderCard={(order) => (
-                            <View style={styles.card}>
-                                <ImageViewing
-                                    images={order?.images.map((uri: any) => ({ uri }))}
-                                    imageIndex={currentImageIndex}
-                                    visible={isModalVisible}
-                                    onRequestClose={() => setIsModalVisible(false)}
-                                />
-                                <Image source={{ uri: order.images?.[0] }} className='w-full h-64' />
-                                <View className='p-3'>
+                        {
+                            leads.length === 0 ? <Text>
+                                waiting for leads...
+                            </Text>
+                                :
+                                <Swiper
+                                    ref={(swiper) => { swiperRef = swiper }}
+                                    cards={leads}
+                                    renderCard={(order) => (
+                                        <View style={styles.card}>
+                                            <ImageViewing
+                                                images={order?.images.map((uri: any) => ({ uri }))}
+                                                imageIndex={currentImageIndex}
+                                                visible={isModalVisible}
+                                                onRequestClose={() => setIsModalVisible(false)}
+                                            />
+                                            <Image source={{ uri: order.images?.[0] }} className='w-full h-64' />
+                                            <View className='p-3'>
 
-                                    <Text style={styles.orderId}>{order.title}</Text>
-                                    <Text >{order.description}</Text>
-                                    <Text style={styles.label}>Professions:</Text>
-                                    <View style={styles.professionList}>
-                                        {order.professionals.map((profession: any) => (
-                                            <View key={profession.id} style={styles.professionItem}>
-                                                <View
-                                                    style={{ backgroundColor: COLORS.primary }}
-                                                    className='p-1 rounded-full px-3'>
-                                                    <Text className="text-white font-bold text-lg">{profession.text}</Text>
+                                                <Text style={styles.orderId}>{order.title}</Text>
+                                                <Text >{order.description}</Text>
+                                                <Text style={styles.label}>Professions:</Text>
+                                                <View style={styles.professionList}>
+                                                    {order.professionals.map((profession: any) => (
+                                                        <View key={profession.id} style={styles.professionItem}>
+                                                            <View
+                                                                style={{ backgroundColor: COLORS.primary }}
+                                                                className='p-1 rounded-full px-3'>
+                                                                <Text className="text-white font-bold text-lg">{profession.text}</Text>
+                                                            </View>
+                                                        </View>
+                                                    ))}
                                                 </View>
+                                                <Text style={styles.label}>Location:</Text>
+                                                <LocationView order={order} />
                                             </View>
-                                        ))}
-                                    </View>
-                                    <Text style={styles.label}>Location:</Text>
-                                    <LocationView order={order} />
-                                </View>
-                                {/* <ScrollView
+                                            {/* <ScrollView
 
                             horizontal>
                             {order.images.map((image, index) => (
@@ -322,77 +322,80 @@ const SwiperComponent = ({ navigation }: any) => {
                                     key={index + Math.random()} source={{ uri: image }} style={styles.image} />
                             ))}
                         </ScrollView> */}
-                                <View className='px-3'>
-                                    <Text style={styles.label}>Images:</Text>
+                                            <View className='px-3'>
+                                                <Text style={styles.label}>Images:</Text>
 
-                                    <ScrollView horizontal>
-                                        {order?.images?.map((uri: any, index: any) => (
-                                            <TouchableOpacity key={index} onPress={() => navigation.navigate('ImagePreview', { images: order.images })}>
-                                                <View className="w-24 h-24 bg-gray-200 rounded-lg mr-2">
-                                                    <Image
-                                                        source={{ uri }}
-                                                        className="w-24 h-24 rounded-lg"
-                                                    />
-                                                </View>
-                                            </TouchableOpacity>
-                                        ))}
-                                    </ScrollView>
-                                </View>
+                                                <ScrollView horizontal>
+                                                    {order?.images?.map((uri: any, index: any) => (
+                                                        <TouchableOpacity key={index} onPress={() => navigation.navigate('ImagePreview', { images: order.images })}>
+                                                            <View className="w-24 h-24 bg-gray-200 rounded-lg mr-2">
+                                                                <Image
+                                                                    source={{ uri }}
+                                                                    className="w-24 h-24 rounded-lg"
+                                                                />
+                                                            </View>
+                                                        </TouchableOpacity>
+                                                    ))}
+                                                </ScrollView>
+                                            </View>
 
 
 
-                            </View>
-                        )}
+                                        </View>
+                                    )}
 
-                        onSwipedLeft={(cardIndex) => {
-                            console.log('====================================');
-                            console.log('swiped left', leads[cardIndex + 1]);
-                            setGetLeadFromSwiper(leads[cardIndex + 1])
-                            console.log('====================================');
-                            setSelectedIndex(cardIndex)
-                            return (cardIndex + 1) === leads.length && navigation.goBack()
-                        }}
-                        onSwipedRight={(cardIndex) => {
-                            console.log('====================================');
-                            console.log('swiped right', leads[cardIndex + 1]);
-                            setGetLeadFromSwiper(leads[cardIndex + 1])
-                            console.log('====================================');
-                            setSelectedIndex(cardIndex)
-                            return (cardIndex + 1) === leads.length && navigation.goBack()
-                        }}
-                        cardIndex={0}
-                        backgroundColor={'transparent'}
-                        stackSize={9}
-                    />
+                                    onSwipedLeft={(cardIndex) => {
+                                        console.log('====================================');
+                                        console.log('swiped left', leads[cardIndex + 1]);
+                                        setGetLeadFromSwiper(leads[cardIndex + 1])
+                                        console.log('====================================');
+                                        setSelectedIndex(cardIndex)
+                                        return (cardIndex + 1) === leads.length && navigation.goBack()
+                                    }}
+                                    onSwipedRight={(cardIndex) => {
+                                        console.log('====================================');
+                                        console.log('swiped right', leads[cardIndex + 1]);
+                                        setGetLeadFromSwiper(leads[cardIndex + 1])
+                                        console.log('====================================');
+                                        setSelectedIndex(cardIndex)
+                                        return (cardIndex + 1) === leads.length && navigation.goBack()
+                                    }}
+                                    cardIndex={0}
+                                    backgroundColor={'transparent'}
+                                    stackSize={9}
+                                />
+                        }
+                        <View style={styles.buttonsContainer}>
+                            <TouchableOpacity
+                                className='bg-red-600 justify-center items-center'
+                                style={{ width: 50, height: 50, borderRadius: 300 }}
+                                onPress={() => swiperRef.swipeLeft()}
+                            >
+                                <MaterialCommunityIcons name="close" color="white" size={20} />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                className=' justify-center items-center'
+                                style={{ width: 70, height: 70, borderRadius: 300, backgroundColor: COLORS.primary }}
+                                onPress={() => {
+                                    handleAlert()
+                                }}
+                            >
+                                <MaterialCommunityIcons name="check" color="white" size={40} />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                className='bg-violet-600 justify-center items-center'
+                                style={{ width: 50, height: 50, borderRadius: 300 }}
+                                onPress={() => swiperRef.swipeRight()}
+                            >
+                                <MaterialCommunityIcons name="chevron-right" color="white" size={30} />
+                            </TouchableOpacity>
+                        </View>
+                        {showConfetti && <ConfettiCannon count={200} origin={{ x: -10, y: 0 }} />}
+
+                    </View>
+
             }
-            <View style={styles.buttonsContainer}>
-                <TouchableOpacity
-                    className='bg-red-600 justify-center items-center'
-                    style={{ width: 50, height: 50, borderRadius: 300 }}
-                    onPress={() => swiperRef.swipeLeft()}
-                >
-                    <MaterialCommunityIcons name="close" color="white" size={20} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    className=' justify-center items-center'
-                    style={{ width: 70, height: 70, borderRadius: 300, backgroundColor: COLORS.primary }}
-                    onPress={() => {
-                        handleAlert()
-                    }}
-                >
-                    <MaterialCommunityIcons name="check" color="white" size={40} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    className='bg-violet-600 justify-center items-center'
-                    style={{ width: 50, height: 50, borderRadius: 300 }}
-                    onPress={() => swiperRef.swipeRight()}
-                >
-                    <MaterialCommunityIcons name="chevron-right" color="white" size={30} />
-                </TouchableOpacity>
-            </View>
-            {showConfetti && <ConfettiCannon count={200} origin={{ x: -10, y: 0 }} />}
-
-        </View>
+        </>
     );
 };
 
