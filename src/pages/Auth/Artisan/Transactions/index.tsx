@@ -7,7 +7,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WebView from 'react-native-webview';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-
+import Constants from 'expo-constants';
+import { useIsFocused } from '@react-navigation/native';
+import { getToken } from '@/helpers/getToken';
 
 interface ITransaction {
     "transactionType": string | null,
@@ -27,16 +29,27 @@ const Transactions = () => {
         }
     };
     const scrollViewRef1 = useRef<any>(null);
+    const [amount, setAmount] = useState(0);
+    const isFocused = useIsFocused();
 
 
 
     const [Transactions, setTransactions] = useState<ITransaction[]>([]);
     const HandleGetTransactions = async () => {
+        const token = await getToken();
+        // setUser(user);
+        console.log('====================================');
+        console.log('token', token);
+        console.log('====================================');
+        if (!token) {
+            return;
+        }
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
         try {
             const res = await fetch(
-                "https://m3elem-app-ecj9f.ondigitalocean.app/m3elem",
+                Constants.expoConfig?.extra?.apiUrl as string,
                 {
                     method: "POST",
                     headers,
@@ -64,10 +77,52 @@ const Transactions = () => {
         }
     };
 
+
+    const getBalance = async () => {
+        const token = await getToken();
+        // setUser(user);
+        console.log('====================================');
+        console.log('token', token);
+        console.log('====================================');
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `query user {
+                    user {
+                     id
+                     amount
+                    }
+                  }`
+                    }),
+                }
+            );
+            const json: any = await res.json();
+            console.log(json)
+            setAmount(json?.data?.user?.amount || 0)
+        } catch (err) {
+            console.log("error", JSON.stringify(err, undefined, 2));
+        }
+    };
+
     useEffect(() => {
         HandleGetTransactions();
+
     }, []);
 
+
+    useEffect(() => {
+        getBalance();
+    }, [isFocused]);
     const webViewRef = useRef<WebView>(null);
     const [currentUrl, setCurrentUrl] = useState('');
 
@@ -81,10 +136,10 @@ const Transactions = () => {
 
     useEffect(() => {
         console.log(currentUrl)
-        if(currentUrl.includes('thankyou/ok')){
+        if (currentUrl.includes('thankyou/ok')) {
             closeBottomSheet()
         }
-        if(currentUrl.includes('pricing/cmi')){
+        if (currentUrl.includes('pricing/cmi')) {
             console.log('sdf')
             bottomSheetModalRef.current?.snapToIndex(1);
         }
@@ -159,7 +214,7 @@ const Transactions = () => {
 
 
     return (
-        <GestureHandlerRootView >
+        <GestureHandlerRootView style={{ flex: 1 }}>
             <BottomSheetModalProvider>
                 <View style={{ flex: 1 }}>
                     <View style={{ width: WINDOW_WIDTH }} className=''>
@@ -179,7 +234,10 @@ const Transactions = () => {
                             </Text>
                             <ScrollView horizontal>
                                 <Text className='text-7xl font-bold text-white ' >
-                                    {formatNumberToFrenchStyle(3000, false)}
+                                    {
+                                        amount ? formatNumberToFrenchStyle(amount, false) :
+                                            '0'
+                                    }
                                 </Text>
                                 <Text className='text-xl self-end mb-3 font-bold text-white ' >
                                     {CURRENCY}
@@ -212,8 +270,9 @@ const Transactions = () => {
                 </View>
                 <BottomSheetModal
                     snapPoints={snapPoints}
-                    style={{}}
                     onChange={handleSheetChanges}
+                    activeOffsetY={100}
+                    index={0}
 
                     ref={bottomSheetModalRef}>
                     <Text className='text-lg font-bold text-center'>
@@ -229,14 +288,13 @@ const Transactions = () => {
                             <MaterialCommunityIcons name="close" color="black" size={30} />
                         </TouchableOpacity>
                     )}
-                    <View style={{ flex: 1 }}
-                        className=''>
-                        <WebView
-                            ref={webViewRef}
-                            onNavigationStateChange={handleNavigationStateChange}
-
-                            source={{ uri: "https://m3elem.vercel.app/en/pricing" }} />
-                    </View>
+                  
+                            <WebView
+                                ref={webViewRef}
+                                onNavigationStateChange={handleNavigationStateChange}
+                                source={{ uri: "https://m3elem.vercel.app/en/pricing" }} 
+                                containerStyle={{ flex: 1 }}
+                                />
                 </BottomSheetModal>
             </BottomSheetModalProvider>
         </GestureHandlerRootView >

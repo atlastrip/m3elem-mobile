@@ -264,7 +264,7 @@ const GroupeOrder = () => {
       }}
     />
     <Stack.Screen
-      name="OrderView"
+      name="OrderViewUser"
       component={OrderView}
       options={{
         headerShown: false,
@@ -457,7 +457,7 @@ function BottomTabNavigatorUser() {
 
 function RootNavigator() {
   useEffect(() => {
-    const handleDeepLink = (event) => {
+    const handleDeepLink = (event: any) => {
       const route = parseUrl(event.url);
       if (route) {
         navigationRef.current?.navigate(route.name, { id: route.params.id });
@@ -482,7 +482,7 @@ function RootNavigator() {
     };
   }, []);
 
-  const parseUrl = (url) => {
+  const parseUrl = (url: any) => {
     const regex = /https:\/\/m3elem.vercel.app\/en\/pro\/artisan\/(\w+)/;
     const match = url.match(regex);
     if (match && match[1]) {
@@ -648,6 +648,13 @@ function RootNavigator() {
                         }}
                       />
                       <Stack.Screen
+                        name="OrderViewUser"
+                        component={OrderView}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
+                      <Stack.Screen
                         name="ImagePreview"
                         component={ImagePreview}
                         options={{
@@ -800,9 +807,9 @@ export default function Navigation() {
     return null;
   }
 
-  
 
-  
+
+
 
   return (
     <PaperProvider>

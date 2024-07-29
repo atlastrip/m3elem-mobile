@@ -16,17 +16,14 @@ const SwiperComponent = ({ navigation }: any) => {
     const [showConfetti, setShowConfetti] = useState(false);
     const [leads, setLeads] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const [getLeadFromSwiper, setGetLeadFromSwiper] = useState<any>(null);
+    const [loadingUnlock, setLoadingUnlock] = useState(false);
 
 
     const isFocused = useIsFocused();
-
-    const getNextLead = async () => {
+    const HandleUnlock = async (id: any) => {
         const token = await getToken();
-        const user: any = await getUser();
-        // setUser(user);
-        console.log('====================================');
-        console.log('token', token);
-        console.log('====================================');
+
         if (!token) {
             return;
         }
@@ -36,6 +33,9 @@ const SwiperComponent = ({ navigation }: any) => {
 
 
         try {
+            setLoadingUnlock(true);
+            setShowConfetti(true);
+
             const res = await fetch(
                 Constants.expoConfig?.extra?.apiUrl as string,
                 {
@@ -43,27 +43,16 @@ const SwiperComponent = ({ navigation }: any) => {
                     headers,
                     body: JSON.stringify({
                         query: `
-                        
-                                mutation  getNextLead($id: String!,$direction: String!,$show:Boolean!){
-                                getNextLead(id: $id,direction: $direction,show: $show){
+                        mutation unlockLead($input: LeadUnlockInput) {
+                                unlockLead(input: $input) {
                                     id
-                                    title
-                                    description
-                                    status
-                                    images
-                                    owner{
-                                    id
-                                    }
-                                    location 
                                 }
-                                }
+                        }
 
                         `,
                         variables: {
                             input: {
-                                id: '1',
-                                direction: 'RIGHT',
-                                show: false
+                                id: id
                             }
                         }
 
@@ -72,14 +61,22 @@ const SwiperComponent = ({ navigation }: any) => {
             );
 
             const json = await res.json();
+            setShowConfetti(false);
+            setLoadingUnlock(false);
             console.log('====================================');
             console.log('json', json);
             console.log('====================================');
-            // await getLeads();
+            // go back to the previous screen
+            navigation.goBack();
         } catch (error: any) {
+            setShowConfetti(false);
+            setLoadingUnlock(false);
             return Alert.alert(error.message)
+
         }
     }
+
+
 
 
 
@@ -143,7 +140,18 @@ const SwiperComponent = ({ navigation }: any) => {
             );
 
             const json = await res.json();
-            setLeads(json.data.getLeadsThatMatchUserProfessionals || []);
+
+            setLeads(json.data.getLeadsThatMatchUserProfessionals.filter((lead: any) => {
+                let unlockedLeads = lead.artisantUnlockedLead.map((lead: any) => lead.id);
+                console.log('====================================');
+                console.log('unlockedLeads', unlockedLeads);
+                console.log('====================================');
+                if (unlockedLeads.includes(JSON.parse(user)?.id)) {
+                    return false
+                }
+                return true
+            }));
+
 
             setLoading(false);
         } catch (err: any) {
@@ -225,9 +233,10 @@ const SwiperComponent = ({ navigation }: any) => {
                 {
                     text: "OK",
 
-                    onPress: () => {
-                        setShowConfetti(true);
-                        setTimeout(() => setShowConfetti(false), 4000); // hide confetti after 3 seconds
+                    onPress: async () => {
+                        console.log('getLeadFromSwiper', getLeadFromSwiper);
+
+                        await HandleUnlock(getLeadFromSwiper.id)
                     }
                 }
             ]
@@ -244,6 +253,22 @@ const SwiperComponent = ({ navigation }: any) => {
     const [SelectedIndex, setSelectedIndex] = useState(0);
     const [SelectedCard, setSelectedCard] = useState(0);
 
+
+
+    if (loadingUnlock) {
+        return <View style={styles.container}>
+            <Text>
+                Unlocking lead...
+            </Text>
+        </View>
+    }
+
+
+    useEffect(() => {
+        if (leads.length > 0) {
+            setGetLeadFromSwiper(leads[0])
+        }
+    }, [leads]);
 
     return (
         <View style={styles.container}>
@@ -320,12 +345,20 @@ const SwiperComponent = ({ navigation }: any) => {
                         )}
 
                         onSwipedLeft={(cardIndex) => {
+                            console.log('====================================');
+                            console.log('swiped left', leads[cardIndex + 1]);
+                            setGetLeadFromSwiper(leads[cardIndex + 1])
+                            console.log('====================================');
                             setSelectedIndex(cardIndex)
-                            return (cardIndex + 1) === dummyOrders.length && navigation.goBack()
+                            return (cardIndex + 1) === leads.length && navigation.goBack()
                         }}
                         onSwipedRight={(cardIndex) => {
+                            console.log('====================================');
+                            console.log('swiped right', leads[cardIndex + 1]);
+                            setGetLeadFromSwiper(leads[cardIndex + 1])
+                            console.log('====================================');
                             setSelectedIndex(cardIndex)
-                            return (cardIndex + 1) === dummyOrders.length && navigation.goBack()
+                            return (cardIndex + 1) === leads.length && navigation.goBack()
                         }}
                         cardIndex={0}
                         backgroundColor={'transparent'}
@@ -343,7 +376,9 @@ const SwiperComponent = ({ navigation }: any) => {
                 <TouchableOpacity
                     className=' justify-center items-center'
                     style={{ width: 70, height: 70, borderRadius: 300, backgroundColor: COLORS.primary }}
-                    onPress={handleAlert}
+                    onPress={() => {
+                        handleAlert()
+                    }}
                 >
                     <MaterialCommunityIcons name="check" color="white" size={40} />
                 </TouchableOpacity>

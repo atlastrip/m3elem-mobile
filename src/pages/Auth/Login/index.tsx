@@ -48,7 +48,7 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
   const insets = useSafeAreaInsets();
 
   const [Loading, setLoading] = useState(false);
-  const [username, setUsername] = useState("elhanouniazeddine00@gmail.com");
+  const [username, setUsername] = useState("newAzeddine@gmail.com");
   const [password, setPassword] = useState("123");
   const [ShowPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();

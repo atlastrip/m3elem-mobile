@@ -26,6 +26,7 @@ import { ButtonPrimary } from "../../../components/index";
 import { AnimatePresence, Motion } from "@legendapp/motion";
 import { useFocusEffect } from "@react-navigation/native";
 import MapView, { Marker, Circle } from "react-native-maps";
+import * as ImagePicker from 'expo-image-picker';
 
 import LoadingPage from "@/components/Layout/LoadingPage";
 
@@ -100,7 +101,16 @@ const GestionDeCompte = ({
     );
 
   const pickImage = async () => {
-    // Logic to pick an image
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setProfilePhoto(result.assets[0].uri);
+    }
   };
 
   const pickPortfolioImages = async () => {

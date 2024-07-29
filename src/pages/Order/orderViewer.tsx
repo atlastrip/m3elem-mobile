@@ -13,10 +13,11 @@ import { Rating } from 'react-native-ratings';
 
 
 const OrderView = ({ route }: any) => {
-    const { order } = route.params;
+    const { order }: any = route.params;
     const insets = useSafeAreaInsets();
+    console.log('order', order);
 
-    const [reviews, setReviews]:any = useState([]); // Replace with actual reviews if available
+    const [reviews, setReviews]: any = useState([]); // Replace with actual reviews if available
     const [newReview, setNewReview] = useState({ user: '', comment: '', rating: '', professionId: '' });
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
@@ -45,20 +46,24 @@ const OrderView = ({ route }: any) => {
         <GestureHandlerRootView style={{ flex: 1 }}>
             <BottomSheetModalProvider>
                 <ScrollView style={[styles.container, { paddingTop: insets.top + 10 }]}>
-                    <Text style={styles.title}>Order #{order.id}</Text>
-                    <Text className='text-xl font-semibold'>{order.title}</Text>
-                    <Text className='text-lg'>{order.description}</Text>
+                    <View
+                        className='flex-row items-center gap-2'
+                    >
+                        <Text style={styles.title}>Order</Text>
+                        <Text className='text-xl font-semibold'>{order?.title}</Text>
+                    </View>
+                    <Text className='text-lg'>{order?.description}</Text>
 
                     <Text style={styles.title}>Professions</Text>
                     {order?.professionals?.map((profession: any, i: any) => (
                         <View key={i} style={styles.professionSection}>
-                            <Text style={styles.professionName}>{profession.name}</Text>
-                            <Text style={styles.professionText}>{profession.text}</Text>
+                            <Text style={styles.professionName}>{profession?.name}</Text>
+                            <Text style={styles.professionText}>{profession?.text}</Text>
 
                             {/* <Text style={styles.label}>Reviews:</Text> */}
                             {reviews
-                                .filter((review: any) => review.professionId === profession.id)
-                                .map((review:any) => (
+                                .filter((review: any) => review.professionId === profession?.id)
+                                .map((review: any) => (
                                     <View key={review.id} style={styles.reviewItem}>
                                         <Text style={styles.reviewUser}>{review.user}</Text>
                                         <Text style={styles.reviewComment}>{review.comment}</Text>
@@ -81,7 +86,7 @@ const OrderView = ({ route }: any) => {
                     </ScrollView>
 
                     <Text style={styles.label}>Location:</Text>
-                    {order.locationType === 'currentLocation' ? (
+                    {order?.locationType === 'currentLocation' ? (
                         <View style={{
                             height: 200,
                             borderWidth: 1,
@@ -93,12 +98,12 @@ const OrderView = ({ route }: any) => {
 
                             <MapView
                                 scrollEnabled={false}
-                                style={{ height: 200, width: "100%" }} initialRegion={{ latitude: order.locationDetails.latitude, longitude: order.locationDetails.longitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 }}>
-                                <Marker coordinate={{ latitude: order.locationDetails.latitude, longitude: order.locationDetails.longitude }} title="My Location" />
+                                style={{ height: 200, width: "100%" }} initialRegion={{ latitude: order?.locationDetails.latitude, longitude: order?.locationDetails.longitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 }}>
+                                <Marker coordinate={{ latitude: order?.locationDetails.latitude, longitude: order?.locationDetails.longitude }} title="My Location" />
                             </MapView>
                         </View>
                     ) : (
-                        <Text>Location Details: {order.locationDetails}</Text>
+                        <Text>Location Details: {order?.locationDetails}</Text>
                     )}
                     <ButtonPrimary className='mt-3' Loading={false} setLoading={() => { }} onPress={handlePresentModalPress} text="Add Review" />
                     <View className='my-20' />
@@ -118,7 +123,7 @@ const OrderView = ({ route }: any) => {
                                 <View>
                                     {order?.professions?.map((profession: any) => (
                                         <TouchableOpacity
-                                            onPress={() => setSelectedProfession(profession.text)}
+                                            onPress={() => setSelectedProfession(profession?.text)}
                                             className='flex-row justify-between items-center p-3 my-1 rounded-md bg-gray-100 '>
                                             <Text
                                                 className='text-lg font-bold'>
