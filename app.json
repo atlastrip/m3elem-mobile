@@ -86,10 +86,5 @@
       "currency": "mad"
     }
 
-  },
-  "deepLinking": {
-    "prefixes": [
-      "https://m3elem.vercel.app"
-    ]
   }
 }
