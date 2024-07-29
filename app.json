@@ -1,0 +1,95 @@
+{
+  "expo": {
+    "name": "Service Day",
+    "slug": "serviceday",
+    "version": "1.0.0",
+    "scheme": "com.serviceday.serviceday",
+    "plugins": [
+      "./react-native-maps-plugin.js",
+      "expo-apple-authentication",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
+          "isIosForegroundLocationEnabled": "Allow $(PRODUCT_NAME) to use your location",
+          "isAndroidForegroundLocationEnabled": "Allow $(PRODUCT_NAME) to use your location"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "expo-notifications": "Autorisez les notifications de m3elem."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ]
+    ],
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.soundly.soundvoyage",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "buildNumber": "1",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      },
+      "config": {
+        "googleMapsApiKey": "AIzaSyBbsVJHtVc2hdsc4tf2vl34q9zShB_-ZNA"
+      }
+    },
+    "android": {
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "googleServicesFile": "./google-services.json",
+      "package": "com.pantofit.pantofit",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAmaB15kxOfK3LJDTdwOcgS5c4M5IOWMWE"
+        }
+      },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiUrl": "http://192.168.1.101:4000/m3elem",
+      "country": "ma",
+      "currency": "mad"
+    }
+
+  },
+  "deepLinking": {
+    "prefixes": [
+      "https://m3elem.vercel.app"
+    ]
+  }
+}

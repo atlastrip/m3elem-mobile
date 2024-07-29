@@ -1,0 +1,15 @@
+overwrite: true
+watch: false
+schema: "https://m3elem-app-ecj9f.ondigitalocean.app/m3elem"
+documents: "**/*.gql"
+generates:
+  src/api/graphql/generated/index.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-apollo"
+    config:
+      exposeFetcher: true
+      exposeQueryKeys: true
+      fetcher:
+        func: "../fetcher#fetchData"
