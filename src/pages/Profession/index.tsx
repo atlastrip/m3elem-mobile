@@ -1,8 +1,8 @@
-import { useRoute } from '@react-navigation/native';
+import { useIsFocused, useRoute } from '@react-navigation/native';
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from 'react'
-import { Button, Image, Text, View } from 'react-native'
+import { Alert, Button, Image, Text, View } from 'react-native'
 import { ScrollView } from 'react-native';
 import window from "../../constants/Layout";
 import { TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
@@ -18,8 +18,8 @@ import ReviewModal from './rating';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
 import { isLogin } from 'store/User';
-import { services } from 'constants/data';
-
+import { getToken, getUser } from '@/helpers/getToken';
+import Constants from 'expo-constants';
 interface TAudio {
     id: string
     name: string
@@ -37,6 +37,9 @@ interface Review {
 
 const ProfessionPage = ({ navigation }: any) => {
     const { params }: any = useRoute();
+    const [Loading, setLoading] = useState(false);
+    const [services, setServices] = useState<any>([]);
+    const [artisants, setArtisants] = useState<any>([]);
     const profession = params?.profession;
     const dispatch = useDispatch();
     const handleLogout = () => {
@@ -94,7 +97,6 @@ const ProfessionPage = ({ navigation }: any) => {
             .then((response) => response.json())
             .then((result) => {
                 setLoadingComments(false)
-                console.log({ rev: result?.data?.AllAudioCommentsOfAudio })
                 return setReviews(result?.data?.AllAudioCommentsOfAudio || [])
             })
             .catch((error) => console.error(error));
@@ -110,6 +112,154 @@ const ProfessionPage = ({ navigation }: any) => {
             scrollToElement(scrollViewRef1, 1)
         }
     }, [SelectedProfession])
+
+
+
+
+
+    const getServices = async () => {
+
+        const token = await getToken();
+        const user: any = await getUser();
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            setLoading(true);
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                    query Professionals {
+                        Professionals{
+                          id
+                          text
+                          img
+                        }
+                      }
+
+                    `,
+
+                    }),
+                }
+            );
+
+            const json = await res.json();
+
+            setServices(json.data.Professionals);
+
+
+            setLoading(false);
+        } catch (err: any) {
+            setLoading(false);
+            Alert.alert("error", JSON.stringify(err.message, undefined, 2));
+            // Alert.alert(json?.detail);
+        }
+
+    }
+
+    const isFocused = useIsFocused();
+    const getArtisantsByProfession = async (professionId: string) => {
+        const token = await getToken();
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            setLoading(true);
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                    query getArtisantByProfessinalId($id:String){
+                            getArtisantByProfessinalId(id:$id){
+                                id
+                                firstName
+                                lastName
+                                imageProfile
+                                professionals{
+                                        id
+                                text
+                                img
+                                }
+                                phone
+                                images{
+                                id
+                                source
+                                }
+                                reviews{
+                                id
+                                reviewer{
+                                    id
+                                    firstName
+                                    lastName
+                                    imageProfile
+                                }
+                                owner{
+                                    id
+                                    firstName
+                                    lastName
+                                    imageProfile
+                                }
+                                description
+                                rating
+                                order{
+                                    id
+                                    title
+                                    professionals{
+                                    id
+                                    text
+                                    img
+                                    }
+                                }
+                                }
+                            }
+                            }
+
+                    `,
+                        variables: JSON.stringify({
+                            id: professionId
+                        }),
+
+                    }),
+                }
+            );
+
+            const json = await res.json();
+
+            setArtisants(json.data.getArtisantByProfessinalId);
+        } catch (err: any) {
+            setLoading(false);
+            Alert.alert("error", JSON.stringify(err.message, undefined, 2));
+            // Alert.alert(json?.detail);
+        }
+    }
+
+
+
+    useEffect(() => {
+        getServices();
+    }, []);
+
+
+
+    useEffect(() => {
+        if (SelectedProfession?.id) {
+            getArtisantsByProfession(SelectedProfession?.id);
+        }
+    }
+        , [SelectedProfession, isFocused]);
 
 
     return (
@@ -183,7 +333,7 @@ const ProfessionPage = ({ navigation }: any) => {
                     {/* <View className="flex flex-wrap flex-row -mx-2"> */}
                     <View className=' pt-6 pb-7 flex-row flex-wrap gap-3 items-center justify-center w-fit ' >
 
-                        {services?.sort((a, b) => a?.text.toLowerCase().localeCompare(b.text.toLowerCase()))?.map((e, i) => (
+                        {services?.sort((a: any, b: any) => a?.text.toLowerCase().localeCompare(b.text.toLowerCase()))?.map((e, i) => (
                             <TouchableOpacity
                                 onPress={() => setSelectedProfession({ name: e.text, img: e.img, id: e.id })}
                                 key={i}
@@ -191,10 +341,10 @@ const ProfessionPage = ({ navigation }: any) => {
                                 <View className='bg-gray-50 rounded-full items-center justify-center' style={{ width: window.width * .22, height: window.width * .22 }}>
                                     <Image style={{ width: window.width * .13, height: window.width * .13 }} source={{ uri: e.img }} />
                                 </View>
-                                <Text 
-                               style={{ flexWrap: 'wrap', width:window.width * .20  }}
-                                className={`text-sm flex-wrap text-primary-500 font-bold text-center`} >
-                                    {e.text}
+                                <Text
+                                    style={{ flexWrap: 'wrap', width: window.width * .20 }}
+                                    className={`text-sm flex-wrap text-primary-500 font-bold text-center break-words`} >
+                                    {e.text.length > 10 ? e.text.slice(0, 6) + "..." : e.text}
                                 </Text>
                             </TouchableOpacity>
                         ))}
@@ -202,10 +352,10 @@ const ProfessionPage = ({ navigation }: any) => {
                 </ScrollView>
                 <ScrollView className='' style={{ flex: 1, width: window.width, backgroundColor: 'white' }}>
 
-                    <ScrollView horizontal>
+                    {/* <ScrollView horizontal>
                         {Array(12).fill('').map((e, i) => (
                             <TouchableOpacity
-                            key={i}
+                                key={i}
                                 style={{ borderColor: COLORS.primary }}
                                 className='m-3 mx-1 p-2 border-2 rounded-full px-3 min-w-[90px]'>
                                 <Text className="text-center">
@@ -213,30 +363,53 @@ const ProfessionPage = ({ navigation }: any) => {
                                 </Text>
                             </TouchableOpacity>
                         ))}
-                    </ScrollView>
-                    <View className='px-3'>
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('ArtisanPage')}
-                            className="flex-row  items-center p-4 bg-white rounded-lg shadow-md my-2">
-                            <Image source={{ uri: SelectedProfession?.img }} className="w-16 h-16 rounded-full mr-4" />
-                            <View className="flex-1">
-                                <Text className="text-lg font-bold">{"name"}</Text>
-                                <Text className="text-gray-600">{"service"}</Text>
-                                <View className="flex-row items-center mt-1">
-                                    <Text className="text-blue-600 text-lg font-bold">{`$${"30"}`}</Text>
-                                </View>
-                                <View className="flex-row items-center mt-1">
-                                    <Text className="text-yellow-500 mr-1">
-                                        <Ionicons name="star" color="black" size={24} />
-                                    </Text>
-                                    <Text className="text-gray-600">{`${3} (${100} reviews)`}</Text>
-                                </View>
+                    </ScrollView> */}
+                    {
+
+                        artisants?.map((e: any, i: number) => (
+
+                            <View
+                                key={i}
+                                className='px-3'>
+                                <TouchableOpacity
+                                    onPress={() => navigation.navigate('ArtisanPage', {
+                                        artisan: e,
+                                        SelectedProfession
+                                    })}
+                                    className="flex-row  items-center p-4 bg-white rounded-lg shadow-md my-2">
+                                    <Image source={{ uri: SelectedProfession?.img }} className="w-16 h-16 rounded-full mr-4" />
+                                    <View className="flex-1">
+                                        <Text className="text-lg font-bold">
+                                            {
+                                                e.firstName + " " + e.lastName
+                                            }
+                                        </Text>
+                                        <Text className="text-gray-600">{
+                                            e.professionals.find((p: any) => p.id === SelectedProfession?.id)?.text
+                                        }</Text>
+                                        {/* <View className="flex-row items-center mt-1">
+                                            <Text className="text-blue-600 text-lg font-bold">{`$${"30"}`}</Text>
+                                        </View> */}
+                                        <View className="flex-row items-center mt-1">
+                                            {/* <Text className="text-yellow-500 mr-1">
+                                                <Ionicons name="star" color="black" size={24} />
+                                            </Text> */}
+                                            <Text className="text-gray-600">
+                                                
+                                                {` ${
+                                                    e?.reviews?.filter((review: any) => review?.order?.professionals[0].id === SelectedProfession?.id).length + ' reviews'
+
+                                                } reviews`}
+                                                </Text>
+                                        </View>
+                                    </View>
+                                    {/* <View>
+                                        <Text className="text-purple-600">🔖</Text>
+                                    </View> */}
+                                </TouchableOpacity>
                             </View>
-                            <View>
-                                <Text className="text-purple-600">🔖</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
+                        ))
+                    }
                 </ScrollView>
             </ScrollView>
 

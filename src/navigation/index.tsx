@@ -629,6 +629,13 @@ function RootNavigator() {
                           presentation: 'modal',
                         }}
                       />
+                      <Stack.Screen
+                        name="OrderViewUser"
+                        component={OrderView}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
                     </>
                   ) : (
                     <>
@@ -640,7 +647,22 @@ function RootNavigator() {
                         component={BottomTabNavigator}
                       />
                       <Stack.Screen
+                        name="MyLeads"
+                        component={MyLeads}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
+                      <Stack.Screen
                         name="OrderView"
+                        component={OrderViewerArtisan}
+                        options={{
+                          headerShown: false,
+                          presentation: 'modal',
+                        }}
+                      />
+                      <Stack.Screen
+                        name="OrderViewerArtisan"
                         component={OrderViewerArtisan}
                         options={{
                           headerShown: false,

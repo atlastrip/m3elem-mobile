@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Alert, Modal } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Animate from "react-native-reanimated"
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -7,6 +7,7 @@ import { COLORS } from 'constants/theme';
 import { getToken, getUser } from '@/helpers/getToken';
 import Constants from 'expo-constants';
 import { useIsFocused } from '@react-navigation/native';
+import MyQrCode from '@/pages/Auth/Artisan/Orders/MyQrCode';
 import QRCode from 'react-native-qrcode-svg';
 
 const dummyOrders = [
@@ -61,22 +62,12 @@ const dummyOrders = [
 ];
 
 
-const OrderListing = ({ navigation, setShowQr, setOrder }: any) => {
+const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
     const [loading, setLoading] = useState(false);
     const [leads, setLeads]: any = useState([]);
     const [unlocked, setUnlocked] = useState(false);
     const [user, setUser]: any = useState(null);
     const isFocused = useIsFocused();
-    // const {
-    //     data,
-    //     error,
-    //     loading,
-    //     fetchMore,
-    // } = useLeadsQuery({
-    //     fetchPolicy: 'network-only',
-    // })
-
-
 
 
 
@@ -103,8 +94,8 @@ const OrderListing = ({ navigation, setShowQr, setOrder }: any) => {
                     headers,
                     body: JSON.stringify({
                         query: `
-                        query getLeadsThatMatchUserProfessionals {
-                            getLeadsThatMatchUserProfessionals {
+                        query leads {
+                            leads {
                                     id
                                     title
                                     description
@@ -139,7 +130,7 @@ const OrderListing = ({ navigation, setShowQr, setOrder }: any) => {
             );
 
             const json = await res.json();
-            setLeads(json.data.getLeadsThatMatchUserProfessionals || []);
+            setLeads(json.data.leads || []);
 
             setLoading(false);
         } catch (err: any) {
@@ -247,61 +238,19 @@ const OrderListing = ({ navigation, setShowQr, setOrder }: any) => {
                         <LocationView order={order} />
                     </TouchableOpacity>
 
-                    {
 
-                        order?.artisantUnlockedLead.map((e: any) => e?.id)?.includes(JSON.parse(user)?.id)
-                            ? <>
-                                <TouchableOpacity
-                                    onPress={() => navigation.navigate('OrderView', { order, user: user })}
-                                    className='w-[100%] mt-1 items-center py-2 '
-                                >
-                                    <MaterialCommunityIcons name="eye" color="purple" size={28} />
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('OrderViewUser', { order, user: user })}
+                        className='w-[100%] mt-1 items-center py-2 '
+                    >
+                        <MaterialCommunityIcons name="eye" color="purple" size={28} />
 
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        setOrder(order);
-                                        setShowQr(true);
-                                    }}
-                                    className="items-center mb-4">
-                                    <QRCode value={
-                                        JSON.stringify({
-                                            id: order?.id,
-                                            reviewer: "",
-                                            description: "",
-                                        })
-                                    }
-                                        size={40}
-                                    />
-                                </TouchableOpacity>
-                            </>
-                            :
-                            <View className='border-t-2 flex-row border-gray-100' >
-                                {/* onPress={() => navigation.navigate('OrderView', { order })}  */}
-                                <TouchableOpacity className='w-1/3 mt-1 items-center border-r-2 py-2 border-gray-100'
-                                >
-                                    <MaterialCommunityIcons name="close" color="red" size={28} />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        HandleUnlock(order?.id)
-                                    }}
-
-                                    className='w-1/3 mt-1 items-center border-r-2 py-2 border-gray-100'
-                                >
-                                    <MaterialCommunityIcons name="check" color="green" size={28} />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => navigation.navigate('OrderView', { order })}
-                                    className='w-1/3 mt-1 items-center py-2 '
-                                >
-                                    <MaterialCommunityIcons name="eye" color="purple" size={28} />
+                    </TouchableOpacity>
+                    
 
 
-                                </TouchableOpacity>
 
-                            </View>
-                    }
+
                 </View>
             ))}
         </ScrollView>
@@ -398,4 +347,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default OrderListing;
+export default UserOrderListing;

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useRef, useMemo, useCallback } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, TextInput, Button } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, TextInput, Button, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
@@ -9,11 +9,12 @@ import Animate from "react-native-reanimated"
 import { ButtonPrimary } from '@/components/index';
 import MapView, { Marker } from 'react-native-maps';
 import { Rating } from 'react-native-ratings';
+import { getToken } from '@/helpers/getToken';
+import Constants from 'expo-constants';
 
 
-
-const OrderView = ({ route }: any) => {
-    const { order }: any = route.params;
+const OrderView = ({ route,navigation }: any) => {
+    const { order, user }: any = route.params;
     const insets = useSafeAreaInsets();
     console.log('order', order);
 
@@ -28,13 +29,60 @@ const OrderView = ({ route }: any) => {
         bottomSheetModalRef.current?.present();
     }, []);
 
-    const handleAddReview = () => {
-        // Add the new review to the reviews list for the selected professional
-        setReviews([...reviews, { ...newReview, id: reviews.length + 1 }]);
-        // Close the bottom sheet
-        bottomSheetModalRef.current?.dismiss();
-        // Reset the review form
-        setNewReview({ user: '', comment: '', rating: '', professionId: '' });
+    const handleAddReview = async () => {
+
+
+        const token = await getToken();
+        console.log('====================================');
+        console.log('token', token);
+        console.log('====================================');
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                        mutation createReview($input: inputReview) {
+                            createReview(input: $input) {
+                                id
+                            }
+                        }
+                        `,
+                        variables: {
+                            input: {
+                                reviewer: user?.id,
+                                description: newReview.comment,
+                                rating: `${rating}`,
+                                order: order?.id,
+                            }
+                        }
+                    }),
+                }
+            );
+
+            const json = await res.json();
+            console.log('====================================');
+            console.log('json.data', json);
+            console.log('====================================');
+            navigation.goBack();
+            // setLeads(json.data.getLeadsThatMatchUserProfessionals || []);
+
+        } catch (err: any) {
+            Alert.alert("error", JSON.stringify(err.message, undefined, 2));
+            // Alert.alert(json?.detail);
+        }
+
+
+
+
     };
     const [SelectedProfession, setSelectedProfession] = useState<any>(null);
     const [rating, setRating] = useState<number>(3);
@@ -42,6 +90,11 @@ const OrderView = ({ route }: any) => {
     const handleRating = (newRating: number) => {
         setRating(newRating);
     };
+
+
+    console.log('rating', rating);
+
+
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <BottomSheetModalProvider>
@@ -121,13 +174,14 @@ const OrderView = ({ route }: any) => {
                             <View>
                                 <Text style={styles.label}>Select Professional:</Text>
                                 <View>
-                                    {order?.professions?.map((profession: any) => (
+                                    {order?.professionals?.map((profession: any) => (
                                         <TouchableOpacity
+                                            key={profession?.id}
                                             onPress={() => setSelectedProfession(profession?.text)}
                                             className='flex-row justify-between items-center p-3 my-1 rounded-md bg-gray-100 '>
                                             <Text
                                                 className='text-lg font-bold'>
-                                                {profession?.name}
+                                                {profession?.text}
                                             </Text>
                                             <Ionicons name="chevron-forward" size={20} />
 

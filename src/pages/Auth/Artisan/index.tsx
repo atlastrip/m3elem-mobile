@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
-import { Dimensions, Image, ScrollView, Switch, TouchableOpacity, View } from 'react-native'
+import { Button, Dimensions, Image, Modal, ScrollView, Switch, TouchableOpacity, View } from 'react-native'
 import { Text } from 'react-native'
-import { FontAwesome, MaterialCommunityIcons , MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SHADOWS } from 'constants/theme';
 import { Motion } from '@legendapp/motion';
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '@gorhom/bottom-sheet';
 import Constants from 'expo-constants';
-import ScrollingText from '@/components/ScrollText/indeX';
+import { BarCodeScanner } from 'expo-barcode-scanner';
 
 
 const ArtisanHomePage = ({ navigation }: any) => {
@@ -17,6 +17,34 @@ const ArtisanHomePage = ({ navigation }: any) => {
     const toggleSwitch = () => setIsEnabled(v => !v);
     const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
     const WINDOW_WIDTH = Dimensions.get('window').width;
+    const [showQr, setShowQr] = React.useState(false);
+    const [order, setOrder] = React.useState(null);
+    const [hasPermission, setHasPermission] = React.useState(null);
+    const [scanned, setScanned] = React.useState(false);
+
+    React.useEffect(() => {
+        (async () => {
+            const { status }: any = await BarCodeScanner.requestPermissionsAsync();
+            setHasPermission(status === 'granted');
+        })();
+    }, []);
+
+    const handleBarCodeScanned = ({ type, data }: any) => {
+        setScanned(true);
+        setShowQr(false);
+        const scannedData = JSON.parse(data);
+        console.log(scannedData);
+        
+        navigation.navigate('OrderViewUser', { order: scannedData.order, user: scannedData.user });
+    };
+
+    if (hasPermission === null) {
+        return <Text>Requesting for camera permission</Text>;
+    }
+    if (hasPermission === false) {
+        return <Text>No access to camera</Text>;
+    }
+
 
     return (
         <ScrollView style={{ flex: 1 }}>
@@ -88,7 +116,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
                                     end={[1, 1]}
                                     className="p-4 rounded-2xl flex justify-between"
                                 >
-                                     <MaterialIcons name="money" color="white" size={38} />
+                                    <MaterialIcons name="money" color="white" size={38} />
                                     <Text className="text-white mt-8 font-bold text-xl">Balance and transactions</Text>
                                 </LinearGradient>
                             </TouchableOpacity>
@@ -134,9 +162,49 @@ const ArtisanHomePage = ({ navigation }: any) => {
                                     <Text className="text-white mt-8 font-bold text-xl">Profile</Text>
                                 </LinearGradient>
                             </TouchableOpacity>
+
+
                         </View>
+                        <TouchableOpacity
+                            onPress={() => setShowQr(true)}
+                            className="flex-1 ml-2">
+                            <LinearGradient
+                                colors={['#f44336', '#e57373']}
+                                start={[0, 0]}
+                                end={[1, 1]}
+                                className="p-4 rounded-2xl flex justify-between"
+                            >
+                                <MaterialCommunityIcons name="account-outline" size={38} color="white" />
+                                <Text className="text-white mt-8 font-bold text-xl">QrCode Scanner</Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
                     </View>
                 </View>
+                {showQr && (
+                    <Modal
+                        visible={showQr}
+                        transparent={true}
+                        onRequestClose={() => setShowQr(false)}
+                        animationType="slide"
+                        
+                    >
+                        <View
+                        className='flex-1 justify-center items-center  p-4 flex-row '
+                        >
+                            <BarCodeScanner
+                                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+                                style={{
+                                    flex: 1,
+                                    height: WINDOW_HEIGHT - 100,
+                                    }}
+                            />
+                            {scanned && (
+                                <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />
+                            )}
+                        </View>
+                    </Modal>
+                )}
+
             </View>
         </ScrollView>
     )

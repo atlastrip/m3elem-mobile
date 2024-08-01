@@ -2,14 +2,19 @@
 
 import { COLORS } from 'constants/theme';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, RefreshControl, Alert, Modal, Button as ButtonReactNative } from 'react-native';
 import { Avatar, Button, Card } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
 import { Ionicons } from "@expo/vector-icons";
 import window from "../../constants/Layout";
 import { TextInput } from 'react-native';
-import { services } from 'constants/data';
+import { getToken, getUser } from '@/helpers/getToken';
+import Constants from 'expo-constants';
+import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { BarCodeScanner } from 'expo-barcode-scanner';
+import { WINDOW_HEIGHT } from '@gorhom/bottom-sheet';
 
 export interface Audio {
   id: string
@@ -52,7 +57,7 @@ export const Images = ({ images }: { images: string[] }) => {
 
 export default function HomeScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
-
+  const [services, setServices] = useState<any[]>([]);
   const [SelectedCategory, setSelectedCategory] = useState("Popular");
   const images: any = {
     Popular: require('./images/morocco.png'),
@@ -122,6 +127,94 @@ export default function HomeScreen({ navigation }: any) {
     const cityDataArray = Array.from(cityMap.values());
 
     return cityDataArray;
+  }
+
+
+  const getServices = async () => {
+
+    const token = await getToken();
+    const user: any = await getUser();
+    // setUser(user);
+    console.log('====================================');
+    console.log('token', token);
+    console.log('====================================');
+    if (!token) {
+      return;
+    }
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    headers.append("Authorization", `Bearer ${token}`);
+    try {
+      setLoading(true);
+      const res = await fetch(
+        Constants.expoConfig?.extra?.apiUrl as string,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            query: `
+                    query Professionals {
+                        Professionals{
+                          id
+                          text
+                          img
+                        }
+                      }
+
+                    `,
+
+          }),
+        }
+      );
+
+      const json = await res.json();
+
+      setServices(json.data.Professionals);
+
+
+      setLoading(false);
+    } catch (err: any) {
+      setLoading(false);
+      Alert.alert("error", JSON.stringify(err.message, undefined, 2));
+      // Alert.alert(json?.detail);
+    }
+
+  }
+
+
+
+  useEffect(() => {
+    getServices();
+  }, []);
+
+
+
+  const [showQr, setShowQr] = React.useState(false);
+  const [order, setOrder] = React.useState(null);
+  const [hasPermission, setHasPermission] = React.useState(null);
+  const [scanned, setScanned] = React.useState(false);
+
+  React.useEffect(() => {
+    (async () => {
+      const { status }: any = await BarCodeScanner.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
+
+  const handleBarCodeScanned = ({ type, data }: any) => {
+    setScanned(true);
+    setShowQr(false);
+    const scannedData = JSON.parse(data);
+    console.log(scannedData);
+
+    navigation.navigate('OrderViewUser', { order: scannedData.order, user: scannedData.user });
+  };
+
+  if (hasPermission === null) {
+    return <Text>Requesting for camera permission</Text>;
+  }
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
   }
 
   return (
@@ -248,11 +341,50 @@ export default function HomeScreen({ navigation }: any) {
           </View>
         </View>
       </View>
-      <ScrollView horizontal className='p-3 pb-7' >
 
+      <View
+      className='px-1 mt-6'
+      >
+        <TouchableOpacity
+          onPress={() => setShowQr(true)}
+          className="flex-1 ml-2">
+          <LinearGradient
+            colors={['#f44336', '#e57373']}
+            start={[0, 0]}
+            end={[1, 1]}
+            className="p-4 rounded-2xl flex justify-between"
+          >
+            <MaterialCommunityIcons name="account-outline" size={38} color="white" />
+            <Text className="text-white mt-8 font-bold text-xl">QrCode Scanner</Text>
+          </LinearGradient>
+        </TouchableOpacity>
 
-      </ScrollView>
+      </View>
 
+      {showQr && (
+        <Modal
+          visible={showQr}
+          transparent={true}
+          onRequestClose={() => setShowQr(false)}
+          animationType="slide"
+
+        >
+          <View
+            className='flex-1 justify-center items-center  p-4 flex-row '
+          >
+            <BarCodeScanner
+              onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+              style={{
+                flex: 1,
+                height: WINDOW_HEIGHT - 100,
+              }}
+            />
+            {scanned && (
+              <ButtonReactNative title={'Tap to Scan Again'} onPress={() => setScanned(false)} />
+            )}
+          </View>
+        </Modal>
+      )}
 
 
       <View style={{ height: insets.top + 10 }} />
