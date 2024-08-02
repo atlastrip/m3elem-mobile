@@ -41,7 +41,7 @@ const ArtisanPage: React.FC = ({ route }: any) => {
 
     const { artisan, SelectedProfession } = route.params;
     console.log('SelectedProfession', SelectedProfession);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 

@@ -456,31 +456,7 @@ function BottomTabNavigatorUser() {
 }
 
 function RootNavigator() {
-  useEffect(() => {
-    const handleDeepLink = (event: any) => {
-      const route = parseUrl(event.url);
-      if (route) {
-        navigationRef.current?.navigate(route.name, { id: route.params.id });
-      }
-    };
-
-    const getInitialUrl = async () => {
-      const initialUrl = await Linking.getInitialURL();
-      if (initialUrl) {
-        const route = parseUrl(initialUrl);
-        if (route) {
-          navigationRef.current?.navigate(route.name, { id: route.params.id });
-        }
-      }
-    };
-
-    getInitialUrl();
-    Linking.addEventListener('url', handleDeepLink);
-
-    return () => {
-      Linking.removeEventListener('url', handleDeepLink);
-    };
-  }, []);
+ 
 
   const parseUrl = (url: any) => {
     const regex = /https:\/\/m3elem.vercel.app\/en\/pro\/artisan\/(\w+)/;

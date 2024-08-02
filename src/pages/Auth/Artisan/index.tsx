@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Button, Dimensions, Image, Modal, ScrollView, Switch, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { Alert, Button, Dimensions, Image, Modal, ScrollView, Switch, TouchableOpacity, View } from 'react-native'
 import { Text } from 'react-native'
 import { FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,20 +9,117 @@ import { Motion } from '@legendapp/motion';
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '@gorhom/bottom-sheet';
 import Constants from 'expo-constants';
 import { BarCodeScanner } from 'expo-barcode-scanner';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getToken, getUser } from '@/helpers/getToken';
+import { useIsFocused } from '@react-navigation/native';
 
 
 const ArtisanHomePage = ({ navigation }: any) => {
     const insets = useSafeAreaInsets();
+    const IsFocused = useIsFocused();
+
     const [isEnabled, setIsEnabled] = useState(false);
-    const toggleSwitch = () => setIsEnabled(v => !v);
+    // const toggleSwitch = () => setIsEnabled(v => !v);
     const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
+    const [available, setAvailable] = useState(false);
     const WINDOW_WIDTH = Dimensions.get('window').width;
     const [showQr, setShowQr] = React.useState(false);
     const [order, setOrder] = React.useState(null);
     const [hasPermission, setHasPermission] = React.useState(null);
     const [scanned, setScanned] = React.useState(false);
 
-    React.useEffect(() => {
+
+
+    const EditUser = async () => {
+
+        // setIsEnabled(v => !v);
+
+        const token = await getToken();
+        const user: any = await getUser();
+
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                            mutation updateUser($input: inputUpdateUser) {
+                                updateUser(input: $input){
+                                    id
+                                    available
+                                }
+                            }
+                        `,
+                        variables: {
+                            "input": {
+                                id: JSON.parse(user)?.id,
+                                available: !isEnabled
+                            }
+                        }
+                    }),
+                }
+            );
+
+            const json = await res.json();
+            
+            await getInfo();
+
+        } catch (err1) {
+            Alert.alert("Erreur", "Une erreur est servenue lors de modification de votre compte.");
+        }
+    };
+
+
+    const getInfo = async () => {
+        const token = await getToken();
+        const user: any = await getUser();
+
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                            query user {
+                                user{
+                                    id
+                                    available
+                                }
+                            }
+                        `,
+                    }),
+                }
+            );
+
+            const json = await res.json();
+            setIsEnabled(json?.data?.user?.available);
+
+        } catch (err1) {
+            Alert.alert("Erreur", "Une erreur est servenue lors de modification de votre compte.");
+        }
+    }
+
+
+
+    useEffect(() => {
+        getInfo()
+    }, [IsFocused])
+
+
+    useEffect(() => {
         (async () => {
             const { status }: any = await BarCodeScanner.requestPermissionsAsync();
             setHasPermission(status === 'granted');
@@ -34,7 +131,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
         setShowQr(false);
         const scannedData = JSON.parse(data);
         console.log(scannedData);
-        
+
         navigation.navigate('OrderViewUser', { order: scannedData.order, user: scannedData.user });
     };
 
@@ -44,6 +141,9 @@ const ArtisanHomePage = ({ navigation }: any) => {
     if (hasPermission === false) {
         return <Text>No access to camera</Text>;
     }
+
+
+
 
 
     return (
@@ -71,7 +171,11 @@ const ArtisanHomePage = ({ navigation }: any) => {
                             trackColor={{ false: "#767577", true: "white" }}
                             thumbColor={isEnabled ? COLORS.primary : "#f4f3f4"}
                             ios_backgroundColor="#fef"
-                            onValueChange={toggleSwitch}
+                            onValueChange={
+                                () => {
+                                    EditUser();
+                                }
+                            }
                             value={isEnabled}
                         />
                     </Motion.View>
@@ -186,17 +290,17 @@ const ArtisanHomePage = ({ navigation }: any) => {
                         transparent={true}
                         onRequestClose={() => setShowQr(false)}
                         animationType="slide"
-                        
+
                     >
                         <View
-                        className='flex-1 justify-center items-center  p-4 flex-row '
+                            className='flex-1 justify-center items-center  p-4 flex-row '
                         >
                             <BarCodeScanner
                                 onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
                                 style={{
                                     flex: 1,
                                     height: WINDOW_HEIGHT - 100,
-                                    }}
+                                }}
                             />
                             {scanned && (
                                 <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />

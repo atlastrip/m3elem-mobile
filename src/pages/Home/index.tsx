@@ -204,10 +204,12 @@ export default function HomeScreen({ navigation }: any) {
   const handleBarCodeScanned = ({ type, data }: any) => {
     setScanned(true);
     setShowQr(false);
-    const scannedData = JSON.parse(data);
+    const scannedData = JSON.parse(data)
     console.log(scannedData);
 
+
     navigation.navigate('OrderViewUser', { order: scannedData.order, user: scannedData.user });
+
   };
 
   if (hasPermission === null) {
@@ -343,7 +345,7 @@ export default function HomeScreen({ navigation }: any) {
       </View>
 
       <View
-      className='px-1 mt-6'
+        className='px-1 mt-6'
       >
         <TouchableOpacity
           onPress={() => setShowQr(true)}
@@ -370,7 +372,7 @@ export default function HomeScreen({ navigation }: any) {
 
         >
           <View
-            className='flex-1 justify-center items-center  p-4 flex-row '
+            className='flex-1 relative  justify-center items-center  p-4 flex-row '
           >
             <BarCodeScanner
               onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
@@ -379,7 +381,9 @@ export default function HomeScreen({ navigation }: any) {
                 height: WINDOW_HEIGHT - 100,
               }}
             />
+
             {scanned && (
+
               <ButtonReactNative title={'Tap to Scan Again'} onPress={() => setScanned(false)} />
             )}
           </View>

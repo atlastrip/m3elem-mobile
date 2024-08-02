@@ -356,7 +356,7 @@ export default function Order({ route, navigation }: any) {
             console.log('====================================');
             console.log('uploadedImages', uploadedImages);
             console.log('====================================');
-            console.log('Constants.expoConfig?.extra?.apiUrl', Constants.expoConfig?.extra?.apiUrl);
+
 
             const res = await fetch(
                 Constants.expoConfig?.extra?.apiUrl as string,
@@ -378,7 +378,8 @@ export default function Order({ route, navigation }: any) {
                                 images: uploadedImages,
                                 location: zipCode || address || JSON.stringify(currentLocation),
                                 status: "NEW",
-                                professionals: professions.map((service: any) => service.id)
+                                professionals: professions.map((service: any) => service.id),
+                                locationType: locationMethod,
                             },
                         },
 
@@ -706,6 +707,7 @@ export default function Order({ route, navigation }: any) {
                                         className={`w-1/2 p-1 min-w-[100px]`}
                                         onPress={() => {
                                             setProfessions([e])
+                                            bottomSheetModalRef.current?.close()
 
                                         }}
                                     >

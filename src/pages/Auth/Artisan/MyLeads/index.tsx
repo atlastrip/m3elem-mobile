@@ -150,7 +150,7 @@ const MyLeads = ({ navigation }: any) => {
   const [user, setUser] = useState<any>();
   const [show, setShow] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState('');
-
+  const [selectedOrder, setSelectedOrder] = useState<any>();
 
   const scrollToElement = (scrollViewRef: any, elementIndex: number) => {
     if (scrollViewRef.current) {
@@ -199,9 +199,7 @@ const MyLeads = ({ navigation }: any) => {
     const token = await getToken();
     const user: any = await getUser();
     // setUser(user);
-    console.log('====================================');
-    console.log('token', token);
-    console.log('====================================');
+
     if (!token) {
       return;
     }
@@ -235,7 +233,6 @@ const MyLeads = ({ navigation }: any) => {
       const json = await res.json();
       await getDirectedLeads();
 
-      console.log('json', json);
 
     } catch (err: any) {
       Alert.alert("error", JSON.stringify(err.message, undefined, 2));
@@ -249,9 +246,7 @@ const MyLeads = ({ navigation }: any) => {
     const token = await getToken();
     const user: any = await getUser();
     // setUser(user);
-    console.log('====================================');
-    console.log('token', token);
-    console.log('====================================');
+
     if (!token) {
       return;
     }
@@ -274,6 +269,7 @@ const MyLeads = ({ navigation }: any) => {
                                 description
                                 status
                                 images
+                                locationType
                                 owner {
                                 id
                                 leads {
@@ -291,6 +287,9 @@ const MyLeads = ({ navigation }: any) => {
                                 }
                                 artisantUnlockedLead {
                                 id
+                                  firstName
+                                  lastName
+                                  imageProfile
                                 }
                                 location
                             }
@@ -316,14 +315,17 @@ const MyLeads = ({ navigation }: any) => {
   }
 
 
+
+  console.log('====================================');
+  console.log('leads', leads);
+  console.log('====================================');
+
   const getDirectedLeads = async () => {
 
     const token = await getToken();
     const user: any = await getUser();
     // setUser(user);
-    console.log('====================================');
-    console.log('token', token);
-    console.log('====================================');
+
     if (!token) {
       return;
     }
@@ -344,6 +346,7 @@ const MyLeads = ({ navigation }: any) => {
                             id
                             title
                             status
+                            locationType
                             owner{
                               id
                               firstName
@@ -371,7 +374,6 @@ const MyLeads = ({ navigation }: any) => {
 
       const json = await res.json();
 
-      console.log('json?.data?.getDirectedLeads', json?.data?.getDirectedLeads);
 
       setDirectLeads(json?.data?.getDirectedLeads?.map((lead: any) => {
         return {
@@ -519,7 +521,7 @@ const MyLeads = ({ navigation }: any) => {
 
                   <View className='border-t-2 border-gray-100 py-1 mt-1  flex-row' >
                     <View className='w-1/2 border-r-2 border-gray-100' >
-                      <Text className='text-center text-lg'>
+                      <Text className='text-center text-base'>
 
                         {
                           formatDateToReadable(order?.user?.createdAt)
@@ -531,6 +533,7 @@ const MyLeads = ({ navigation }: any) => {
 
                         <TouchableOpacity onPress={() => {
                           // if (order?.user?.isDone === 'PENDING') return;
+                          setSelectedOrder(order?.user)
                           setShow(true)
                           // handleDone(order?.user)
                         }}>
@@ -543,6 +546,8 @@ const MyLeads = ({ navigation }: any) => {
                           <TouchableOpacity onPress={() => {
                             // if (order?.user?.isDone === 'SCAM') return;
                             // handleDone(order?.user)
+                            setSelectedOrder(order?.user)
+
                             setShow(true)
                           }}>
                             <Text
@@ -556,6 +561,8 @@ const MyLeads = ({ navigation }: any) => {
                             <TouchableOpacity onPress={() => {
                               // if (order?.user?.isDone === 'REJECTED') return;
                               // handleDone(order?.user)
+                              setSelectedOrder(order?.user)
+
                               setShow(true)
                             }}>
                               <Text className='text-right text-gray-500 text-lg'>
@@ -566,6 +573,8 @@ const MyLeads = ({ navigation }: any) => {
                             <TouchableOpacity onPress={() => {
                               // if (order?.user?.isDone === 'ACCEPTED') return;
                               // handleDone(order?.user)
+                              setSelectedOrder(order?.user)
+
                               setShow(true)
                             }}>
                               <Text className='text-right text-green-500 text-lg'>
@@ -577,12 +586,7 @@ const MyLeads = ({ navigation }: any) => {
                       )}
 
                     </View>
-                    <StatusModal visible={show} onClose={() => {
-                      setShow(false)
-                    }}
-                      order={order?.user}
-                      updateDirectLead={updateDirectLead}
-                      onSelectStatus={setSelectedStatus} />
+
 
                   </View>
                 </View>
@@ -591,6 +595,17 @@ const MyLeads = ({ navigation }: any) => {
 
             </View>
           </View>
+          {
+            selectedOrder && (
+
+              <StatusModal visible={show} onClose={() => {
+                setShow(false)
+              }}
+                order={selectedOrder}
+                updateDirectLead={updateDirectLead}
+                onSelectStatus={setSelectedStatus} />
+            )
+          }
         </ScrollView>
 
         <View

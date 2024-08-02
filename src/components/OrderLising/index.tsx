@@ -110,6 +110,7 @@ const OrderListing = ({ navigation, setShowQr, setOrder }: any) => {
                                     description
                                     status
                                     images
+                                    locationType
                                     owner {
                                     id
                                     leads {
@@ -127,6 +128,9 @@ const OrderListing = ({ navigation, setShowQr, setOrder }: any) => {
                                     }
                                     artisantUnlockedLead {
                                     id
+                                    firstName
+                                    lastName
+                                    imageProfile
                                     }
                                     location
                                 }
@@ -243,7 +247,7 @@ const OrderListing = ({ navigation, setShowQr, setOrder }: any) => {
                                     key={index + Math.random()} source={{ uri: image }} style={styles.image} />
                             ))}
                         </ScrollView>
-                        <Text style={styles.label}>Location:</Text>
+                        <Text style={styles.label}>Location</Text>
                         <LocationView order={order} />
                     </TouchableOpacity>
 
@@ -310,11 +314,11 @@ const OrderListing = ({ navigation, setShowQr, setOrder }: any) => {
 
 export const LocationView = ({ order, navigation = null }: any) => {
     if (order?.locationType === 'address') {
-        return <Text style={styles.locationDetail}>Address: {order?.locationDetails}</Text>;
+        return <Text style={styles?.locationDetail}>Address: {order?.location}</Text>;
     } else if (order?.locationType === 'zipCode') {
-        return <Text style={styles.locationDetail}>Zip Code: {order?.locationDetails}</Text>;
+        return <Text style={styles?.locationDetail}>Zip Code: {order?.location}</Text>;
     } else if (order?.locationType === 'currentLocation') {
-        const { latitude, longitude } = order?.locationDetails;
+        const { latitude, longitude } = JSON.parse(order?.location);
         return (
             <TouchableOpacity
                 onPress={navigation ? () => navigation.navigate('MapViewArtisan', { marker: { latitude, longitude } }) : () => { }}

@@ -24,7 +24,7 @@ const dummyOrders = [
             "https://m3elem.vercel.app/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fgeometric_painted_walls.37658c7c.jpg&w=750&q=75"
         ],
         locationType: 'address',
-        locationDetails: '123 Main St, Springfield',
+        location: '123 Main St, Springfield',
     },
     {
         id: 2,
@@ -38,7 +38,7 @@ const dummyOrders = [
             // 'https://example.com/image4.jpg',
         ],
         locationType: 'zipCode',
-        locationDetails: '90210',
+        location: '90210',
     },
     {
         id: 3,
@@ -54,7 +54,7 @@ const dummyOrders = [
             "https://i-dj.unimedias.fr/2023/09/12/djadechet-vert-tailleas-650022e24b664.jpg?auto=format%2Ccompress&crop=faces&cs=tinysrgb&fit=max&w=1050"
         ],
         locationType: 'currentLocation',
-        locationDetails: {
+        location: {
             latitude: 37.7749,
             longitude: -122.4194,
         },
@@ -101,11 +101,13 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
                                     description
                                     status
                                     images
+                                    locationType
                                     owner {
                                     id
                                     leads {
                                         id
                                     }
+                                    
                                     firstName
                                     lastName
                                     phone
@@ -117,7 +119,10 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
                                     img
                                     }
                                     artisantUnlockedLead {
-                                    id
+                                        id
+                                    firstName
+                                      lastName
+                                      imageProfile
                                     }
                                     location
                                 }
@@ -130,6 +135,8 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
             );
 
             const json = await res.json();
+            console.log('json', json);
+            
             setLeads(json.data.leads || []);
 
             setLoading(false);
@@ -244,7 +251,6 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
                         className='w-[100%] mt-1 items-center py-2 '
                     >
                         <MaterialCommunityIcons name="eye" color="purple" size={28} />
-
                     </TouchableOpacity>
                     
 
@@ -258,18 +264,19 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
 };
 
 export const LocationView = ({ order, navigation = null }: any) => {
-    if (order?.locationType === 'address') {
-        return <Text style={styles.locationDetail}>Address: {order?.locationDetails}</Text>;
-    } else if (order?.locationType === 'zipCode') {
-        return <Text style={styles.locationDetail}>Zip Code: {order?.locationDetails}</Text>;
-    } else if (order?.locationType === 'currentLocation') {
-        const { latitude, longitude } = order?.locationDetails;
+
+    if (order?.locationType == 'address') {
+        return <Text style={styles?.locationDetail}>Address: {order?.location}</Text>;
+    } else if (order?.locationType == 'zipCode') {
+        return <Text style={styles?.locationDetail}>Zip Code: {order?.location}</Text>;
+    } else if (order?.locationType == 'currentLocation') {
+        const { latitude, longitude } = JSON.parse(order?.location);
         return (
             <TouchableOpacity
                 onPress={navigation ? () => navigation.navigate('MapViewArtisan', { marker: { latitude, longitude } }) : () => { }}
             >
                 <MapView
-                    style={styles.map}
+                    style={styles?.map}
                     scrollEnabled={false}
                     initialRegion={{
                         latitude: latitude,
@@ -283,7 +290,7 @@ export const LocationView = ({ order, navigation = null }: any) => {
             </TouchableOpacity>
         );
     } else {
-        return <Text style={styles.locationDetail}>Unknown location type</Text>;
+        return <Text style={styles?.locationDetail}>Unknown location type</Text>;
     }
 };
 
