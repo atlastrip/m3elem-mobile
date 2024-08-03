@@ -176,15 +176,10 @@ const ArtisanPage: React.FC = ({ route }: any) => {
 
 
                                     <TouchableOpacity
-                                        onPress={openBottomSheetProfessions}
+                                        onPress={()=>{}}
                                         className="flex-row items-center gap-2" >
-                                        {/* <TouchableOpacity> */}
                                         <Text className="text-lg font-bold text-primary-500">{Profession}</Text>
-                                        <View
-                                            style={{ backgroundColor: COLORS.primary }}
-                                            className='p-1 px-2 rounded-full '>
-                                            <Text className="text-xs font-bold text-white">+1</Text>
-                                        </View>
+                                       
                                     </TouchableOpacity>
                                 </View>
                                 <View className="flex-row items-center gap-2" >
@@ -235,6 +230,33 @@ const ArtisanPage: React.FC = ({ route }: any) => {
                                     }
                                 </ScrollView>
                             </View>
+                            {/* payment method availible CashOnDeliveryPayment
+                                    BankTransferPayment
+                                    CheckPayment  */}
+                            <View className="p-4 flex-col">
+                                <Text className="text-lg font-bold">Payment Methods</Text>
+                                <View className="flex-col items-start mt-2 ">
+                                    <View className="flex-row items-center gap-2">
+                                        <Ionicons name="checkmark-circle" color={
+                                            artisan?.CashOnDeliveryPayment ? COLORS.primary : 'gray'
+                                        } size={16} />
+                                        <Text className="text-gray-600">Cash on delivery</Text>
+                                    </View>
+                                    <View className="flex-row items-center gap-2">
+                                        <Ionicons name="checkmark-circle" color={
+                                            artisan?.BankTransferPayment ? COLORS.primary : 'gray'
+                                        } size={16} />
+                                        <Text className="text-gray-600">Bank transfer</Text>
+                                    </View>
+                                    <View className="flex-row items-center gap-2">
+                                        <Ionicons name="checkmark-circle" color={
+                                            artisan?.CheckPayment ? COLORS.primary : 'gray'
+                                        } size={16} />
+                                        <Text className="text-gray-600">Check payment</Text>
+                                    </View>
+                                </View>
+                            </View>
+
                             <View className="p-4 mb-32">
                                 <Text className="text-lg font-bold">Reviews</Text>
                                 <ScrollView horizontal>

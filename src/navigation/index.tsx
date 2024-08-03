@@ -456,7 +456,7 @@ function BottomTabNavigatorUser() {
 }
 
 function RootNavigator() {
- 
+
 
   const parseUrl = (url: any) => {
     const regex = /https:\/\/m3elem.vercel.app\/en\/pro\/artisan\/(\w+)/;
@@ -621,6 +621,13 @@ function RootNavigator() {
                         }}
                         name="Home"
                         component={BottomTabNavigator}
+                      />
+                      <Stack.Screen
+                        name="Transactions"
+                        component={Transactions}
+                        options={{
+                          headerShown: false,
+                        }}
                       />
                       <Stack.Screen
                         name="MyLeads"

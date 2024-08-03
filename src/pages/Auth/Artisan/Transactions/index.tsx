@@ -182,7 +182,7 @@ const Transactions = () => {
     };
 
     // @ts-ignore
-    const sortedTransactions = [...Transactions].sort((a, b) => new Date(a?.createdAt) - new Date(b?.createdAt));
+    const sortedTransactions = [...Transactions].sort((a, b) => new Date(b?.createdAt) - new Date(a?.createdAt));
 
     // Group transactions by month
     const groupedTransactions = groupTransactionsByMonth(sortedTransactions);
@@ -288,13 +288,13 @@ const Transactions = () => {
                             <MaterialCommunityIcons name="close" color="black" size={30} />
                         </TouchableOpacity>
                     )}
-                  
-                            <WebView
-                                ref={webViewRef}
-                                onNavigationStateChange={handleNavigationStateChange}
-                                source={{ uri: "https://m3elem.vercel.app/en/pricing" }} 
-                                containerStyle={{ flex: 1 }}
-                                />
+
+                    <WebView
+                        ref={webViewRef}
+                        onNavigationStateChange={handleNavigationStateChange}
+                        source={{ uri: "https://m3elem.vercel.app/en/pricing" }}
+                        containerStyle={{ flex: 1 }}
+                    />
                 </BottomSheetModal>
             </BottomSheetModalProvider>
         </GestureHandlerRootView >

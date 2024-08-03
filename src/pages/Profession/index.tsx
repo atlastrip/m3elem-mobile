@@ -188,6 +188,9 @@ const ProfessionPage = ({ navigation }: any) => {
                                 firstName
                                 lastName
                                 imageProfile
+                                CashOnDeliveryPayment
+                                BankTransferPayment
+                                CheckPayment
                                 professionals{
                                         id
                                 text
@@ -395,12 +398,11 @@ const ProfessionPage = ({ navigation }: any) => {
                                                 <Ionicons name="star" color="black" size={24} />
                                             </Text> */}
                                             <Text className="text-gray-600">
-                                                
-                                                {` ${
-                                                    e?.reviews?.filter((review: any) => review?.order?.professionals[0].id === SelectedProfession?.id).length + ' reviews'
 
-                                                } reviews`}
-                                                </Text>
+                                                {` ${e?.reviews?.filter((review: any) => review?.order?.professionals[0].id === SelectedProfession?.id).length + ' reviews'
+
+                                                    } reviews`}
+                                            </Text>
                                         </View>
                                     </View>
                                     {/* <View>

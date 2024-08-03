@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, TextInput, Button, Alert, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -10,6 +10,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { Rating } from 'react-native-ratings';
 import { getToken } from '@/helpers/getToken';
 import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -21,9 +22,7 @@ const SelectUnlockedArtisan = ({ visible, onClose, artisants, handlePresentModal
             animationType="slide"
         >
             <View style={styles.modalBackground}>
-                <View style={styles.modalContainer}>
-                    <Text style={styles.modalTitle}>Select Artisan</Text>
-                    {artisants.map((artisant: any) => (
+                {/* {artisants.map((artisant: any) => (
                         <TouchableOpacity
                             key={artisant.id}
                             style={styles.artisanOption}
@@ -35,7 +34,31 @@ const SelectUnlockedArtisan = ({ visible, onClose, artisants, handlePresentModal
                         >
                             <Text style={styles.artisanText}>{artisant.firstName} {artisant.lastName}</Text>
                         </TouchableOpacity>
-                    ))}
+                    ))} */}
+
+                <View style={styles.modalContainer}>
+                    <Text style={styles.modalTitle}>Select Artisan</Text>
+
+                    <ScrollView horizontal>
+                        {artisants?.map((lead: any) => (
+                            <>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setChoosedArtisan(lead);
+                                        handlePresentModalPress();
+                                        onClose(false);
+                                    }}
+                                    key={lead.id} style={styles.leadItem}>
+                                    <Image source={{ uri: lead.imageProfile }} style={styles.leadImage} />
+                                    <Text style={{
+                                        ...styles.leadName,
+                                    }}
+                                        className='text-xs break-words w-20 text-center  '
+                                    >{`${lead.firstName} ${lead.lastName}`}</Text>
+                                </TouchableOpacity>
+                            </>
+                        ))}
+                    </ScrollView>
                     <TouchableOpacity
                         style={styles.cancelButton}
                         onPress={() => onClose(null)}
@@ -60,12 +83,19 @@ const OrderView = ({ route, navigation }: any) => {
     const [openModal, setOpenModal] = useState(false);
     const [choosedArtisan, setChoosedArtisan] = useState<any>(null);
     const snapPoints = useMemo(() => ['50%', '80%'], []);
+    const [artisantInfo, setArtisantInfo] = useState<any>(null);
 
     const handlePresentModalPress = useCallback(() => {
         setSelectedProfession(null);
         bottomSheetModalRef.current?.present();
     }, []);
 
+
+
+    const getInfo = async () => {
+        const User = await AsyncStorage.getItem('@user');        
+        setArtisantInfo(JSON.parse(User || '{}'));
+    }
     const handleAddReview = async () => {
         const token = await getToken();
         if (!token) {
@@ -117,6 +147,11 @@ const OrderView = ({ route, navigation }: any) => {
     const handleRating = (newRating: number) => {
         setRating(newRating);
     };
+
+
+    useEffect(() => {
+        getInfo();
+    }, []);
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -195,23 +230,25 @@ const OrderView = ({ route, navigation }: any) => {
                             <ScrollView horizontal>
                                 {order.artisantUnlockedLead.map((lead: any) => (
                                     <>
-                                    <View key={lead.id} style={styles.leadItem}>
-                                        <Image source={{ uri: lead.imageProfile }} style={styles.leadImage} />
-                                        <Text style={{
-                                            ...styles.leadName,
-                                        }}
-                                        className='text-xs break-words w-20 text-center  '
-                                        >{`${lead.firstName} ${lead.lastName}`}</Text>
-                                    </View>
-                                    
+                                        <View key={lead.id} style={styles.leadItem}>
+                                            <Image source={{ uri: lead.imageProfile }} style={styles.leadImage} />
+                                            <Text style={{
+                                                ...styles.leadName,
+                                            }}
+                                                className='text-xs break-words w-20 text-center  '
+                                            >{`${lead.firstName} ${lead.lastName}`}</Text>
+                                        </View>
+
                                     </>
                                 ))}
                             </ScrollView>
                         </View>
                     )}
 
+                    
+
                     {
-                        order?.artisantUnlockedLead?.length > 0 &&
+                        order?.artisantUnlockedLead?.length > 0 && artisantInfo?.role !== 'artisant' &&
                         <ButtonPrimary
                             className='mt-3'
                             Loading={false}

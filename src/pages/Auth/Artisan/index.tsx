@@ -27,7 +27,8 @@ const ArtisanHomePage = ({ navigation }: any) => {
     const [order, setOrder] = React.useState(null);
     const [hasPermission, setHasPermission] = React.useState(null);
     const [scanned, setScanned] = React.useState(false);
-
+    const [LoadingAcceptedLeads, setLoadingAcceptedLeads] = React.useState(false);
+    const [Leads, setLeads] = React.useState<any>([]);
 
 
     const EditUser = async () => {
@@ -141,6 +142,56 @@ const ArtisanHomePage = ({ navigation }: any) => {
     if (hasPermission === false) {
         return <Text>No access to camera</Text>;
     }
+
+
+    
+
+  const getLeads = async () => {
+
+    const token = await getToken();
+    const user: any = await getUser();
+    // setUser(user);
+
+    if (!token) {
+      return;
+    }
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    headers.append("Authorization", `Bearer ${token}`);
+    try {
+      setLoadingAcceptedLeads(true);
+      const res = await fetch(
+        Constants.expoConfig?.extra?.apiUrl as string,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            query: `
+                    query getAcceptedLeadsThatMatchUserProfessionals {
+                        getAcceptedLeadsThatMatchUserProfessionals {
+                                id
+                                
+                            }
+                            }
+
+                    `,
+
+          }),
+        }
+      );
+
+      const json = await res.json();
+
+      setLeads(json.data.getAcceptedLeadsThatMatchUserProfessionals);
+
+
+      setLoadingAcceptedLeads(false);
+    } catch (err: any) {
+      setLoadingAcceptedLeads(false);
+      Alert.alert("error", JSON.stringify(err.message, undefined, 2));
+      // Alert.alert(json?.detail);
+    }
+  }
 
 
 
