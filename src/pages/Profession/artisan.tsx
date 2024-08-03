@@ -176,10 +176,10 @@ const ArtisanPage: React.FC = ({ route }: any) => {
 
 
                                     <TouchableOpacity
-                                        onPress={()=>{}}
+                                        onPress={() => { }}
                                         className="flex-row items-center gap-2" >
                                         <Text className="text-lg font-bold text-primary-500">{Profession}</Text>
-                                       
+
                                     </TouchableOpacity>
                                 </View>
                                 <View className="flex-row items-center gap-2" >
@@ -237,21 +237,41 @@ const ArtisanPage: React.FC = ({ route }: any) => {
                                 <Text className="text-lg font-bold">Payment Methods</Text>
                                 <View className="flex-col items-start mt-2 ">
                                     <View className="flex-row items-center gap-2">
-                                        <Ionicons name="checkmark-circle" color={
-                                            artisan?.CashOnDeliveryPayment ? COLORS.primary : 'gray'
-                                        } size={16} />
+                                        {
+                                            artisan?.CashOnDeliveryPayment ?
+
+                                                <Ionicons name="checkmark-circle" color={
+                                                    COLORS.primary
+                                                } size={16} />
+                                                :
+                                                <Ionicons name="remove-circle" color={'gray'} size={16} />
+                                        }
                                         <Text className="text-gray-600">Cash on delivery</Text>
                                     </View>
                                     <View className="flex-row items-center gap-2">
-                                        <Ionicons name="checkmark-circle" color={
-                                            artisan?.BankTransferPayment ? COLORS.primary : 'gray'
-                                        } size={16} />
+
+                                        {
+                                            artisan?.BankTransferPayment ?
+
+                                                <Ionicons name="checkmark-circle" color={
+                                                    COLORS.primary
+                                                } size={16} />
+                                                :
+                                                <Ionicons name="remove-circle" color={'gray'} size={16} />
+                                        }
                                         <Text className="text-gray-600">Bank transfer</Text>
                                     </View>
                                     <View className="flex-row items-center gap-2">
-                                        <Ionicons name="checkmark-circle" color={
-                                            artisan?.CheckPayment ? COLORS.primary : 'gray'
-                                        } size={16} />
+
+                                        {
+                                            artisan?.CheckPayment ?
+
+                                                <Ionicons name="checkmark-circle" color={
+                                                    COLORS.primary
+                                                } size={16} />
+                                                :
+                                                <Ionicons name="remove-circle" color={'gray'} size={16} />
+                                        }
                                         <Text className="text-gray-600">Check payment</Text>
                                     </View>
                                 </View>
