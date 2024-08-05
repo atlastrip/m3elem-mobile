@@ -1,3 +1,6 @@
+
+
+
 import {
   Alert,
   ScrollView,
@@ -7,14 +10,12 @@ import {
   TouchableOpacity,
   View,
   Image,
+  FlatList,
 } from "react-native";
 import Constants from 'expo-constants';
-
 const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
-// console.log(JSON.stringify(country?.expoClient?.extra?.country))
 import { Picker } from '@react-native-picker/picker';
 import React, { useEffect, useState } from "react";
-import { Navigate } from "navigation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import window from "../../../constants/Layout";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -23,20 +24,19 @@ import { useDispatch } from "react-redux";
 import { isLogin, IUser } from "../../../store/User";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ButtonPrimary } from "../../../components/index";
+
 import { AnimatePresence, Motion } from "@legendapp/motion";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import MapView, { Marker, Circle } from "react-native-maps";
 import * as ImagePicker from 'expo-image-picker';
 
 import LoadingPage from "@/components/Layout/LoadingPage";
+import { getToken, getUser } from "@/helpers/getToken";
+import { storage } from "../../../firebase/index";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import Menu from "../Menu";
 
-const GestionDeCompte = ({
-  navigation,
-  route,
-}: {
-  navigation: Navigate;
-  route: any;
-}) => {
+const GestionDeCompte = ({ navigation, route }: any) => {
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
   const [Loading, setLoading] = useState(false);
@@ -47,13 +47,16 @@ const GestionDeCompte = ({
   const [Email, setEmail] = useState("");
   const [User, setUser] = useState<IUser | null>(null);
   const [Location, setLocation] = useState({ latitude: 33.0, longitude: -7.0 });
-  const [Radius, setRadius] = useState(15000);
+  const [Radius, setRadius]: any = useState(0);
   const [ProfilePhoto, setProfilePhoto] = useState("");
-  const [Portfolio, setPortfolio] = useState<string[]>([]);
+  const [Portfolio, setPortfolio] = useState<any[]>([]);
+  const IsFocused = useIsFocused();
+  const [media, setMedia] = useState<any[]>([]);
+  const [checkProfile, setCheckProfile] = useState(false);
+  const [LoadingMedia, setLoadingMedia] = useState("");
 
   const GetUserFromAsyncStorage = async () => {
-    const user = await AsyncStorage.getItem("@user");
-    // @ts-ignore
+    const user: any = await AsyncStorage.getItem("@user");
     const userFromAsyncStorage: IUser = await JSON.parse(user);
     setUser(userFromAsyncStorage);
   };
@@ -63,12 +66,6 @@ const GestionDeCompte = ({
       GetUserFromAsyncStorage();
     }, [])
   );
-
-  useEffect(() => {
-    setUsername(User?.phone || "");
-    setFullName(User?.fullName || "");
-    setEmail(User?.email || "");
-  }, [User]);
 
   const handleLogout = () => {
     (async () => {
@@ -109,56 +106,253 @@ const GestionDeCompte = ({
     });
 
     if (!result.canceled) {
+      setCheckProfile(true);
       setProfilePhoto(result.assets[0].uri);
     }
   };
 
+  const pickImagePortfolio = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setPortfolio([...Portfolio, result.assets[0].uri]);
+    }
+  };
+
   const pickPortfolioImages = async () => {
-    // Logic to pick multiple images
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setMedia([...media, ...result.assets]);
+      setPortfolio([...Portfolio, ...result.assets.map(asset => asset.uri)]);
+    }
   };
 
   const EditUser = async () => {
-    setLoading(true);
+    const token = await getToken();
+    const user: any = await getUser();
+
+    if (!token) {
+      console.log('====================================');
+      console.log('No token found');
+      console.log('====================================');
+      return;
+    }
+
+    if (checkProfile) {
+      try {
+        const response = await fetch(ProfilePhoto);
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const blob = await response.blob();
+
+        const storageRef = ref(storage, `images/${Date.now()}_profile.jpg`);
+
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+
+        await uploadTask;
+
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+        setProfilePhoto(downloadURL);
+      } catch (error) {
+        console.error('Error in uploading profile image:', error);
+        throw error;
+      }
+    }
+
+    let uploadedImages;
+    console.log('media', media);
+
+    if (media.length !== 0) {
+      uploadedImages = await Promise.all(
+        media.map(async (item) => {
+          try {
+            const response = await fetch(item.uri);
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const blob = await response.blob();
+
+            const storageRef = ref(storage, `images/${Date.now()}_${item.fileName}`);
+
+            const uploadTask = uploadBytesResumable(storageRef, blob);
+
+            return new Promise((resolve, reject) => {
+              uploadTask.on(
+                'state_changed',
+                (snapshot) => {
+                  const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                  console.log('Upload is ' + progress + '% done');
+                  setLoadingMedia(`Upload is ${Math.round(progress)}% done`);
+                },
+                (error) => {
+                  console.error('Upload failed', error);
+                  reject(error);
+                },
+                async () => {
+                  const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                  // name: String
+                  // size: String
+                  // source: String
+                  // current: Boolean
+                  const image = {
+                    name: item.fileName,
+                    size: `${item.fileSize}`,
+                    source: downloadURL,
+                    current: false
+                  }
+                  resolve(image);
+                }
+              );
+            });
+          } catch (error) {
+            console.error('Error in uploading image:', error);
+            throw error;
+          }
+        })
+      );
+
+      // Save uploaded images to user profile or perform any further actions with them
+    }
+
     const headers = new Headers();
     headers.append("Content-Type", "application/json");
-    const accessToken = await AsyncStorage.getItem("@token");
-    console.log(accessToken)
-    headers.append("Authorization", `Bearer ${accessToken}`);
+    headers.append("Authorization", `Bearer ${token}`);
+    const UpdateUserInfo: any = {
+      id: JSON.parse(user).id,
+      phone: username,
+      firstName: FullName.split(" ")[0],
+      lastName: FullName.split(" ")[1],
+      location: JSON.stringify(Location),
+      imageProfile: ProfilePhoto,
+      newImage: uploadedImages || [],
+      Radius: `${Radius}`
+    }
+
+
+    if (media.length == 0) {
+      delete UpdateUserInfo.images;
+    }
+
+    if (!checkProfile) {
+      delete UpdateUserInfo.imageProfile;
+    }
+
+
+
+    console.log('UpdateUserInfo', UpdateUserInfo);
     try {
       const res = await fetch(
-        "https://m3elem-app-ecj9f.ondigitalocean.app/m3elem",
+        Constants.expoConfig?.extra?.apiUrl as string,
         {
           method: "POST",
           headers,
           body: JSON.stringify({
-            query: "mutation UpdateUser($input: inputUpdateUser) {\r\n  updateUser(input: $input) {\r\n    id\r\n    phone\r\n    fullName\r\n  }\r\n}",
-            variables: { "input": { "phone": username, "fullName": FullName, id: '' } }
+            query: `
+              mutation updateUser($input: inputUpdateUser) {
+                updateUser(input: $input){
+                  id
+                }
+              }
+            `,
+            variables: {
+              "input": UpdateUserInfo
+            }
           }),
         }
       );
 
       const json = await res.json();
-      console.log({ json })
-      if (json?.data?.updateUser?.id) {
-        setLoading(false);
-        const UserFromAsyncStorage = await AsyncStorage.getItem("@user");
-        const ParsedUser: IUser = await JSON.parse(UserFromAsyncStorage || "");
-        ParsedUser.phone = json?.data?.updateUser?.phone;
-        ParsedUser.fullName = json?.data?.updateUser?.fullName
-        await AsyncStorage.setItem("@user", JSON.stringify(ParsedUser));
-        Alert.alert('Updated Successfully!')
-        navigation.goBack()
-      } else {
-        setLoading(false);
-        Alert.alert("Erreur", "Une erreur est servenue lors de modification de votre compte.");
-        // setERR(json?.detail)
-      }
-    } catch (err1) {
-      setLoading(false);
-      Alert.alert("Erreur", "Une erreur est servenue lors de modification de votre compte.");
-      console.log({ err1 });
+      console.log('json', json);
+      setLoadingMedia("");
+      await getInfo();
+
+
+    } catch (err1: any) {
+      console.log('====================================');
+      console.log('err1 update', err1.message);
+      console.log('====================================');
+      Alert.alert("Erreur", "Une erreur est servenue lors de modification de votre compte.", err1.message);
     }
   };
+
+  const getInfo = async () => {
+    const token = await getToken();
+
+
+    if (!token) {
+      Alert.alert("Token not found", "Token not found");
+      return
+    }
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    headers.append("Authorization", `Bearer ${token}`);
+
+
+
+    try {
+      const res = await fetch(
+        Constants.expoConfig?.extra?.apiUrl as string,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            query: `
+              query user {
+                user{
+                  id
+                  phone
+                  email
+                  firstName
+                  lastName
+                  imageProfile
+                  location
+                  images{
+                    id
+                    source
+                    
+                  }
+                  Radius
+                }
+              }
+            `,
+          }),
+        }
+      );
+
+      const json = await res.json();
+      console.log('====================================');
+      console.log('json.data', json?.data?.user);
+      console.log('====================================');
+      setUsername(json?.data?.user?.phone || "");
+      setFullName(json?.data?.user?.firstName + " " + json?.data?.user?.lastName || "");
+      setEmail(json?.data?.user?.email || "");
+      setProfilePhoto(json?.data?.user?.imageProfile || "");
+      setLocation(json?.data?.user?.location != "" ? JSON.parse(json?.data?.user?.location) : { latitude: 33.0, longitude: -7.0 });
+      setPortfolio(json?.data?.user?.images || []);
+      setRadius(parseInt(json?.data?.user?.Radius) || 15000);
+      setMedia([]);
+
+    } catch (err1: any) {
+      console.log('err2', err1.message);
+
+      Alert.alert("Erreur", "Une erreur est servenue lors de modification de votre compte.");
+    }
+  };
+
+  useEffect(() => {
+    getInfo()
+  }, [IsFocused]);
+
 
   return (
     <View
@@ -321,84 +515,127 @@ const GestionDeCompte = ({
           )}
           <View className="flex-row justify-between" >
             <Text className="text-black ml-2 mb-2">Location :</Text>
-            
+
           </View>
-          <MapView
-            style={{ height: 300, marginBottom: 20 }}
-            initialRegion={{
-              latitude: Location.latitude,
-              longitude: Location.longitude,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            }}
-            onPress={(e) => setLocation(e.nativeEvent.coordinate)}
-          >
-            <Marker coordinate={Location} />
-            <Circle
-              center={Location}
-              radius={Radius}
-              strokeColor="rgba(0,112,255,0.5)"
-              fillColor="rgba(0,112,255,0.2)"
-            />
-          </MapView>
-          <Picker
-              selectedValue={setRadius}
-              style={styles.picker}
-              onValueChange={(itemValue, itemIndex) => setRadius(+itemValue)}
-            >
-              <Picker.Item label="5km" value={5000} />
-              <Picker.Item label="10km" value={10000} />
-              <Picker.Item label="15km" value={15000} />
-              <Picker.Item label="20km" value={20000} />
-            </Picker>
+
+          {
+            Location?.latitude && Location?.longitude && (
+
+
+              <>
+                <MapView
+                  style={{ height: 300, marginBottom: 20 }}
+                  initialRegion={{
+                    latitude: Location?.latitude,
+                    longitude: Location?.longitude,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                  }}
+                  onPress={(e) => setLocation(e.nativeEvent.coordinate)}
+                >
+                  <Marker coordinate={Location} />
+                  <Circle
+                    center={Location}
+                    radius={typeof Radius == 'string' ? parseInt(Radius) : Radius}
+                    strokeColor="rgba(0,112,255,0.5)"
+                    fillColor="rgba(0,112,255,0.2)"
+                  />
+                </MapView>
+                <Picker
+                  selectedValue={Radius}
+                  style={styles.picker}
+                  onValueChange={(itemValue, itemIndex) => {
+                    console.log('====================================');
+                    console.log('itemValue', itemValue);
+                    console.log('====================================');
+                    setRadius(itemValue);
+                  }}
+
+                >
+                  <Picker.Item label="5km" value={5000} />
+                  <Picker.Item label="10km" value={10000} />
+                  <Picker.Item label="15km" value={15000} />
+                  <Picker.Item label="20km" value={20000} />
+                </Picker>
+              </>
+
+            )}
 
           <Text className="text-black ml-2 mb-2">Portfolio :</Text>
           <TouchableOpacity
-            onPress={pickPortfolioImages}
+            onPress={() => {
+              pickPortfolioImages()
+            }}
             className="border border-black/25 rounded-lg p-3 mb-3 justify-center items-center"
           >
             <Text className="text-black">Add Portfolio Images</Text>
           </TouchableOpacity>
+
+
           <ScrollView horizontal style={{ marginBottom: 20 }}>
-            {Portfolio.map((image, index) => (
-              <Image
-                key={index}
-                source={{ uri: image }}
-                style={{ width: 100, height: 100, marginRight: 10 }}
-              />
-            ))}
+            {
+              LoadingMedia ? (
+                <Text>{LoadingMedia}</Text>
+              ) :
+
+                Portfolio?.map((image, index) => (
+                  <TouchableOpacity 
+                  key={image?.id}
+
+                  >
+                    <Image
+                      source={{ uri: image?.source }}
+                      style={{ width: 100, height: 100, borderRadius: 50, marginRight: 10 }}
+                    />
+                  </TouchableOpacity>
+                ))}
           </ScrollView>
+
 
           <ButtonPrimary
             Loading={Loading}
-            onPress={EditUser}
+            onPress={() => {
+              EditUser()
+            }}
             setLoading={() => { }}
             text="Save"
           />
+
+
         </View>
+
       </ScrollView>
     </View>
   );
 };
 
-export default GestionDeCompte;
-
 const styles = StyleSheet.create({
-  between: {
-    justifyContent: "space-between",
-    flexDirection: "row",
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
+  profileImagePicker: {
+    marginTop: 8,
   },
-  label: {
-    fontSize: 16,
-    marginBottom: 10,
+  map: {
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+  },
+  portfolioImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  addPortfolioButton: {
+    marginTop: 8,
   },
   picker: {
     height: 50,
     width: '100%',
   },
 });
+
+export default GestionDeCompte;
