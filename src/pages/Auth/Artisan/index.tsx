@@ -1,22 +1,201 @@
-import React, { useState } from 'react'
-import { Dimensions, Image, ScrollView, Switch, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { Alert, Button, Dimensions, Image, Modal, ScrollView, Switch, TouchableOpacity, View } from 'react-native'
 import { Text } from 'react-native'
-import { FontAwesome, MaterialCommunityIcons , MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SHADOWS } from 'constants/theme';
 import { Motion } from '@legendapp/motion';
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '@gorhom/bottom-sheet';
 import Constants from 'expo-constants';
-import ScrollingText from '@/components/ScrollText/indeX';
+import { BarCodeScanner } from 'expo-barcode-scanner';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getToken, getUser } from '@/helpers/getToken';
+import { useIsFocused } from '@react-navigation/native';
 
 
 const ArtisanHomePage = ({ navigation }: any) => {
     const insets = useSafeAreaInsets();
+    const IsFocused = useIsFocused();
+
     const [isEnabled, setIsEnabled] = useState(false);
-    const toggleSwitch = () => setIsEnabled(v => !v);
+    // const toggleSwitch = () => setIsEnabled(v => !v);
     const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
+    const [available, setAvailable] = useState(false);
     const WINDOW_WIDTH = Dimensions.get('window').width;
+    const [showQr, setShowQr] = React.useState(false);
+    const [order, setOrder] = React.useState(null);
+    const [hasPermission, setHasPermission] = React.useState(null);
+    const [scanned, setScanned] = React.useState(false);
+    const [LoadingAcceptedLeads, setLoadingAcceptedLeads] = React.useState(false);
+    const [Leads, setLeads] = React.useState<any>([]);
+
+
+    const EditUser = async () => {
+
+        // setIsEnabled(v => !v);
+
+        const token = await getToken();
+        const user: any = await getUser();
+
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                            mutation updateUser($input: inputUpdateUser) {
+                                updateUser(input: $input){
+                                    id
+                                    available
+                                }
+                            }
+                        `,
+                        variables: {
+                            "input": {
+                                id: JSON.parse(user)?.id,
+                                available: !isEnabled
+                            }
+                        }
+                    }),
+                }
+            );
+
+            const json = await res.json();
+            
+            await getInfo();
+
+        } catch (err1) {
+            Alert.alert("Erreur", "Une erreur est servenue lors de modification de votre compte.");
+        }
+    };
+
+
+    const getInfo = async () => {
+        const token = await getToken();
+        const user: any = await getUser();
+
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                            query user {
+                                user{
+                                    id
+                                    available
+                                }
+                            }
+                        `,
+                    }),
+                }
+            );
+
+            const json = await res.json();
+            setIsEnabled(json?.data?.user?.available);
+
+        } catch (err1) {
+            Alert.alert("Erreur", "Une erreur est servenue lors de modification de votre compte.");
+        }
+    }
+
+
+
+    useEffect(() => {
+        getInfo()
+    }, [IsFocused])
+
+
+    useEffect(() => {
+        (async () => {
+            const { status }: any = await BarCodeScanner.requestPermissionsAsync();
+            setHasPermission(status === 'granted');
+        })();
+    }, []);
+
+    const handleBarCodeScanned = ({ type, data }: any) => {
+        setScanned(true);
+        setShowQr(false);
+        const scannedData = JSON.parse(data);
+        console.log(scannedData);
+
+        navigation.navigate('OrderViewUser', { order: scannedData.order, user: scannedData.user });
+    };
+
+    if (hasPermission === null) {
+        return <Text>Requesting for camera permission</Text>;
+    }
+    if (hasPermission === false) {
+        return <Text>No access to camera</Text>;
+    }
+
+
+    
+
+  const getLeads = async () => {
+
+    const token = await getToken();
+    const user: any = await getUser();
+    // setUser(user);
+
+    if (!token) {
+      return;
+    }
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    headers.append("Authorization", `Bearer ${token}`);
+    try {
+      setLoadingAcceptedLeads(true);
+      const res = await fetch(
+        Constants.expoConfig?.extra?.apiUrl as string,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            query: `
+                    query getAcceptedLeadsThatMatchUserProfessionals {
+                        getAcceptedLeadsThatMatchUserProfessionals {
+                                id
+                                
+                            }
+                            }
+
+                    `,
+
+          }),
+        }
+      );
+
+      const json = await res.json();
+
+      setLeads(json.data.getAcceptedLeadsThatMatchUserProfessionals);
+
+
+      setLoadingAcceptedLeads(false);
+    } catch (err: any) {
+      setLoadingAcceptedLeads(false);
+      Alert.alert("error", JSON.stringify(err.message, undefined, 2));
+      // Alert.alert(json?.detail);
+    }
+  }
+
+
+
+
 
     return (
         <ScrollView style={{ flex: 1 }}>
@@ -43,7 +222,11 @@ const ArtisanHomePage = ({ navigation }: any) => {
                             trackColor={{ false: "#767577", true: "white" }}
                             thumbColor={isEnabled ? COLORS.primary : "#f4f3f4"}
                             ios_backgroundColor="#fef"
-                            onValueChange={toggleSwitch}
+                            onValueChange={
+                                () => {
+                                    EditUser();
+                                }
+                            }
                             value={isEnabled}
                         />
                     </Motion.View>
@@ -88,7 +271,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
                                     end={[1, 1]}
                                     className="p-4 rounded-2xl flex justify-between"
                                 >
-                                     <MaterialIcons name="money" color="white" size={38} />
+                                    <MaterialIcons name="money" color="white" size={38} />
                                     <Text className="text-white mt-8 font-bold text-xl">Balance and transactions</Text>
                                 </LinearGradient>
                             </TouchableOpacity>
@@ -134,9 +317,49 @@ const ArtisanHomePage = ({ navigation }: any) => {
                                     <Text className="text-white mt-8 font-bold text-xl">Profile</Text>
                                 </LinearGradient>
                             </TouchableOpacity>
+
+
                         </View>
+                        <TouchableOpacity
+                            onPress={() => setShowQr(true)}
+                            className="flex-1 ml-2">
+                            <LinearGradient
+                                colors={['#f44336', '#e57373']}
+                                start={[0, 0]}
+                                end={[1, 1]}
+                                className="p-4 rounded-2xl flex justify-between"
+                            >
+                                <MaterialCommunityIcons name="account-outline" size={38} color="white" />
+                                <Text className="text-white mt-8 font-bold text-xl">QrCode Scanner</Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
                     </View>
                 </View>
+                {showQr && (
+                    <Modal
+                        visible={showQr}
+                        transparent={true}
+                        onRequestClose={() => setShowQr(false)}
+                        animationType="slide"
+
+                    >
+                        <View
+                            className='flex-1 justify-center items-center  p-4 flex-row '
+                        >
+                            <BarCodeScanner
+                                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+                                style={{
+                                    flex: 1,
+                                    height: WINDOW_HEIGHT - 100,
+                                }}
+                            />
+                            {scanned && (
+                                <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />
+                            )}
+                        </View>
+                    </Modal>
+                )}
+
             </View>
         </ScrollView>
     )

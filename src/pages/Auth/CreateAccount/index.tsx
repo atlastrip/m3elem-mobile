@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   Alert,
+  Button,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -13,6 +14,7 @@ import {
 } from "react-native";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { Navigate } from "navigation";
+import * as ImagePicker from 'expo-image-picker';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { IPack } from "../Reservation";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -32,6 +34,8 @@ import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { registerForPushNotificationsAsync } from "@/components/pushNotification";
 import { LoginWithApple } from "@/components/buttons/LoginWithApple";
+import { FlatList } from "react-native";
+import { Video } from "expo-av";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -144,6 +148,43 @@ const CreateAccount = ({
   };
   const scrollViewRef1 = useRef<any>(null);
   const [SelectedAccount, setSelectedAccount] = useState("User");
+
+  const pickMedia = async () => {
+    const result: any = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result?.cancelled) {
+      handleStateChange([...media, ...result.assets], setMedia);
+    }
+  };
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const [media, setMedia] = useState<any>([]);
+
+
+  const handleStateChange = async (newState: any, setState: React.Dispatch<React.SetStateAction<any>>) => {
+    setState(newState);
+    // saveState();
+  };
+
+  const removeMedia = (uri: string) => {
+    handleStateChange(media.filter((item: any) => item.uri !== uri), setMedia);
+  };
+
+  const moveMedia = (index: number, direction: 'left' | 'right') => {
+    const newMedia = [...media];
+    if (direction === 'left' && index > 0) {
+      [newMedia[index - 1], newMedia[index]] = [newMedia[index], newMedia[index - 1]];
+    } else if (direction === 'right' && index < newMedia.length - 1) {
+      [newMedia[index + 1], newMedia[index]] = [newMedia[index], newMedia[index + 1]];
+    }
+    handleStateChange(newMedia, setMedia);
+  };
 
   return (
     <>
@@ -431,6 +472,60 @@ const CreateAccount = ({
                   />
                 </TouchableOpacity>
               </View>
+              <View className="mt-4">
+                  <Text className="text-base font-semibold mb-2">Add media:</Text>
+                  <FlatList
+                    data={media}
+                    horizontal
+                    keyExtractor={(item) => item.uri}
+                    renderItem={({ item, index }) => (
+                      <View className="relative rounded-md overflow-hidden w-40 h-40 mr-2">
+                        {item.type.startsWith('image') ? (
+                          <Image source={{ uri: item.uri }} className="w-full h-full" resizeMode="cover" />
+                        ) : (
+                          <Video
+                            source={{ uri: item.uri }}
+                            style={{ width: '100%', height: '100%' }}
+                            // @ts-ignore
+                            resizeMode="cover"
+                            useNativeControls
+                          />
+                        )}
+                        <View style={styles.iconContainer}>
+                          {index > 0 && (
+                            <TouchableOpacity onPress={() => moveMedia(index, 'left')} className='p-1 rounded-full bg-black/20' style={styles.leftArrow}>
+                              <Ionicons name="arrow-back-circle" size={24} color="white" />
+                            </TouchableOpacity>
+                          )}
+                          {index < media.length - 1 && (
+                            <TouchableOpacity onPress={() => moveMedia(index, 'right')} className='p-1 rounded-full bg-black/20' style={styles.rightArrow}>
+                              <Ionicons name="arrow-forward-circle" size={24} color="white" />
+                            </TouchableOpacity>
+                          )}
+                          <TouchableOpacity
+                            className='p-1 rounded-full bg-white/80'
+                            onPress={() => removeMedia(item.uri)}
+                          >
+                            <Ionicons name="close-circle" size={24} color="red" />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    )}
+                  />
+                  {!media.length ? (
+
+                    <TouchableOpacity
+                      onPress={pickMedia}
+                      className='border-dashed items-center justify-center  w-40 h-40  border-2 rounded-md border-primary-500' >
+                      <Text className='text-xl text-primary-500'>+</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <View className='flex-row justify-end' >
+                      <Button
+                        title="Add New Media" onPress={pickMedia} />
+                    </View>
+                  )}
+                </View>
               <TouchableOpacity
                 onPress={() => setRememberMe(!rememberMe)}
                 style={{ flexDirection: 'row', alignItems: 'center' }}
@@ -511,5 +606,23 @@ const styles = StyleSheet.create({
   between: {
     justifyContent: "space-between",
     flexDirection: "row",
+  },
+  iconContainer: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  leftArrow: {
+    marginRight: 5,
+  },
+  rightArrow: {
+    marginRight: 5,
+  },
+  closeButton: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 2,
   },
 });

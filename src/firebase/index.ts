@@ -1,27 +1,27 @@
-import { initializeApp } from "firebase/app";
-import  * as firebase from "firebase/app";
-import { getAuth, GoogleAuthProvider  , signInWithPopup,
+// import * as firebase from "firebase/app";
+import { initializeApp, getApps } from 'firebase/app';
+import { getStorage } from 'firebase/storage';
 
 
 
-} from "firebase/auth";
-
-// Your web app's Firebase configuration
-export const firebaseConfig = {
-  apiKey: "AIzaSyDUbj9cox4PaR85IU4BqWTM4-kRbG34B5w",
-  appId: "1:595961874472:android:4c11e2aea41e2e876bcd1d",
-  messagingSenderId: "595961874472",
-  authDomain: "pantofit-4d0f9.firebaseapp.com",
-  projectId: "pantofit-4d0f9",
-  storageBucket: "pantofit-4d0f9.appspot.com",
-  measurementId: "G-GW6WESW19X"
+const firebaseConfig = {
+  apiKey: "AIzaSyBx2UtmVxKWHhLzJ3NyBLR4azfgViu48vs",
+  authDomain: "nails-fed39.firebaseapp.com",
+  databaseURL: "https://nails-fed39-default-rtdb.firebaseio.com",
+  projectId: "nails-fed39",
+  storageBucket: "nails-fed39.appspot.com",
+  messagingSenderId: "395625672032",
+  appId: "1:395625672032:web:aff8d8ce4ef4913caf4205"
 };
 
 
-// Initialize Firebase
-export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const provider = new GoogleAuthProvider();
-// const appleProvider = new firebase.auth.OAuthProvider('apple.com');
-export const SignInWithPopup = signInWithPopup(auth , provider);
-// export const Firebase = firebase
+
+const Myapp = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+
+export { Myapp }
+export const storage = getStorage(Myapp);
+
+
+
+
+

@@ -2,11 +2,66 @@ import OrderListing, { LocationView } from '@/components/OrderLising';
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '@gorhom/bottom-sheet';
 import { COLORS, SHADOWS } from 'constants/theme';
 import React, { useEffect, useRef, useState } from 'react'
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Linking } from 'react-native';
 import { getToken, getUser } from '@/helpers/getToken';
 import Constants from 'expo-constants';
+
+
+
+
+const StatusModal = ({ visible, onClose, onSelectStatus, updateDirectLead, order }: any) => {
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="slide"
+    >
+      <View style={styles.modalBackground}>
+        <View style={styles.modalContainer}>
+          <Text style={styles.modalTitle}>Select Status</Text>
+          <TouchableOpacity
+            style={styles.statusOption}
+            onPress={async () => {
+              // onSelectStatus('ACCEPTED');
+              await updateDirectLead(order, 'ACCEPTED');
+              onClose();
+            }}
+          >
+            <Text style={styles.statusText}>Done</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.statusOption}
+
+            onPress={async () => {
+              await updateDirectLead(order, 'SCAM');
+              onClose();
+            }}
+          >
+            <Text style={styles.statusText}>Scam
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.statusOption}
+            onPress={async () => {
+              await updateDirectLead(order, 'REJECTED');
+              onClose();
+            }}
+          >
+            <Text style={styles.statusText}>Rejected</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={onClose}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+};
 
 const dummyOrders = [
   {
@@ -71,31 +126,31 @@ const dummyOrders = [
   },
 ];
 
-const directLeads = [
-  {
-    user: {
-      fullName: "Holla emortal",
-      phone: "0666778899",
-      isDone: false
-    },
-  },
-  {
-    user: {
-      fullName: "Tiffany mira",
-      phone: "0666098819",
-      isDone: true
-    },
-  },
-]
+
+
+function formatDateToReadable(createdAt: any) {
+  const date = new Date(createdAt);
+
+  const options: any = { hour: '2-digit', minute: '2-digit' };
+  const timeString = date.toLocaleTimeString([], options);
+
+  const now = new Date();
+  const isToday = date.toDateString() === now.toDateString();
+
+  return isToday ? `Today • ${timeString}` : date.toLocaleDateString() + ` • ${timeString}`;
+}
 
 const MyLeads = ({ navigation }: any) => {
 
   const [SelectedType, setSelectedType] = useState("Accepted leads");
+  const [directLeads, setDirectLeads] = useState<any[]>([]);
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [user, setUser] = useState<any>();
-
+  const [show, setShow] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [selectedOrder, setSelectedOrder] = useState<any>();
 
   const scrollToElement = (scrollViewRef: any, elementIndex: number) => {
     if (scrollViewRef.current) {
@@ -116,20 +171,22 @@ const MyLeads = ({ navigation }: any) => {
   const handleDone = (user: any) => {
     Alert.alert("Mark this direct lead", "", [
       {
-        text: "Spam",
+        text: "Scam",
         style: "destructive",
-        onPress: () => {
+        onPress: async () => {
+          await updateDirectLead(user, "SCAM");
         }
       }, {
         text: "Done",
         style: "default",
-        onPress: () => {
-
+        onPress: async () => {
+          await updateDirectLead(user, "ACCEPTED");
         }
       },
       {
         text: "cancel",
-        onPress: () => {
+        onPress: async () => {
+          await updateDirectLead(user, "REJECTED");
         }
       },
     ]);
@@ -138,6 +195,50 @@ const MyLeads = ({ navigation }: any) => {
 
 
 
+  const updateDirectLead = async (order: any, directLeadStatus: any) => {
+    const token = await getToken();
+    const user: any = await getUser();
+    // setUser(user);
+
+    if (!token) {
+      return;
+    }
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    headers.append("Authorization", `Bearer ${token}`);
+    try {
+      setLoading(true);
+      const res = await fetch(
+        Constants.expoConfig?.extra?.apiUrl as string,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            query: `
+                    mutation updateDirectedLead($input: updateDirectedLeadInput) {
+                        updateDirectedLead(input: $input) 
+                        }
+
+                    `,
+            variables: JSON.stringify({
+              input: {
+                id: order.orderId,
+                directLeadStatus
+              }
+            })
+
+          }),
+
+        })
+      const json = await res.json();
+      await getDirectedLeads();
+
+
+    } catch (err: any) {
+      Alert.alert("error", JSON.stringify(err.message, undefined, 2));
+      // Alert.alert(json?.detail);
+    }
+  }
 
 
   const getLeads = async () => {
@@ -145,9 +246,7 @@ const MyLeads = ({ navigation }: any) => {
     const token = await getToken();
     const user: any = await getUser();
     // setUser(user);
-    console.log('====================================');
-    console.log('token', token);
-    console.log('====================================');
+
     if (!token) {
       return;
     }
@@ -170,6 +269,7 @@ const MyLeads = ({ navigation }: any) => {
                                 description
                                 status
                                 images
+                                locationType
                                 owner {
                                 id
                                 leads {
@@ -187,6 +287,9 @@ const MyLeads = ({ navigation }: any) => {
                                 }
                                 artisantUnlockedLead {
                                 id
+                                  firstName
+                                  lastName
+                                  imageProfile
                                 }
                                 location
                             }
@@ -213,9 +316,91 @@ const MyLeads = ({ navigation }: any) => {
 
 
 
+  console.log('====================================');
+  console.log('leads', leads);
+  console.log('====================================');
+
+  const getDirectedLeads = async () => {
+
+    const token = await getToken();
+    const user: any = await getUser();
+    // setUser(user);
+
+    if (!token) {
+      return;
+    }
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    headers.append("Authorization", `Bearer ${token}`);
+    try {
+      setLoading(true);
+      const res = await fetch(
+        Constants.expoConfig?.extra?.apiUrl as string,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            query: `
+                    query getDirectedLeads {
+                          getDirectedLeads{
+                            id
+                            title
+                            status
+                            locationType
+                            owner{
+                              id
+                              firstName
+                              lastName
+                              phone
+                              imageProfile
+                              
+                            }
+                            callOrWhatsapp
+                            professionals{
+                              id
+                              text
+                              img
+                            }
+                            directLeadStatus
+                            createdAt
+                          }
+                        }
+
+                    `,
+
+          }),
+        }
+      );
+
+      const json = await res.json();
+
+
+      setDirectLeads(json?.data?.getDirectedLeads?.map((lead: any) => {
+        return {
+          user: {
+            orderId: lead.id,
+            fullName: lead.owner.firstName + " " + lead.owner.lastName,
+            phone: lead.owner.phone,
+            image: lead.owner.imageProfile,
+            isDone: lead?.directLeadStatus,
+            createdAt: lead.createdAt
+          }
+        }
+      }));
+
+      setLoading(false);
+    } catch (err: any) {
+      setLoading(false);
+      Alert.alert("error", JSON.stringify(err.message, undefined, 2));
+      // Alert.alert(json?.detail);
+    }
+  }
+
+
 
   useEffect(() => {
     getLeads();
+    getDirectedLeads();
   }, [isFocused]);
 
 
@@ -278,14 +463,14 @@ const MyLeads = ({ navigation }: any) => {
               <View key={order.id} style={styles.orderCard}>
                 {/* <Text style={styles.orderId}>Order #{order.id}</Text> */}
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('OrderView', { order })}
+                  onPress={() => navigation.navigate('OrderViewUser', { order })}
                 >
                   <Text style={styles.orderId}>{order.title}</Text>
                   <Text >{order.description}</Text>
                   <Text style={styles.label}>Images:</Text>
                   <ScrollView
                     horizontal>
-                    {order.images.map((image, index) => (
+                    {order.images.map((image: any, index: any) => (
                       <Image
                         key={index + Math.random()} source={{ uri: image }} style={styles.image} />
                     ))}
@@ -300,10 +485,18 @@ const MyLeads = ({ navigation }: any) => {
           </View>
           <View style={{ width: WINDOW_WIDTH, flex: 1, minHeight: WINDOW_HEIGHT }} >
             <View className="px-3" style={{ width: WINDOW_WIDTH, flex: 1, minHeight: WINDOW_HEIGHT }} >
-              {directLeads.map((order, i) => (
+              {directLeads?.map((order: any, i) => (
                 <View key={i} style={styles.orderCard}>
                   <View className='flex-row justify-between '>
-                    <View className='w-12 h-12 rounded-full bg-gray-400' ></View>
+                    {
+                      order?.user?.image ? (
+                        <Image source={{ uri: order?.user?.image }}
+                          className='w-12 h-12 rounded-full'
+                        />
+                      ) : (
+                        <View className='w-12 h-12 rounded-full bg-gray-400' ></View>
+                      )
+                    }
                     <View className='ml-3 flex-grow' >
                       <Text className='font-bold text-left text-lg' >
                         {order?.user?.fullName}
@@ -328,30 +521,72 @@ const MyLeads = ({ navigation }: any) => {
 
                   <View className='border-t-2 border-gray-100 py-1 mt-1  flex-row' >
                     <View className='w-1/2 border-r-2 border-gray-100' >
-                      <Text className='text-center text-lg'>
-                        Today • 12:30
+                      <Text className='text-center text-base'>
+
+                        {
+                          formatDateToReadable(order?.user?.createdAt)
+                        }
                       </Text>
                     </View>
                     <View className='w-1/2 ' >
-                      {!order?.user?.isDone ? (
+                      {order?.user?.isDone === 'PENDING' ? (
 
-                        <TouchableOpacity onPress={() => handleDone(order?.user)}>
+                        <TouchableOpacity onPress={() => {
+                          // if (order?.user?.isDone === 'PENDING') return;
+                          setSelectedOrder(order?.user)
+                          setShow(true)
+                          // handleDone(order?.user)
+                        }}>
                           <Text className='text-right underline text-primary-500 text-lg'>
                             Mark as
                           </Text>
                         </TouchableOpacity>
                       ) : (
-                        <View className="flex-row items-end justify-end">
+                        order?.user?.isDone === 'SCAM' ? (
+                          <TouchableOpacity onPress={() => {
+                            // if (order?.user?.isDone === 'SCAM') return;
+                            // handleDone(order?.user)
+                            setSelectedOrder(order?.user)
 
-                          <Text className='text-right pb-0 mb-0 text-lg'>
-                            Done
-                          </Text>
-                          <View className='text-right pb-1 justify-end text-lg'>
-                            <MaterialIcons name="check" size={18} />
-                          </View>
-                        </View>
+                            setShow(true)
+                          }}>
+                            <Text
+                              className='text-right text-red-500 text-lg'
+                            >
+                              Scam
+                            </Text>
+                          </TouchableOpacity>
+                        ) : (
+                          order?.user?.isDone === 'REJECTED' ? (
+                            <TouchableOpacity onPress={() => {
+                              // if (order?.user?.isDone === 'REJECTED') return;
+                              // handleDone(order?.user)
+                              setSelectedOrder(order?.user)
+
+                              setShow(true)
+                            }}>
+                              <Text className='text-right text-gray-500 text-lg'>
+                                Rejected
+                              </Text>
+                            </TouchableOpacity>
+                          ) : (
+                            <TouchableOpacity onPress={() => {
+                              // if (order?.user?.isDone === 'ACCEPTED') return;
+                              // handleDone(order?.user)
+                              setSelectedOrder(order?.user)
+
+                              setShow(true)
+                            }}>
+                              <Text className='text-right text-green-500 text-lg'>
+                                Done
+                              </Text>
+                            </TouchableOpacity>
+                          )
+                        )
                       )}
+
                     </View>
+
 
                   </View>
                 </View>
@@ -360,6 +595,17 @@ const MyLeads = ({ navigation }: any) => {
 
             </View>
           </View>
+          {
+            selectedOrder && (
+
+              <StatusModal visible={show} onClose={() => {
+                setShow(false)
+              }}
+                order={selectedOrder}
+                updateDirectLead={updateDirectLead}
+                onSelectStatus={setSelectedStatus} />
+            )
+          }
         </ScrollView>
 
         <View
@@ -430,6 +676,45 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 8,
     marginVertical: 8,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '80%',
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  statusOption: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    width: '100%',
+    alignItems: 'center',
+  },
+  statusText: {
+    fontSize: 16,
+  },
+  cancelButton: {
+    marginTop: 20,
+    padding: 10,
+    width: '100%',
+    backgroundColor: '#ccc',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 16,
   },
 });
 

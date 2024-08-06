@@ -18,11 +18,15 @@ import { ButtonPrimary } from '@/components/index';
 import { useDispatch, useSelector } from 'react-redux';
 import { setConfetti } from 'store/User';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { services } from 'constants/data';
+import { getToken } from '@/helpers/getToken';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { storage } from '../../firebase/index';
 
 const STORAGE_KEY = 'orderFormState';
 
-export default function Order({ route }: any) {
+export default function Order({ route, navigation }: any) {
+    const [services, setServices] = useState<any[]>([]);
+
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [date, setDate] = useState(new Date());
@@ -33,6 +37,7 @@ export default function Order({ route }: any) {
     const [address, setAddress] = useState('');
     const [zipCode, setZipCode] = useState('');
     const [showMap, setShowMap] = useState(false);
+    const [loadingOrder, setLoadingOrder] = useState(false);
     const [loadingLocation, setLoadingLocation] = useState(false);
     const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number } | null>(null);
     const bottomSheetModalRef = useRef<any>(null);
@@ -156,6 +161,63 @@ export default function Order({ route }: any) {
     };
 
 
+
+
+    const getServices = async () => {
+
+        const token = await getToken();
+        // setUser(user);
+        console.log('====================================');
+        console.log('token', token);
+        console.log('====================================');
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                    query Professionals {
+                        Professionals{
+                          id
+                          text
+                          img
+                        }
+                      }
+
+                    `,
+
+                    }),
+                }
+            );
+
+            const json = await res.json();
+
+            setServices(json.data.Professionals);
+
+
+        } catch (err: any) {
+            Alert.alert("error", JSON.stringify(err.message, undefined, 2));
+            // Alert.alert(json?.detail);
+        }
+
+    }
+
+
+
+    useEffect(() => {
+        getServices();
+    }, []);
+
+
+
     const handleLocationMethod = async (method: 'address' | 'zipCode' | 'currentLocation') => {
         if (method === 'currentLocation') {
             Alert.alert(
@@ -201,7 +263,7 @@ export default function Order({ route }: any) {
     };
     const params = route?.params;
     const pros = params?.profession;
-    const [professions, setProfessions] = useState([]);
+    const [professions, setProfessions]: any = useState([]);
     useEffect(() => {
         setProfessions(pros || []);
     }, [pros])
@@ -209,7 +271,7 @@ export default function Order({ route }: any) {
     const state = useSelector((state: any) => state?.user?.confetti);
     const [Search, setSearch] = useState("");
     // Define snap points
-    const snapPoints = useMemo(() => ['50%', "80%"], []);
+    const snapPoints = useMemo(() => ['80%', "100%"], []);
     useEffect(() => {
         if (!!!professions?.length) {
             openBottomSheet()
@@ -220,7 +282,134 @@ export default function Order({ route }: any) {
     const scrollToEnd = () => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
     };
-const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
+    const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
+
+    const addOrder = async () => {
+
+        const token: any = await getToken();
+
+        if (!token) {
+            Alert.alert('You need to login first');
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+
+
+        try {
+
+            setLoadingOrder(true);
+            console.log('====================================');
+            console.log('media', media);
+            console.log('====================================');
+
+            const uploadedImages = await Promise.all(
+                media.map(async (item: any) => {
+                    try {
+                        // Fetch the image from the local URI
+                        const response = await fetch(item.uri);
+                        if (!response.ok) throw new Error('Network response was not ok');
+
+                        // Convert the image to a blob
+                        const blob = await response.blob();
+                        console.log('Blob:', blob);
+
+                        // Create a reference to the Firebase Storage location
+                        const storageRef = ref(storage, `images/${Date.now()}_${item.fileName}`);
+                        console.log('StorageRef:', storageRef);
+
+                        // Upload the blob to Firebase Storage
+                        const uploadTask = uploadBytesResumable(storageRef, blob);
+                        console.log('UploadTask:', uploadTask);
+
+                        // Monitor the upload progress
+                        return new Promise((resolve, reject) => {
+                            uploadTask.on(
+                                'state_changed',
+                                (snapshot) => {
+                                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                    console.log('Upload is ' + progress + '% done');
+                                },
+                                (error) => {
+                                    console.error('Upload failed', error);
+                                    reject(error);
+                                },
+                                async () => {
+                                    // Get the download URL of the uploaded image
+                                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                                    console.log('File available at', downloadURL);
+                                    resolve(downloadURL);
+                                }
+                            );
+                        });
+                    } catch (error) {
+                        console.error('Error in uploading image:', error);
+                        throw error;
+                    }
+                })
+            );
+
+
+
+
+            console.log('====================================');
+            console.log('uploadedImages', uploadedImages);
+            console.log('====================================');
+
+
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                        mutation addLead($input: LeadInput!) {
+                                addLead(input: $input) {
+                                    id
+                                }
+                                }
+                        `,
+                        variables: {
+                            input: {
+                                description: description,
+                                title: title,
+                                images: uploadedImages,
+                                location: zipCode || address || JSON.stringify(currentLocation),
+                                status: "NEW",
+                                professionals: professions.map((service: any) => service.id),
+                                locationType: locationMethod,
+                            },
+                        },
+
+                    }),
+                }
+            );
+
+            const lead = await res.json();
+            console.log('====================================');
+            console.log('lead', lead);
+            console.log('====================================');
+            setLoadingOrder(false);
+            dispatch(setConfetti(true))
+            navigation.navigate('Home')
+
+
+        } catch (error: any) {
+            console.log('====================================');
+            console.log('error', error.message);
+            console.log('====================================');
+            setLoadingOrder(false);
+            return Alert.alert(error.message)
+        }
+
+        setLoadingOrder(false);
+
+    }
+
+
+
 
 
     return (
@@ -256,6 +445,24 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
                             <ScrollView horizontal
                                 ref={scrollViewRef}
                             >
+                                {
+                                    professions?.length == 0 &&
+
+                                    <TouchableOpacity
+                                        onPress={openBottomSheet}
+                                        className='border-dashed   flex-row items-center  justify-center  border-2 rounded-md border-primary-500 ' >
+                                        <View
+                                            className='flex-row items-center justify-center'
+                                            style={{ width: 50, height: 50 }} >
+
+                                            <Ionicons name="add" size={32} color={COLORS.primary} />
+                                        </View>
+                                        <Text className={`text-lg text-primary-500 font-bold text-center mr-2`} >
+                                            Professional
+                                        </Text>
+
+                                    </TouchableOpacity>
+                                }
                                 {(professions || [])?.sort((a: any, b: any) => a?.text.toLowerCase().localeCompare(b.text.toLowerCase()))?.map((e: any, i: any) => (
                                     <TouchableOpacity
                                         // onPress={() => setSelectedProfession({ name: e.text, img: e.img, id: e.id })}
@@ -298,7 +505,7 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
                             />
                         </View>
 
-                        <View className="mb-4">
+                        {/* <View className="mb-4">
                             <Text className="text-base font-semibold mb-2">When:</Text>
                             <TouchableOpacity
                                 onPress={() => setShowDatePicker(true)} // Show date picker
@@ -320,7 +527,7 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
                                 // isVisible={showDatePicker} // Control visibility based on state
                                 />
                             </TouchableOpacity>
-                        </View>
+                        </View> */}
 
                         <View className="mb-4">
                             <Text className="text-base font-semibold mb-2">How do you want us to find you?</Text>
@@ -335,15 +542,15 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
                                 </TouchableOpacity>
                                 {country === 'usa' && (
                                     <TouchableOpacity
-                                    onPress={() => handleLocationMethod('zipCode')}
-                                    style={[styles.locationButton, locationMethod === 'zipCode' && styles.selectedLocation]}
+                                        onPress={() => handleLocationMethod('zipCode')}
+                                        style={[styles.locationButton, locationMethod === 'zipCode' && styles.selectedLocation]}
                                     >
-                                    <MaterialCommunityIcons size={32} color={locationMethod === 'zipCode' ? "white" : "black"} name="map-marker-radius-outline" />
-                                    <Text
-                                        style={{ color: locationMethod === 'zipCode' ? "white" : "black" }}
-                                        className="text-center">Use Zip Code</Text>
-                                </TouchableOpacity>
-                                    )}
+                                        <MaterialCommunityIcons size={32} color={locationMethod === 'zipCode' ? "white" : "black"} name="map-marker-radius-outline" />
+                                        <Text
+                                            style={{ color: locationMethod === 'zipCode' ? "white" : "black" }}
+                                            className="text-center">Use Zip Code</Text>
+                                    </TouchableOpacity>
+                                )}
 
                                 <TouchableOpacity
                                     onPress={() => handleLocationMethod('currentLocation')}
@@ -448,20 +655,31 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
                         </View>
                     </View>
                     <View className='px-3'>
+                        {
+                            loadingOrder ? (
+                                <ActivityIndicator size="large" color="black" />
+                            ) :
 
-                        <ButtonPrimary
-                            onPress={
-                                () => dispatch(setConfetti(true))
-                            }
-                            setLoading={() => { }}
-                            text='Create order'
-                        />
+                                <ButtonPrimary
+                                    onPress={
+                                        () => {
+                                            addOrder()
+                                        }
+                                    }
+                                    setLoading={() => { }}
+                                    text='Create order'
+                                />
+                        }
                     </View>
                     <View className='my-20' />
                     <BottomSheetModal
                         snapPoints={snapPoints}
-                        style={{ borderTopColor: "gray", borderTopWidth: 2 }}
-                        ref={bottomSheetModalRef}>
+                        style={{
+                            borderTopColor: "gray", borderTopWidth: 2,
+                        }}
+                        ref={bottomSheetModalRef}
+
+                    >
                         <Text className='text-lg font-bold text-center'>
                             Professions
                         </Text>
@@ -474,8 +692,13 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
                                 onChangeText={(v) => setSearch(v)}
                             />
                         </View>
-                        <ScrollView style={{ backgroundColor: 'white', paddingHorizontal: 16 }}>
-                            <View className="flex flex-wrap flex-row -mx-2">
+                        <ScrollView
+                            style={{
+                                backgroundColor: 'white', paddingHorizontal: 16,
+                                zIndex: 1000,
+                                elevation: 1000,
+                            }}>
+                            <View className="flex flex-wrap flex-row -mx-2 ">
                                 {services?.filter(e => e.text?.toLowerCase().includes(Search?.toLowerCase()))?.sort((a, b) => a?.text.toLowerCase().localeCompare(b.text.toLowerCase()))?.map((e, i) => (
                                     <TouchableOpacity
                                         // onPress={() => setSelectedProfession({ name: e.text, img: e.img, id: e.id })}
@@ -483,13 +706,8 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
 
                                         className={`w-1/2 p-1 min-w-[100px]`}
                                         onPress={() => {
-                                            handleStateChange((() => {
-                                                if (professions?.map((el: any) => el.text)?.includes(e.text)) {
-                                                    return professions.filter((el: any) => el.text !== e.text);
-                                                } else {
-                                                    return [...professions, e]
-                                                }
-                                            })(), setProfessions)
+                                            setProfessions([e])
+                                            bottomSheetModalRef.current?.close()
 
                                         }}
                                     >
@@ -507,7 +725,9 @@ const country = Constants?.manifest2?.extra?.expoClient?.extra?.country;
                                 ))}
                             </View>
                         </ScrollView>
+
                     </BottomSheetModal>
+
                 </KeyboardAwareScrollView>
             </BottomSheetModalProvider>
         </GestureHandlerRootView>

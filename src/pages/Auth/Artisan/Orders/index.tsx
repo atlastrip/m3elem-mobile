@@ -1,5 +1,5 @@
 import React from 'react'
-import { RefreshControl, StyleSheet, Text, TextInput } from 'react-native'
+import { Dimensions, Modal, RefreshControl, StyleSheet, Text, TextInput } from 'react-native'
 import { ScrollView } from 'react-native'
 import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -10,11 +10,30 @@ import { TouchableOpacity } from 'react-native'
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { COLORS, SHADOWS } from 'constants/theme'
 import { Motion } from '@legendapp/motion'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import QRCode from 'react-native-qrcode-svg'
+import { ButtonPrimary } from '@/components/index'
 
 
 
 const ArtisanOrders = ({ navigation }: any) => {
     const insets = useSafeAreaInsets()
+    const [showQr, setShowQr] = React.useState(false)
+    const [order, setOrder] = React.useState<any>(null)
+    const [user, setUser] = React.useState<any>(null)
+    const { width } = Dimensions.get('window')
+
+
+    const getInfo = async () => {
+        const User = await AsyncStorage.getItem('@user')
+        setUser(JSON.parse(User || '{}'))
+    }
+
+
+    React.useEffect(() => {
+        getInfo()
+    }, [])
+
     return (
         <View style={{ flex: 1 }} >
             <TouchableOpacity
@@ -23,7 +42,7 @@ const ArtisanOrders = ({ navigation }: any) => {
                     ...SHADOWS.medium.primary
                 }}
                 className='rounded-full justify-center items-center w-20 z-10 h-20 absolute bottom-3 right-3' onPress={() => navigation.navigate('DeckOrders')}>
-                <Motion.View initial={{ rotate: `${-20}deg` }} animate={{ rotate: `${0}deg`}}>
+                <Motion.View initial={{ rotate: `${-20}deg` }} animate={{ rotate: `${0}deg` }}>
                     <MaterialIcons name="swipe" color="white" size={30} />
                 </Motion.View>
                 {/* <Text>sqlkjqsld</Text> */}
@@ -77,10 +96,42 @@ const ArtisanOrders = ({ navigation }: any) => {
                             </TouchableOpacity>
                         </View>
                     </View>
+                    {
+                        showQr &&
+                        <Modal visible={showQr} transparent={true}
+                            onRequestClose={() => setShowQr(false)}
+                            animationType="slide">
+                            <View className="flex-1 justify-center items-center bg-white p-4 flex-row ">
+                                <View className="w-full  bg-gray-100 rounded-2xl p-2">
+                                    <View className="items-center mb-4">
+                                        <View className="my-5 w-20 h-2 rounded-xl bg-gray-600"></View>
+                                        <Text className="text-lg font-bold">{
+                                            user?.firstName + ' ' + user?.lastName
+                                        }</Text>
+                                        {/* <View className="flex-row items-center mt-1">
+                        <Text className="text-red-500">★</Text>
+                        <Text className="text-lg ml-1">4.9/5 (15)</Text>
+                    </View> */}
+                                    </View>
+                                    <View className="items-center mb-4">
+                                        <QRCode value={JSON.stringify({ order, user })}
+                                            size={width > 300 ? width * .8 : 300}
+                                        />
+                                    </View>
+                                    <ButtonPrimary text="OK" onPress={() => setShowQr(false)} Loading={false} setLoading={() => { }} />
+
+                                </View>
+                            </View>
+                        </Modal>
+
+                    }
                 </View>
 
                 <View className='' >
-                    <OrderListing navigation={navigation} />
+                    <OrderListing
+                        setShowQr={setShowQr}
+                        setOrder={setOrder}
+                        navigation={navigation} />
                 </View>
 
             </ScrollView>
