@@ -147,6 +147,7 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
                   email
                   phone
                   role
+                  imageProfile
                 }
                 token
               }
@@ -163,13 +164,14 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
 
       const json = await res.json();
       if (json.data?.login?.user) {
-        console.info('user',json.data?.login.user);
-        console.info('token',json.data?.login.token);
+        console.info('user', json.data?.login.user);
+        console.info('token', json.data?.login.token);
 
         await AsyncStorage.setItem(
           "@token",
           json.data?.login?.token
         );
+        await AsyncStorage.setItem("@imageProfile", json.data?.login?.user?.imageProfile);
         await AsyncStorage.setItem("@user", JSON.stringify(json.data?.login?.user));
         await AsyncStorage.setItem("@signed-user", JSON.stringify({ email: em || username, password: ps || password }));
         dispatch(isLogin(true));
@@ -257,7 +259,7 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
             className=" text-2xl font-bold my-4 text-center">
             Log in again!
           </Text>
-          {(SignedUser ) && (
+          {(SignedUser) && (
             <View className="px-3">
               <TouchableOpacity
                 style={{ backgroundColor: COLORS.primary + 20 }}

@@ -519,7 +519,7 @@ const GestionDeCompte = ({ navigation, route }: any) => {
           </View>
 
           {
-            Location?.latitude && Location?.longitude && (
+            (Location?.latitude && Location?.longitude) ? (
 
 
               <>
@@ -559,7 +559,45 @@ const GestionDeCompte = ({ navigation, route }: any) => {
                 </Picker>
               </>
 
-            )}
+            ) :
+              <>
+                <MapView
+                  style={{ height: 300, marginBottom: 20 }}
+                  initialRegion={{
+                    latitude: Location?.latitude || 33.0,
+                    longitude: Location?.longitude || -7.0,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                  }}
+                  onPress={(e) => setLocation(e.nativeEvent.coordinate)}
+                >
+                  <Marker coordinate={Location} />
+                  <Circle
+                    center={Location || { latitude: 33.0, longitude: -7.0 }}
+                    radius={typeof Radius == 'string' ? parseInt(Radius) || 15000 : Radius || 15000}
+                    strokeColor="rgba(0,112,255,0.5)"
+                    fillColor="rgba(0,112,255,0.2)"
+                  />
+                </MapView>
+                <Picker
+                  selectedValue={Radius || 15000}
+                  style={styles.picker}
+                  onValueChange={(itemValue, itemIndex) => {
+                    console.log('====================================');
+                    console.log('itemValue', itemValue);
+                    console.log('====================================');
+                    setRadius(itemValue);
+                  }}
+
+                >
+                  <Picker.Item label="5km" value={5000} />
+                  <Picker.Item label="10km" value={10000} />
+                  <Picker.Item label="15km" value={15000} />
+                  <Picker.Item label="20km" value={20000} />
+                </Picker>
+              </>
+
+          }
 
           <Text className="text-black ml-2 mb-2">Portfolio :</Text>
           <TouchableOpacity
@@ -579,8 +617,8 @@ const GestionDeCompte = ({ navigation, route }: any) => {
               ) :
 
                 Portfolio?.map((image, index) => (
-                  <TouchableOpacity 
-                  key={image?.id}
+                  <TouchableOpacity
+                    key={image?.id}
 
                   >
                     <Image

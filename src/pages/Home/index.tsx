@@ -71,39 +71,39 @@ export default function HomeScreen({ navigation }: any) {
   const [Loading, setLoading] = useState(false);
   const [Types, setTypes] = useState<string[]>([]);
 
-  useEffect(() => {
-    setTypes([...new Set(Audios?.filter(e => e.archived != true)?.map(e => e.type))])
-  }, [Audios])
+  // useEffect(() => {
+  //   setTypes([...new Set(Audios?.filter(e => e.archived != true)?.map(e => e.type))])
+  // }, [Audios])
 
 
-  const getData = async () => {
-    setLoading(true)
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
+  // const getData = async () => {
+  //   setLoading(true)
+  //   const myHeaders = new Headers();
+  //   myHeaders.append("Content-Type", "application/json");
 
-    const graphql = JSON.stringify({
-      query: "query AllAudio {\r\n  AllAudio {\r\n    id\r\n    name\r\n    description\r\n    shortDescription\r\n    city\r\n    longitude\r\n    latitude\r\n    image\r\n    audio\r\n    archived\r\n    type\r\n    createdAt\r\n    updatedAt\r\n  }\r\n}\r\n",
-      variables: {}
-    })
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: graphql,
-    };
+  //   const graphql = JSON.stringify({
+  //     query: "query AllAudio {\r\n  AllAudio {\r\n    id\r\n    name\r\n    description\r\n    shortDescription\r\n    city\r\n    longitude\r\n    latitude\r\n    image\r\n    audio\r\n    archived\r\n    type\r\n    createdAt\r\n    updatedAt\r\n  }\r\n}\r\n",
+  //     variables: {}
+  //   })
+  //   const requestOptions = {
+  //     method: "POST",
+  //     headers: myHeaders,
+  //     body: graphql,
+  //   };
 
-    fetch("https://m3elem-app-ecj9f.ondigitalocean.app/m3elem", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        // @ts-ignore
-        setAudios(result?.data?.AllAudio?.filter(e => e?.archive != true) || []);
-        setLoading(false)
-      })
-      .catch((error) => console.error(error));
-  }
+  //   fetch("https://m3elem-app-ecj9f.ondigitalocean.app/m3elem", requestOptions)
+  //     .then((response) => response.json())
+  //     .then((result) => {
+  //       // @ts-ignore
+  //       setAudios(result?.data?.AllAudio?.filter(e => e?.archive != true) || []);
+  //       setLoading(false)
+  //     })
+  //     .catch((error) => console.error(error));
+  // }
 
-  useEffect(() => {
-    getData();
-  }, []);
+  // useEffect(() => {
+  //   getData();
+  // }, []);
 
 
 
@@ -197,7 +197,7 @@ export default function HomeScreen({ navigation }: any) {
   React.useEffect(() => {
     (async () => {
       const { status }: any = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
+      setHasPermission(status == 'granted');
     })();
   }, []);
 
@@ -222,7 +222,9 @@ export default function HomeScreen({ navigation }: any) {
   return (
     <ScrollView
       refreshControl={
-        <RefreshControl refreshing={Audios.length > 0 && Loading} onRefresh={() => getData()} />
+        <RefreshControl refreshing={Audios.length > 0 && Loading} onRefresh={() =>
+          getServices()
+        } />
       }
     >
 
@@ -360,6 +362,7 @@ export default function HomeScreen({ navigation }: any) {
             <Text className="text-white mt-8 font-bold text-xl">QrCode Scanner</Text>
           </LinearGradient>
         </TouchableOpacity>
+
 
       </View>
 

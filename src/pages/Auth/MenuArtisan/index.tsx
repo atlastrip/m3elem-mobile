@@ -38,11 +38,15 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
   const dispatch = useDispatch();
   const [User, setUser] = useState<IUser | null>(null);
   const insets = useSafeAreaInsets();
+  const [imageProfile, setImageProfile] = useState<string | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
         const user = await AsyncStorage.getItem("@user");
+        const img = await AsyncStorage.getItem("@imageProfile");
+        setImageProfile(img);
+
         // @ts-ignore
         console.log({ user: JSON.parse(user) })
         // @ts-ignore
@@ -109,7 +113,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
     //       Url: "https://www.pantofit.com/termsofsell.html",
     //     }),
     // },
-    
+
     {
       name: "How to use",
       icon: <MaterialIcons name="menu-book" color="white" size={20} />,
@@ -238,6 +242,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
     (async () => {
       await AsyncStorage.removeItem("@token");
       await AsyncStorage.removeItem("@user");
+      await AsyncStorage.removeItem("@imageProfile");
       dispatch(isLogin(false));
     })();
   };
@@ -251,6 +256,8 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
   useEffect(() => {
     HandleConnected();
   }, [])
+
+
   return (
     <View
       style={{
@@ -288,8 +295,8 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
           >
             <View className="p-3 mt-3">
               <View
-              style={{backgroundColor : COLORS.primary+10 }}
-              className="rounded-lg ">
+                style={{ backgroundColor: COLORS.primary + 10 }}
+                className="rounded-lg ">
                 <TouchableOpacity
                   onPress={() => navigation.navigate("GestionDeCompte")}
                   // onPress: () => navigation.navigate(""),
@@ -297,20 +304,37 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
                   className="flex-row p-3 justify-between"
                 >
                   <View className="flex-row">
-                    <View
-                      style={{
-                        width: window?.width * 0.15,
-                        aspectRatio: 1,
-                        borderWidth: 2,
-                        borderColor: "#000000",
-                      }}
-                      className="rounded-full p-3 flex-row justify-center items-center relative"
-                    >
-                      <FontAwesome6 name="user" size={24} />
-                    </View>
+                    {
+                      imageProfile ? (
+                        <Image
+                          source={{ uri: imageProfile }}
+                          style={{
+                            width: window?.width * 0.15,
+                            aspectRatio: 1,
+                            borderWidth: 2,
+                          }}
+                          className="rounded-full p-3 flex-row justify-center items-center relative"
+
+                        />
+                      ) : (
+                        <View
+                          style={{
+                            width: window?.width * 0.15,
+                            aspectRatio: 1,
+                            borderWidth: 2,
+                            borderColor: "#000000",
+                          }}
+                          className="rounded-full p-3 flex-row justify-center items-center relative"
+                        >
+                          <FontAwesome6 name="user" size={24} />
+                        </View>
+                      )
+                    }
                     <View className="ml-2">
                       <Text className="text-black text-xl font-bold">
-                        {User?.fullName || "Utilisateur"}{" "}
+                        {User?.firstName + " " + User?.lastName
+
+                          || "Utilisateur"}{" "}
                         {/* {User?.user?.last_name || "ServiceDay"} */}
                       </Text>
                       <Text className="text-black mt-2">View profile</Text>
@@ -326,9 +350,9 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
             <View className="px-3">
 
               <View
-              style={{backgroundColor : COLORS.primary+10 }}
-              
-              className="rounded-lg  mb-3">
+                style={{ backgroundColor: COLORS.primary + 10 }}
+
+                className="rounded-lg  mb-3">
                 {Menu4?.map((menu, idx) => (
                   <View key={idx}>
                     <TouchableOpacity
@@ -360,9 +384,9 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
                 ))}
               </View>
               <View
-              style={{backgroundColor : COLORS.primary+10 }}
-              
-              className="rounded-lg  mb-3">
+                style={{ backgroundColor: COLORS.primary + 10 }}
+
+                className="rounded-lg  mb-3">
                 {Menu2?.map((menu, idx) => (
                   <View key={idx}>
                     <TouchableOpacity
@@ -394,9 +418,9 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
                 ))}
               </View>
               <View
-              style={{backgroundColor : COLORS.primary+10 }}
-              
-              className="rounded-lg  mb-3">
+                style={{ backgroundColor: COLORS.primary + 10 }}
+
+                className="rounded-lg  mb-3">
                 {Menus?.map((menu, idx) => (
                   <View key={idx}>
                     <TouchableOpacity
@@ -444,10 +468,10 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
                   </View>
                 ))}
               </View>
-              <View 
-              style={{backgroundColor : COLORS.primary+10 }}
-              
-              className="rounded-lg  mb-3">
+              <View
+                style={{ backgroundColor: COLORS.primary + 10 }}
+
+                className="rounded-lg  mb-3">
                 <View>
                   <TouchableOpacity
                     onPress={showAlert}

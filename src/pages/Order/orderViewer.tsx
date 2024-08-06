@@ -93,7 +93,7 @@ const OrderView = ({ route, navigation }: any) => {
 
 
     const getInfo = async () => {
-        const User = await AsyncStorage.getItem('@user');        
+        const User = await AsyncStorage.getItem('@user');
         setArtisantInfo(JSON.parse(User || '{}'));
     }
     const handleAddReview = async () => {
@@ -228,7 +228,7 @@ const OrderView = ({ route, navigation }: any) => {
                         <View style={styles.unlockedLeadsContainer}>
                             <Text style={styles.title}>Unlocked Leads</Text>
                             <ScrollView horizontal>
-                                {order.artisantUnlockedLead.map((lead: any) => (
+                                {order?.artisantUnlockedLead?.map((lead: any) => (
                                     <>
                                         <View key={lead.id} style={styles.leadItem}>
                                             <Image source={{ uri: lead.imageProfile }} style={styles.leadImage} />
@@ -245,7 +245,7 @@ const OrderView = ({ route, navigation }: any) => {
                         </View>
                     )}
 
-                    
+
 
                     {
                         order?.artisantUnlockedLead?.length > 0 && artisantInfo?.role !== 'artisant' &&
