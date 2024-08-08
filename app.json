@@ -74,14 +74,16 @@
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.FOREGROUND_SERVICE"
+        "android.permission.FOREGROUND_SERVICE",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
       ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "apiUrl": "https://m3elem-app-ecj9f.ondigitalocean.app/m3elem",
+      "apiUrl": "http://192.168.1.47:4000/m3elem",
       "country": "ma",
       "currency": "mad"
     }

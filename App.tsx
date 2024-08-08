@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 // import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@apollo/client';
 import { AppRegistry } from 'react-native';
 import Navigation from "./src/navigation";
 import { Provider as ProviderRedux } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { User } from "./src/store";
-// import { setContext } from '@apollo/client/link/context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 const store: any = configureStore({
   reducer: {
@@ -52,12 +51,14 @@ const store: any = configureStore({
 
 
 const App = () => {
+  
+
 
   return (
 
     <ProviderRedux store={store}>
       {/* <ApolloProvider client={client}> */}
-        <Navigation />
+      <Navigation />
       {/* </ApolloProvider> */}
     </ProviderRedux>
   );

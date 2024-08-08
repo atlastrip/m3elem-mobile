@@ -116,7 +116,8 @@ const PaymentMethodPage = () => {
                         variables: {
                             input: {
                                 id: JSON.parse(user)?.id,
-                                ...methods
+                                ...methods,
+                                newImage: []
                             }
                         }
                     }),

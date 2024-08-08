@@ -173,6 +173,9 @@ const ProfessionPage = ({ navigation }: any) => {
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
         headers.append("Authorization", `Bearer ${token}`);
+        console.log('====================================');
+        console.log('professionId', professionId);
+        console.log('====================================');
         try {
             setLoading(true);
             const res = await fetch(
@@ -188,6 +191,12 @@ const ProfessionPage = ({ navigation }: any) => {
                                 firstName
                                 lastName
                                 imageProfile
+                                adress
+                                aboutYou
+                                images{
+                                    id
+                                  source
+                                }
                                 CashOnDeliveryPayment
                                 BankTransferPayment
                                 CheckPayment
@@ -199,6 +208,7 @@ const ProfessionPage = ({ navigation }: any) => {
                                 phone
                                 images{
                                 id
+                                name
                                 source
                                 }
                                 reviews{
@@ -240,6 +250,7 @@ const ProfessionPage = ({ navigation }: any) => {
             );
 
             const json = await res.json();
+
 
             setArtisants(json.data.getArtisantByProfessinalId);
         } catch (err: any) {
@@ -380,7 +391,11 @@ const ProfessionPage = ({ navigation }: any) => {
                                         SelectedProfession
                                     })}
                                     className="flex-row  items-center p-4 bg-white rounded-lg shadow-md my-2">
-                                    <Image source={{ uri: SelectedProfession?.img }} className="w-16 h-16 rounded-full mr-4" />
+                                    <Image source={{
+                                        uri: e?.images[0]?.source
+                                            || "https://thumbs.dreamstime.com/b/blue-green-background-8525790.jpg"
+
+                                    }} className="w-16 h-16 rounded-full mr-4" />
                                     <View className="flex-1">
                                         <Text className="text-lg font-bold">
                                             {

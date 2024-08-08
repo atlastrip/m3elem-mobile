@@ -171,7 +171,9 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
           "@token",
           json.data?.login?.token
         );
-        await AsyncStorage.setItem("@imageProfile", json.data?.login?.user?.imageProfile);
+        if (json.data?.login?.user?.imageProfile) {
+          await AsyncStorage.setItem("@imageProfile", json.data?.login?.user?.imageProfile);
+        }
         await AsyncStorage.setItem("@user", JSON.stringify(json.data?.login?.user));
         await AsyncStorage.setItem("@signed-user", JSON.stringify({ email: em || username, password: ps || password }));
         dispatch(isLogin(true));

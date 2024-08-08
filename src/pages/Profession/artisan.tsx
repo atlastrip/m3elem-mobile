@@ -1,5 +1,5 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, Linking, Alert } from 'react-native';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import { View, Text, Image, ScrollView, TouchableOpacity, Linking, Alert, StyleSheet } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from 'constants/theme';
 import ImageViewing from 'react-native-image-viewing';
@@ -8,6 +8,9 @@ import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { getToken, getUser } from '@/helpers/getToken';
 import Constants from 'expo-constants';
+import { FontAwesome } from '@expo/vector-icons';
+import { ResizeMode, Video } from 'expo-av';
+
 interface ReviewProps {
     name: string;
     comment: string;
@@ -16,7 +19,34 @@ interface ReviewProps {
     image: string;
 }
 
-const Review: React.FC<ReviewProps> = ({ name, comment, rating, timeAgo, image }: any) => {
+const CustomerReviews = ({ averageRating, totalReviews, ratingPercentages = [] }: any) => {
+    return (
+        <View style={styles.container}>
+            <Text style={styles.heading}>Customer Reviews</Text>
+            <View style={styles.overallRatingContainer}>
+                <Text style={styles.averageRating}>
+                    {averageRating}
+                </Text>
+                <FontAwesome name="star" size={24} color="#FFD700" style={styles.starIcon} />
+                <Text style={styles.totalReviews}>Based on {totalReviews} reviews</Text>
+            </View>
+            {ratingPercentages?.map((percentage, index) => (
+                <View key={index} style={styles.ratingRow}>
+                    <View style={styles.starLabelContainer}>
+                        <FontAwesome name="star" size={16} color="#FFD700" />
+                        <Text style={styles.starLabelText}>{index + 1}</Text>
+                    </View>
+                    <View style={styles.progressBarContainer}>
+                        <View style={[styles.progressBar, { width: `${percentage}%` }]} />
+                    </View>
+                    <Text style={styles.percentageText}>{percentage}%</Text>
+                </View>
+            ))}
+        </View>
+    );
+};
+
+export const Review: React.FC<ReviewProps> = ({ name, comment, rating, timeAgo, image }: any) => {
 
 
     return (
@@ -153,6 +183,30 @@ const ArtisanPage: React.FC = ({ route }: any) => {
 
 
 
+    const calculateReviewSummary = (reviews: any) => {
+        const totalReviews = reviews.length;
+        const ratingCounts = [0, 0, 0, 0, 0]; // [1-star, 2-star, 3-star, 4-star, 5-star]
+
+        reviews.forEach(({ rating }: any) => {
+            ratingCounts[parseInt(rating) - 1] += 1;
+        });
+
+        const averageRating = (
+            ratingCounts.reduce((acc, count, index) => acc + (count * (index + 1)), 0) / totalReviews
+        ).toFixed(1);
+
+        const ratingPercentages = ratingCounts.map(count => ((count / totalReviews) * 100).toFixed(0));
+
+        return { averageRating, totalReviews, ratingPercentages };
+    };
+
+
+
+    const { averageRating, totalReviews, ratingPercentages } = calculateReviewSummary(artisan?.reviews?.filter((review: any) => review?.order?.professionals[0].id === SelectedProfession.id));
+
+    console.log('artisan?.images', artisan?.images);
+
+
 
 
     return (
@@ -165,7 +219,7 @@ const ArtisanPage: React.FC = ({ route }: any) => {
                                 <Image
                                     source={{
                                         uri:
-                                            SelectedProfession?.img ||
+                                            artisan?.images[0]?.source ||
                                             'https://scrubnbubbles.com/wp-content/uploads/2022/05/cleaning-service.jpeg'
                                     }}
                                     className="w-full h-64 rounded-t-lg"
@@ -197,23 +251,34 @@ const ArtisanPage: React.FC = ({ route }: any) => {
                                 </View>
                                 {/* <Text style={{ color: COLORS.primary }} className="text-2xl font-bold mt-2">$20</Text> */}
                                 {/* <Text className="text-gray-600 mt-1">Floor price</Text> */}
-                                <Text className="text-gray-600 mt-2">
-                                    233 Grand Park Avenue, New York
-                                </Text>
-                                <Text className="text-gray-600 mt-2">
-                                    Cleaning service in New York
-                                </Text>
+                                <View>
+                                    <Text className="text-gray-600 mt-2">
+                                        {
+                                            artisan?.adress ? artisan?.adress : 'No address found'
+                                        }
+                                    </Text>
+                                </View>
+                                <View>
+                                    <Text className="text-lg font-bold mt-4">About</Text>
+                                    <Text className="text-gray-600 mt-2">
+                                        {
+                                            artisan?.aboutYou ? artisan?.aboutYou : 'No description found'
+                                        }
+                                    </Text>
+
+                                </View>
                                 {/* <TouchableOpacity className="mt-4">
                                     <Text style={{ color: COLORS.primary }} className="font-bold">Read more...</Text>
                                 </TouchableOpacity> */}
                             </View>
-                            <View className="p-4">
+                            {/* <View className="p-4">
                                 <Text className="text-lg font-bold">Photos & Videos</Text>
                                 <ScrollView horizontal className="mt-2">
 
                                     {
                                         artisan?.images?.length > 0 ?
                                             artisan?.images.map((uri: any, index: any) => (
+                                                
                                                 <TouchableOpacity key={index} onPress={() => openImageModal(index)}>
                                                     <View className="w-24 h-24 bg-gray-200 rounded-lg mr-2">
                                                         <Image
@@ -229,52 +294,109 @@ const ArtisanPage: React.FC = ({ route }: any) => {
                                             </View>
                                     }
                                 </ScrollView>
+                            </View> */}
+
+                            <View className="p-4">
+                                <Text className="text-lg font-bold">Photos & Videos</Text>
+                                <ScrollView horizontal className="mt-2">
+                                    {
+                                        artisan?.images?.length > 0 ?
+                                            artisan?.images.map((mediaItem: any, index: any) => (
+                                                <TouchableOpacity key={index} onPress={() => openImageModal(index)}>
+                                                    <View className="w-24 h-24 bg-gray-200 rounded-lg mr-2">
+                                                        {
+                                                            mediaItem.name.split('.')[1].toLowerCase() == 'jpg' || mediaItem.name.split('.')[1].toLowerCase() == 'png' || mediaItem.name.split('.')[1].toLowerCase() == 'jpeg' ? (
+                                                                <Image
+                                                                    source={{ uri: mediaItem?.source }}
+                                                                    className="w-24 h-24 rounded-lg"
+                                                                />
+                                                            ) : mediaItem.name.split('.')[1] == 'mp4' ? (
+                                                                <Video
+                                                                    source={{ uri: mediaItem?.source }}
+                                                                    style={{ width: 96, height: 96, borderRadius: 8 }}
+                                                                    // resizeMode="cover"
+                                                                    // muted
+                                                                    resizeMode={ResizeMode.COVER}
+                                                                    isMuted={false}
+                                                                />
+                                                            ) : mediaItem.name.split('.')[1] == 'gif' ? (
+                                                                <Image
+                                                                    source={{ uri: mediaItem?.source }}
+                                                                    className="w-24 h-24 rounded-lg"
+                                                                    style={{ resizeMode: 'cover' }}
+                                                                />
+                                                            ) : (
+                                                                <Text className="text-center text-xs text-gray-600">Unsupported media</Text>
+                                                            )
+                                                        }
+                                                    </View>
+                                                </TouchableOpacity>
+                                            ))
+                                            :
+                                            <View className="w-24 h-24 bg-gray-200 rounded-lg mr-2 flex-row justify-center items-center">
+                                                <Text className="text-center text-xs text-gray-600">No media</Text>
+                                            </View>
+                                    }
+                                </ScrollView>
                             </View>
+
                             {/* payment method availible CashOnDeliveryPayment
                                     BankTransferPayment
                                     CheckPayment  */}
                             <View className="p-4 flex-col">
-                                <Text className="text-lg font-bold">Payment Methods</Text>
+                                <Text className="text-lg font-bold">Accepted Payment Methods</Text>
                                 <View className="flex-col items-start mt-2 ">
-                                    <View className="flex-row items-center gap-2">
+                                    <View className="flex-row items-center gap-2 mb-2">
                                         {
-                                            artisan?.CashOnDeliveryPayment ?
+                                            artisan?.CashOnDeliveryPayment &&
 
+                                            <>
                                                 <Ionicons name="checkmark-circle" color={
                                                     COLORS.primary
                                                 } size={16} />
-                                                :
-                                                <Ionicons name="remove-circle" color={'gray'} size={16} />
+                                                <Text className="text-gray-600">Cash</Text>
+                                            </>
+
                                         }
-                                        <Text className="text-gray-600">Cash on delivery</Text>
                                     </View>
                                     <View className="flex-row items-center gap-2">
 
                                         {
-                                            artisan?.BankTransferPayment ?
+                                            artisan?.BankTransferPayment &&
 
+                                            <>
                                                 <Ionicons name="checkmark-circle" color={
                                                     COLORS.primary
                                                 } size={16} />
-                                                :
-                                                <Ionicons name="remove-circle" color={'gray'} size={16} />
+                                                <Text className="text-gray-600">Bank transfer</Text>
+                                            </>
+
                                         }
-                                        <Text className="text-gray-600">Bank transfer</Text>
                                     </View>
                                     <View className="flex-row items-center gap-2">
 
                                         {
-                                            artisan?.CheckPayment ?
+                                            artisan?.CheckPayment &&
 
+                                            <>
                                                 <Ionicons name="checkmark-circle" color={
                                                     COLORS.primary
                                                 } size={16} />
-                                                :
-                                                <Ionicons name="remove-circle" color={'gray'} size={16} />
+                                                <Text className="text-gray-600">Check payment</Text>
+                                            </>
+
+                                            // :
+                                            // <Ionicons name="remove-circle" color={'gray'} size={16} />
                                         }
-                                        <Text className="text-gray-600">Check payment</Text>
                                     </View>
                                 </View>
+                            </View>
+
+                            <View>
+                                {
+                                    artisan?.reviews?.filter((review: any) => review?.order?.professionals[0].id === SelectedProfession.id).length > 0 &&
+                                    <CustomerReviews averageRating={averageRating} totalReviews={totalReviews} ratingPercentages={ratingPercentages} />
+                                }
                             </View>
 
                             <View className="p-4 mb-32">
@@ -327,8 +449,10 @@ const ArtisanPage: React.FC = ({ route }: any) => {
                             images={images.map((uri: any) => ({ uri }))}
                             imageIndex={currentImageIndex}
                             visible={isModalVisible}
+                            
                             onRequestClose={() => setIsModalVisible(false)}
                         />
+
                     </ScrollView>
                     <View className="absolute bottom-0 left-0 w-full px-3 pb-3">
                         {
@@ -411,3 +535,73 @@ const ArtisanPage: React.FC = ({ route }: any) => {
 };
 
 export default ArtisanPage;
+
+
+const styles = StyleSheet.create({
+    container: {
+        padding: 20,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 5 },
+    },
+    heading: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: '#333',
+    },
+    overallRatingContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    averageRating: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: '#FFD700',
+        marginRight: 5,
+    },
+    starIcon: {
+        marginRight: 5,
+    },
+    totalReviews: {
+        fontSize: 14,
+        color: '#888',
+    },
+    ratingRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    starLabelContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: 50,
+    },
+    starLabelText: {
+        marginLeft: 5,
+        fontSize: 16,
+        color: '#333',
+    },
+    progressBarContainer: {
+        flex: 1,
+        height: 10,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 5,
+        overflow: 'hidden',
+        marginHorizontal: 10,
+    },
+    progressBar: {
+        height: '100%',
+        backgroundColor: '#FFD700',
+    },
+    percentageText: {
+        width: 40,
+        fontSize: 14,
+        color: '#333',
+        textAlign: 'right',
+    },
+});

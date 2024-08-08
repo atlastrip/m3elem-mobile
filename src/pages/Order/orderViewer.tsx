@@ -11,10 +11,11 @@ import { Rating } from 'react-native-ratings';
 import { getToken } from '@/helpers/getToken';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Review } from '../Profession/artisan';
 
 
 
-const SelectUnlockedArtisan = ({ visible, onClose, artisants, handlePresentModalPress, setChoosedArtisan }: any) => {
+const SelectUnlockedArtisan = ({ visible, onClose, artisants, handlePresentModalPress, setChoosedArtisan, goTobottomSheetModalRef, setSelectedProfession, professional }: any) => {
     return (
         <Modal
             visible={visible}
@@ -45,7 +46,9 @@ const SelectUnlockedArtisan = ({ visible, onClose, artisants, handlePresentModal
                                 <TouchableOpacity
                                     onPress={() => {
                                         setChoosedArtisan(lead);
-                                        handlePresentModalPress();
+                                        // handlePresentModalPress();
+                                        setSelectedProfession(professional?.text);
+                                        goTobottomSheetModalRef?.present();
                                         onClose(false);
                                     }}
                                     key={lead.id} style={styles.leadItem}>
@@ -166,17 +169,9 @@ const OrderView = ({ route, navigation }: any) => {
                     <Text style={styles.title}>Professions</Text>
                     {order?.professionals?.map((profession: any, i: any) => (
                         <View key={i} style={styles.professionSection}>
-                            <Text style={styles.professionName}>{profession?.name}</Text>
+                            {/* <Text style={styles.professionName}>{profession?.text}</Text> */}
                             <Text style={styles.professionText}>{profession?.text}</Text>
-                            {reviews
-                                .filter((review: any) => review.professionId === profession?.id)
-                                .map((review: any) => (
-                                    <View key={review.id} style={styles.reviewItem}>
-                                        <Text style={styles.reviewUser}>{review.user}</Text>
-                                        <Text style={styles.reviewComment}>{review.comment}</Text>
-                                        <Text style={styles.reviewRating}>Rating: {review.rating}</Text>
-                                    </View>
-                                ))}
+
                         </View>
                     ))}
 
@@ -213,7 +208,8 @@ const OrderView = ({ route, navigation }: any) => {
                         <Text>Location Details: {order?.location}</Text>
                     )}
 
-                    {user?.id && (
+                    {(user?.id && order?.review == null) &&
+
                         <ButtonPrimary
                             className='mt-3'
                             Loading={false}
@@ -221,34 +217,59 @@ const OrderView = ({ route, navigation }: any) => {
                             onPress={handlePresentModalPress}
                             text="Add Review"
                         />
+                    }
+
+
+
+                    {order?.review && (
+                        // <View key={order?.review?.id} style={styles.reviewItem}>
+                        //     <Text style={styles.reviewUser}>{order?.review?.owner?.firstName} + {""}+
+                        //         {order?.review?.owner?.lastName}
+                        //     </Text>
+                        //     <Text style={styles.reviewComment}>{order?.review?.description}</Text>
+                        //     <Text style={styles.reviewRating}>Rating: {order?.review?.rating}</Text>
+                        // </View>
+
+                        <View
+                            className='  px-3 py-1 rounded-lg my-3'
+                        >
+                            <Review
+                                key={order?.review?.id}
+                                name={order?.owner?.firstName + ' ' + order?.owner?.lastName}
+                                comment={order?.description}
+                                rating={order?.review?.rating}
+                                timeAgo={order?.timeAgo}
+                                image={order?.owner?.imageProfile}
+                            />
+                        </View>
                     )}
 
 
-                    {order?.artisantUnlockedLead?.length > 0 && (
+                    {/* {order?.artisantUnlockedLead?.length > 0 && (
                         <View style={styles.unlockedLeadsContainer}>
                             <Text style={styles.title}>Unlocked Leads</Text>
                             <ScrollView horizontal>
                                 {order?.artisantUnlockedLead?.map((lead: any) => (
                                     <>
-                                        <View key={lead.id} style={styles.leadItem}>
-                                            <Image source={{ uri: lead.imageProfile }} style={styles.leadImage} />
+                                        <View key={lead?.id} style={styles.leadItem}>
+                                            <Image source={{ uri: lead?.imageProfile }} style={styles.leadImage} />
                                             <Text style={{
                                                 ...styles.leadName,
                                             }}
                                                 className='text-xs break-words w-20 text-center  '
-                                            >{`${lead.firstName} ${lead.lastName}`}</Text>
+                                            >{`${lead?.firstName} ${lead?.lastName}`}</Text>
                                         </View>
 
                                     </>
                                 ))}
                             </ScrollView>
                         </View>
-                    )}
+                    )} */}
 
 
 
                     {
-                        order?.artisantUnlockedLead?.length > 0 && artisantInfo?.role !== 'artisant' &&
+                        order?.artisantUnlockedLead?.length > 0 && artisantInfo?.role !== 'artisant' && !order?.review &&
                         <ButtonPrimary
                             className='mt-3'
                             Loading={false}
@@ -264,7 +285,13 @@ const OrderView = ({ route, navigation }: any) => {
                     <SelectUnlockedArtisan visible={openModal} onClose={setOpenModal}
                         setChoosedArtisan={setChoosedArtisan}
                         handlePresentModalPress={handlePresentModalPress}
-                        artisants={order?.artisantUnlockedLead} />
+                        artisants={order?.artisantUnlockedLead}
+                        // bottomSheetModalRef.current?.present();
+
+                        goTobottomSheetModalRef={bottomSheetModalRef.current}
+                        professional={order?.professionals[0]}
+                        setSelectedProfession={setSelectedProfession}
+                    />
                 </ScrollView>
 
                 <BottomSheetModal
@@ -298,7 +325,7 @@ const OrderView = ({ route, navigation }: any) => {
                                     placeholderTextColor="black"
                                     className="text-black placeholder:text-black border border-black/25 bg-white w-full rounded-lg text-xl p-3 mb-3"
                                     placeholder="Add my review"
-                                    value={newReview.comment}
+                                    value={newReview?.comment}
                                     onChangeText={(text) => setNewReview({ ...newReview, comment: text })}
                                 />
                                 <Rating

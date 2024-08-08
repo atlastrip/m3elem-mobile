@@ -27,7 +27,7 @@ import {
 } from "@expo/vector-icons";
 import { COLORS } from "../../../constants/theme";
 import { useDispatch } from "react-redux";
-import { isLogin, IUser, setLoadingPage } from "../../../store/User";
+import { isLogin, IUser, setUser, setLoadingPage } from "../../../store/User";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ButtonPrimary } from "@/components/index";
 import * as WebBrowser from "expo-web-browser";
@@ -36,8 +36,79 @@ import { registerForPushNotificationsAsync } from "@/components/pushNotification
 import { LoginWithApple } from "@/components/buttons/LoginWithApple";
 import { FlatList } from "react-native";
 import { Video } from "expo-av";
-
+import Constants from "expo-constants";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { storage } from "../../../firebase/index"
 WebBrowser.maybeCompleteAuthSession();
+
+
+
+
+
+
+const TreeComponent = ({ categories, setCategories }: any) => {
+  const toggleSelect = (path: any) => {
+    const updateCategories = (items: any, path: any) => {
+      if (path.length === 0) return items;
+
+      const [currentId, ...restPath] = path;
+      return items.map((item: any) => {
+        if (item.id === currentId) {
+          if (restPath.length === 0) {
+            return { ...item, selected: !item.selected };
+          }
+          if (item.subcategories) {
+            return {
+              ...item,
+              subcategories: updateCategories(item.subcategories, restPath),
+            };
+          }
+        }
+        return item;
+      });
+    };
+
+    setCategories((prevCategories: any) => updateCategories(prevCategories, path));
+  };
+
+  const renderLastElements = (items: any, path = []) => {
+    return items.map((item: any) => {
+      const newPath: any = [...path, item.id];
+
+      if (!item.subcategories || item.subcategories.length === 0) {
+        return (
+          <TouchableOpacity
+            key={item.id}
+            onPress={() => toggleSelect(newPath)}
+            // style={[
+            //   styles.categoryItem,
+            //   item.selected ? styles.categoryItemSelected : styles.categoryItemDefault,
+            // ]}
+            // className="gap-2"
+            className={`cursor-pointer flex-row  text-nowrap flex rounded-md ${item.selected ? 'bg-primary-500 text-white' : 'bg-white text-black'} p-2 my-2 border`}
+
+          >
+            {/* {item.selected && (
+              <Text
+              className="text-white hover:bg-white rounded-2xl hover:text-primary-500"
+              >✖</Text>
+            )} */}
+            <Text style={styles.categoryItemText}>{item.name}</Text>
+          </TouchableOpacity>
+        );
+      }
+      return renderLastElements(item.subcategories, newPath);
+    });
+  };
+
+  return <View
+    className="flex flex-row gap-3 "
+  >{renderLastElements(categories)}</View>
+};
+
+
+
+
 
 export const getStringProperty = (
   someUnknown: unknown,
@@ -76,12 +147,20 @@ const CreateAccount = ({
   const [FirstName, setFirstName] = useState("");
   const [LastName, setLastName] = useState("");
   const [Email, setEmail] = useState("");
-  const [User, setUser] = useState<IUser | null>(null);
+  // const [User, setUser] = useState<IUser | null>(null);
   const [password, setPassword] = useState("");
   const [ShowPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [SelectedAccount, setSelectedAccount] = useState("User");
+  const [media, setMedia] = useState<any>([]);
+  const [adress, setAdress] = useState("");
+  const [aboutYou, setAboutYou] = useState("");
+
 
   //login
   const [Loading, setLoading] = useState(false);
+  const [LoadingCategories, setLoadingCategories] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
 
@@ -99,46 +178,274 @@ const CreateAccount = ({
     return text.replace(/^a-zA-Z0-9]/g, "");
   };
 
+
+
+
+
+  const getSelectedSubcategoriesAndProfessionals = (items: any) => {
+    let selected: any = []
+
+    items.forEach((item: any) => {
+      if (item.selected) {
+        selected.push({
+          id: item.id,
+          professionals: item.professionals || []
+        });
+      }
+      if (item.subcategories) {
+        selected = selected.concat(getSelectedSubcategoriesAndProfessionals(item.subcategories));
+      }
+    });
+
+    return selected;
+  };
+
+
+  const uploadImagesToFirebase = async (media: any) => {
+    try {
+      console.log('====================================');
+      console.log('media', media);
+      console.log('====================================');
+      let uploadedImages;
+
+      if (media.length > 0) {
+        uploadedImages = await Promise.all(
+          media.map(async (item: any) => {
+            try {
+              // Fetch the image from the local URI
+              const response = await fetch(item.uri);
+              if (!response.ok) throw new Error('Network response was not ok');
+
+              // Convert the image to a blob
+              const blob = await response.blob();
+              console.log('Blob:', blob);
+
+              // Create a reference to the Firebase Storage location
+              const storageRef = ref(storage, `images/${Date.now()}_${item.fileName}`);
+              console.log('StorageRef:', storageRef);
+
+              // Upload the blob to Firebase Storage
+              const uploadTask = uploadBytesResumable(storageRef, blob);
+              console.log('UploadTask:', uploadTask);
+
+              // Monitor the upload progress
+              return new Promise((resolve, reject) => {
+                uploadTask.on(
+                  'state_changed',
+                  (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                  },
+                  (error) => {
+                    console.error('Upload failed', error);
+                    reject(error);
+                  },
+                  async () => {
+                    // Get the download URL of the uploaded image
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    console.log('File available at', downloadURL);
+                    const img = {
+                      name: item.fileName,
+                      size: `${item.fileSize}`,
+                      source: downloadURL,
+                      current: true,
+                    }
+                    resolve(img);
+                  }
+                );
+              });
+            } catch (error: any) {
+              console.error('Error in uploading image:', error.message);
+              throw error;
+            }
+          })
+        );
+      }
+
+      console.log('Uploaded Images:', uploadedImages);
+      return uploadedImages;
+    } catch (error) {
+      console.error('Error in uploading images:', error);
+      throw error;
+    }
+  };
+
   const CreateAccount = async () => {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
-    const graphql = JSON.stringify({
-      query: "mutation SignUp($input: inputSignUp) {\r\n  signUp(input: $input) {\r\n    token\r\n    user {\r\n      id\r\n      fullName\r\n      email\r\n      phone\r\n    }\r\n  }\r\n}",
-      variables: { "input": { "phone": username, "password": password, "fullName": LastName, "email": Email.toLowerCase() } }
-    })
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: graphql
-    };
 
-    fetch("https://m3elem-app-ecj9f.ondigitalocean.app/m3elem", requestOptions)
-      .then((response) => response.json())
-      .then(async (result) => {
-        const res: { token: string, user: any } = result?.data?.signUp;
+    if (LastName.length === 0) {
+      setErrors((prev) => ({ ...prev, lastName: "Last name is required" }));
+      return;
+    }
+    if (username.length === 0) {
+      setErrors((prev) => ({ ...prev, number: "Phone number is required" }));
+      return;
+    }
+    if (Email.length === 0) {
+      setErrors((prev) => ({ ...prev, email: "Email is required" }));
+      return;
+    }
+    if (!validateEmail(Email)) {
+      setErrors((prev) => ({ ...prev, email: "Invalid Email" }));
+      return;
+    }
 
-        if (res?.user) {
-          await AsyncStorage.setItem(
-            "@token",
-            res?.token
-          );
-          await AsyncStorage.setItem("@user", JSON.stringify(res?.user));
-          dispatch(isLogin(true));
-        } else {
+    if (password.length === 0) {
+      setErrors((prev) => ({ ...prev, password: "Password is required" }));
+      return;
+    }
+    if (adress.length === 0) {
+      setErrors((prev) => ({ ...prev, adress: "Address is required" }));
+      return;
+    }
 
+    if (aboutYou.length === 0) {
+      setErrors((prev) => ({ ...prev, aboutYou: "About you is required" }));
+      return;
+    }
+
+
+
+    if (SelectedAccount === "Artisan") {
+      if (getSelectedSubcategoriesAndProfessionals(categories).length === 0) {
+        Alert.alert('Please select at least one category');
+        return;
+      }
+      if (media.length === 0) {
+        Alert.alert('Please add at least one media');
+        return;
+      }
+    }
+
+
+
+
+    const selectedCategories = getSelectedSubcategoriesAndProfessionals(categories);
+    console.log('Selected categories:', selectedCategories);
+
+
+
+    try {
+      setLoading(true);
+
+      console.log('====================================');
+      console.log('media', media);
+      console.log('====================================');
+      let uploadedImages;
+      if (media.length > 0) {
+        uploadedImages = await uploadImagesToFirebase(media);
+      }
+
+
+      console.log('====================================');
+      console.log('Uploaded Images:', uploadedImages);
+      console.log('====================================');
+
+
+      const role = SelectedAccount === "User" ? "user" : "artisant";
+      const categories: any = selectedCategories?.map((e: any) => e.id) || []
+      // @ts-ignore
+      const professionals = [...new Set(selectedCategories?.map((e: any) => e.professionals).flat()?.map((e: any) => e.id))] || []
+      const inputSignUp: any = {
+        firstName: FirstName,
+        lastName: LastName,
+        email: Email,
+        password: password,
+        phone: username,
+        role: role,
+        categories: categories,
+        professionals: professionals,
+        newImage: media?.length > 0 ? uploadedImages : [],
+        adress: adress,
+        aboutYou: aboutYou
+      };
+
+
+
+      console.log('inputSignUp', inputSignUp);
+
+
+
+
+
+
+
+      const res = await fetch(
+        Constants.expoConfig?.extra?.apiUrl as string,
+        {
+          method: "POST",
+          headers: myHeaders,
+          body: JSON.stringify({
+            query: `
+                   mutation signUp($inputSignUp: inputSignUp) {
+                      signUp(inputSignUp: $inputSignUp) {
+                        user {
+                            id
+                          firstName
+                          lastName
+                          email
+                          phone
+                          role
+                          imageProfile
+                        }
+                        token
+                      }
+                    } 
+                  `,
+            variables: {
+              "inputSignUp": inputSignUp
+            },
+
+          }),
         }
-      })
-      .catch((error) => console.error(error));
+      );
+
+      const json = await res.json();
+      console.log('====================================');
+      console.log('signUp', json);
+      console.log('====================================');
+
+      if (json.data?.signUp?.user) {
+
+        console.info('user', json.data?.signUp.user);
+        console.info('token', json.data?.signUp.token);
+
+        await AsyncStorage.setItem(
+          "@token",
+          json.data?.signUp?.token
+        );
+        await AsyncStorage.setItem("@user", JSON.stringify(json.data?.signUp?.user));
+        dispatch(isLogin(true));
+        dispatch(setUser(json.data?.signUp?.user));
+      } else {
+        console.error('Error in signUp:', json);
+        setLoading(false);
+        return Alert.alert('Error', json?.errors[0]?.message);
+      }
+      // console.log({ user: json.data?.login?.user })
+      // const token = await registerForPushNotificationsAsync();
+      // console.info({ token });
+
+
+
+    }
+    catch (error: any) {
+      setLoading(false);
+      console.error('Error ', error.message);
+      return Alert.alert('Error', error?.errors[0]?.error?.message);
+    }
   }
 
-
   const [Errors, setErrors] = useState({
-    firstName: "",
-    lastName: "",
+    FirstName: "",
+    LastName: "",
     number: "",
     email: "",
     password: "",
+    adress: "",
+    aboutYou: "",
   });
 
   const scrollToElement = (scrollViewRef: any, elementIndex: number) => {
@@ -147,7 +454,6 @@ const CreateAccount = ({
     }
   };
   const scrollViewRef1 = useRef<any>(null);
-  const [SelectedAccount, setSelectedAccount] = useState("User");
 
   const pickMedia = async () => {
     const result: any = await ImagePicker.launchImageLibraryAsync({
@@ -157,14 +463,13 @@ const CreateAccount = ({
       quality: 1,
     });
 
-    if (!result?.cancelled) {
+    if (!result?.canceled) {
       handleStateChange([...media, ...result.assets], setMedia);
     }
   };
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const [media, setMedia] = useState<any>([]);
 
 
   const handleStateChange = async (newState: any, setState: React.Dispatch<React.SetStateAction<any>>) => {
@@ -185,6 +490,117 @@ const CreateAccount = ({
     }
     handleStateChange(newMedia, setMedia);
   };
+
+
+  function generateCategoryQuery(depth: any) {
+    let query = `
+      query categories {
+        categories {
+          ...CategoryFields
+          ${generateSubcategories(depth)}
+        }
+      }
+  
+      fragment CategoryFields on Category {
+        id
+        name
+        icon
+        unLockedAmount
+        subcategories {
+          id
+          name
+          icon
+          unLockedAmount
+        }
+        professionals {
+          id
+          text
+          img
+        }
+      }
+    `;
+    return query;
+  }
+
+  function generateSubcategories(depth: any): any {
+    if (depth === 0) return '';
+    return `
+      subcategories {
+        ...CategoryFields
+        ${generateSubcategories(depth - 1)}
+      }
+    `;
+  }
+
+
+
+
+  const fetchCategoriesManually = async () => {
+    try {
+      setLoadingCategories(true);
+      const depthResponse = await fetch(`${Constants.expoConfig?.extra?.apiUrl}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: `
+            query categoryDepth {
+              categoryDepth
+            }
+          `,
+        }),
+      });
+      const depthData = await depthResponse.json();
+      console.log('Depth data:', depthData);
+
+      const depth = depthData?.data?.categoryDepth;
+
+      const query = generateCategoryQuery(depth);
+
+      const response = await fetch(`${Constants.expoConfig?.extra?.apiUrl}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: query,
+        }),
+      });
+      const result = await response.json();
+      console.log('Result data:', result.data.categories);
+      setCategories(result.data.categories);
+      setLoadingCategories(false);
+      // await AsyncStorage.setItem('categories', JSON.stringify(result.data.categories));
+      // console.log('Data stored in AsyncStorage');
+
+      // const storedCategories = await AsyncStorage.getItem('categories');
+      // if (storedCategories) {
+      //   setCategories(storedCategories);
+      // }
+    } catch (error) {
+      setLoadingCategories(false);
+      console.error('Error in manual fetch logic:', error);
+    }
+  };
+
+
+
+  useEffect(() => {
+    fetchCategoriesManually();
+  }, []);
+
+
+
+
+
+
+
+
+  // console.log('Categories:', categories);
+
+
+
 
   return (
     <>
@@ -256,18 +672,32 @@ const CreateAccount = ({
           <View style={{ width: window.width }} >
             <View className="px-5">
               <TextInput
+                value={FirstName}
+                onChangeText={setFirstName}
+                className="text-black border-b border-primary-500 text-lg p-3 mb-2"
+                placeholderTextColor={"#00000050"}
+                placeholder="Enter your First name"
+                textContentType="name"
+                style={{
+                  borderColor: Errors?.FirstName?.length === 0 ? "#00000050" : "red",
+                }}
+              />
+              {Errors?.FirstName && (
+                <Text className="text-red-600 mb-3 ml-4">{Errors?.FirstName}</Text>
+              )}
+              <TextInput
                 value={LastName}
                 onChangeText={setLastName}
                 className="text-black border-b border-primary-500 text-lg p-3 mb-2"
                 placeholderTextColor={"#00000050"}
-                placeholder="Enter your full name"
+                placeholder="Enter your Last name"
                 textContentType="name"
                 style={{
-                  borderColor: Errors?.firstName?.length === 0 ? "#00000050" : "red",
+                  borderColor: Errors?.LastName?.length === 0 ? "#00000050" : "red",
                 }}
               />
-              {Errors?.firstName && (
-                <Text className="text-red-600 mb-3 ml-4">{Errors?.firstName}</Text>
+              {Errors?.LastName && (
+                <Text className="text-red-600 mb-3 ml-4">{Errors?.LastName}</Text>
               )}
               {/* <Text className="text-black ml-2 mb-2">Phone Number</Text> */}
               <TextInput
@@ -308,7 +738,7 @@ const CreateAccount = ({
                   onChangeText={setPassword}
 
                   className="text-black border-b border-primary-500 text-lg p-3 mb-3"
-                  keyboardType="visible-password"
+                  keyboardType="default"
                   placeholderTextColor={"#00000050"}
                   placeholder="Enter your password"
                   textContentType="password"
@@ -332,7 +762,40 @@ const CreateAccount = ({
                   />
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity
+
+              {/* <Text className="text-black ml-2 mb-2">Email</Text> */}
+              <TextInput
+                value={adress}
+                onChangeText={setAdress}
+                className="text-black border-b border-primary-500 text-lg p-3 mb-2"
+                placeholderTextColor={"#00000050"}
+                placeholder="Your Address"
+                textContentType="addressCity"
+                style={{
+                  borderColor: Errors?.adress?.length === 0 ? "#00000050" : "red",
+                }}
+              />
+              {Errors?.email && (
+                <Text className="text-primary-500 mb-3 ml-4">{Errors?.adress}</Text>
+              )}
+              <TextInput
+                value={aboutYou}
+                onChangeText={setAboutYou}
+                className="text-black border-b border-primary-500 text-lg p-3 mb-2"
+                placeholderTextColor={"#00000050"}
+                placeholder="About you"
+                textContentType="none"
+                style={{
+                  borderColor: Errors?.aboutYou?.length === 0 ? "#00000050" : "red",
+                }}
+              />
+              {
+                Errors?.aboutYou && (
+                  <Text className="text-primary-500 mb-3 ml-4">{Errors?.aboutYou}</Text>
+                )
+              }
+
+              {/* <TouchableOpacity
                 onPress={() => setRememberMe(!rememberMe)}
                 style={{ flexDirection: 'row', alignItems: 'center' }}
               >
@@ -360,7 +823,7 @@ const CreateAccount = ({
                   )}
                 </View>
                 <Text className="mb-3 text-md pt-3">Remember me</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <ButtonPrimary
                 Loading={Loading}
                 onPress={CreateAccount}
@@ -396,18 +859,32 @@ const CreateAccount = ({
           <View style={{ width: window.width }} >
             <View className="px-5">
               <TextInput
+                value={FirstName}
+                onChangeText={setFirstName}
+                className="text-black border-b border-primary-500 text-lg p-3 mb-2"
+                placeholderTextColor={"#00000050"}
+                placeholder="Enter your First name"
+                textContentType="name"
+                style={{
+                  borderColor: Errors?.FirstName?.length === 0 ? "#00000050" : "red",
+                }}
+              />
+              {Errors?.FirstName && (
+                <Text className="text-red-600 mb-3 ml-4">{Errors?.FirstName}</Text>
+              )}
+              <TextInput
                 value={LastName}
                 onChangeText={setLastName}
                 className="text-black border-b border-primary-500 text-lg p-3 mb-2"
                 placeholderTextColor={"#00000050"}
-                placeholder="Enter your full name"
+                placeholder="Enter your Last name"
                 textContentType="name"
                 style={{
-                  borderColor: Errors?.firstName?.length === 0 ? "#00000050" : "red",
+                  borderColor: Errors?.LastName?.length === 0 ? "#00000050" : "red",
                 }}
               />
-              {Errors?.firstName && (
-                <Text className="text-red-600 mb-3 ml-4">{Errors?.firstName}</Text>
+              {Errors?.LastName && (
+                <Text className="text-red-600 mb-3 ml-4">{Errors?.LastName}</Text>
               )}
               {/* <Text className="text-black ml-2 mb-2">Phone Number</Text> */}
               <TextInput
@@ -448,7 +925,7 @@ const CreateAccount = ({
                   onChangeText={setPassword}
 
                   className="text-black border-b border-primary-500 text-lg p-3 mb-3"
-                  keyboardType="visible-password"
+                  keyboardType="default"
                   placeholderTextColor={"#00000050"}
                   placeholder="Enter your password"
                   textContentType="password"
@@ -468,64 +945,118 @@ const CreateAccount = ({
                     name={!ShowPassword ? "eye-off" : "eye"}
                     size={20}
                     color="black"
+
                     className="mt-6"
                   />
                 </TouchableOpacity>
               </View>
-              <View className="mt-4">
-                  <Text className="text-base font-semibold mb-2">Add media:</Text>
-                  <FlatList
-                    data={media}
-                    horizontal
-                    keyExtractor={(item) => item.uri}
-                    renderItem={({ item, index }) => (
-                      <View className="relative rounded-md overflow-hidden w-40 h-40 mr-2">
-                        {item.type.startsWith('image') ? (
-                          <Image source={{ uri: item.uri }} className="w-full h-full" resizeMode="cover" />
-                        ) : (
-                          <Video
-                            source={{ uri: item.uri }}
-                            style={{ width: '100%', height: '100%' }}
-                            // @ts-ignore
-                            resizeMode="cover"
-                            useNativeControls
-                          />
-                        )}
-                        <View style={styles.iconContainer}>
-                          {index > 0 && (
-                            <TouchableOpacity onPress={() => moveMedia(index, 'left')} className='p-1 rounded-full bg-black/20' style={styles.leftArrow}>
-                              <Ionicons name="arrow-back-circle" size={24} color="white" />
-                            </TouchableOpacity>
-                          )}
-                          {index < media.length - 1 && (
-                            <TouchableOpacity onPress={() => moveMedia(index, 'right')} className='p-1 rounded-full bg-black/20' style={styles.rightArrow}>
-                              <Ionicons name="arrow-forward-circle" size={24} color="white" />
-                            </TouchableOpacity>
-                          )}
-                          <TouchableOpacity
-                            className='p-1 rounded-full bg-white/80'
-                            onPress={() => removeMedia(item.uri)}
-                          >
-                            <Ionicons name="close-circle" size={24} color="red" />
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    )}
-                  />
-                  {!media.length ? (
 
-                    <TouchableOpacity
-                      onPress={pickMedia}
-                      className='border-dashed items-center justify-center  w-40 h-40  border-2 rounded-md border-primary-500' >
-                      <Text className='text-xl text-primary-500'>+</Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <View className='flex-row justify-end' >
-                      <Button
-                        title="Add New Media" onPress={pickMedia} />
+              <TextInput
+                value={adress}
+                onChangeText={setAdress}
+                className="text-black border-b border-primary-500 text-lg p-3 mb-2"
+                placeholderTextColor={"#00000050"}
+                placeholder="Your Address"
+                textContentType="addressCity"
+                style={{
+                  borderColor: Errors?.adress?.length === 0 ? "#00000050" : "red",
+                }}
+              />
+              {Errors?.email && (
+                <Text className="text-primary-500 mb-3 ml-4">{Errors?.adress}</Text>
+              )}
+              <TextInput
+                value={aboutYou}
+                onChangeText={setAboutYou}
+                className="text-black border-b border-primary-500 text-lg p-3 mb-2"
+                placeholderTextColor={"#00000050"}
+                placeholder="About you"
+                textContentType="none"
+                style={{
+                  borderColor: Errors?.aboutYou?.length === 0 ? "#00000050" : "red",
+                }}
+              />
+              {
+                Errors?.aboutYou && (
+                  <Text className="text-primary-500 mb-3 ml-4">{Errors?.aboutYou}</Text>
+                )
+              }
+
+              {SelectedAccount === "Artisan" && (
+                <View>
+                  <Text style={{
+                    fontSize: 16,
+                    marginVertical: 8
+
+                  }}>Choose categories:</Text>
+                  {LoadingCategories ? <ActivityIndicator size="large" color="#0000ff" /> :
+
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={{ flexDirection: 'row', marginVertical: 8 }}
+                    >
+                      <TreeComponent categories={categories.reverse()} setCategories={setCategories} />
+                    </ScrollView>
+                  }
+                </View>
+              )}
+              <View className="mt-4">
+                <Text className="text-base font-semibold mb-2">Add media:</Text>
+                <FlatList
+                  data={media}
+                  horizontal
+                  keyExtractor={(item) => item.uri}
+                  renderItem={({ item, index }) => (
+                    <View className="relative rounded-md overflow-hidden w-40 h-40 mr-2">
+                      {item.type.startsWith('image') ? (
+                        <Image source={{ uri: item.uri }} className="w-full h-full" resizeMode="cover" />
+                      ) : (
+                        <Video
+                          source={{ uri: item.uri }}
+                          style={{ width: '100%', height: '100%' }}
+                          // @ts-ignore
+                          resizeMode="cover"
+                          useNativeControls
+                        />
+                      )}
+                      <View style={styles.iconContainer}>
+                        {index > 0 && (
+                          <TouchableOpacity onPress={() => moveMedia(index, 'left')} className='p-1 rounded-full bg-black/20' style={styles.leftArrow}>
+                            <Ionicons name="arrow-back-circle" size={24} color="white" />
+                          </TouchableOpacity>
+                        )}
+                        {index < media.length - 1 && (
+                          <TouchableOpacity onPress={() => moveMedia(index, 'right')} className='p-1 rounded-full bg-black/20' style={styles.rightArrow}>
+                            <Ionicons name="arrow-forward-circle" size={24} color="white" />
+                          </TouchableOpacity>
+                        )}
+                        <TouchableOpacity
+                          className='p-1 rounded-full bg-white/80'
+                          onPress={() => removeMedia(item.uri)}
+                        >
+                          <Ionicons name="close-circle" size={24} color="red" />
+                        </TouchableOpacity>
+                      </View>
                     </View>
                   )}
-                </View>
+                />
+                {!media.length ? (
+
+                  <TouchableOpacity
+                    onPress={pickMedia}
+                    className='border-dashed items-center justify-center  w-40 h-40  border-2 rounded-md border-primary-500' >
+                    <Text className='text-xl text-primary-500'>+</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View className='flex-row justify-end' >
+                    <Button
+                      title="Add New Media" onPress={pickMedia} />
+                  </View>
+                )}
+              </View>
+
+
               <TouchableOpacity
                 onPress={() => setRememberMe(!rememberMe)}
                 style={{ flexDirection: 'row', alignItems: 'center' }}
@@ -625,4 +1156,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 2,
   },
+  categoryItem: { flexDirection: 'row', alignItems: 'center', padding: 8, borderRadius: 4, marginVertical: 4 },
+  categoryItemSelected: { backgroundColor: '#6200ea', color: 'white' },
+  categoryItemDefault: { backgroundColor: 'white', color: 'black', borderWidth: 1, borderColor: '#ccc' },
+  categoryItemText: { marginLeft: 8 },
 });
+

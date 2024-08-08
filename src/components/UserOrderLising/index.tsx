@@ -125,6 +125,18 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
                                       imageProfile
                                     }
                                     location
+                                    review{
+                                id
+                                description
+                                rating
+                                owner{
+                                  id
+                                  firstName
+                                  lastName
+                                  imageProfile
+                                }
+                                
+                              }
                                 }
                                 }
 

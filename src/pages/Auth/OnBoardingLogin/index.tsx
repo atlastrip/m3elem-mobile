@@ -34,7 +34,6 @@ import { Motion } from "@legendapp/motion";
 import { LoginWithApple } from "@/components/buttons/LoginWithApple";
 import LoadingPage from "@/components/Layout/LoadingPage";
 import { useFocusEffect } from "@react-navigation/native";
-
 interface ICheckoutType {
   name: string;
   isSelected: boolean;
@@ -252,6 +251,7 @@ const OnBoardingLogin = ({ navigation }: { navigation: Navigate }) => {
   const TokenPushNotification = useSelector(
     (state: any) => state?.user?.TokenPushNotification
   );
+
 
   return (
     <View

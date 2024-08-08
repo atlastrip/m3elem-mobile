@@ -10,7 +10,7 @@ import Animate from "react-native-reanimated"
 import { ButtonPrimary } from '@/components/index';
 import MapView, { Marker } from 'react-native-maps';
 import { Rating } from 'react-native-ratings';
-import { LocationView } from '@/components/OrderLising';
+import { isNearCity, LocationView, moroccanCities } from '@/components/OrderLising';
 import { COLORS } from 'constants/theme';
 import { MaterialIcons } from "@expo/vector-icons";
 import Constants from 'expo-constants';
@@ -53,7 +53,7 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
                     text: "OK",
 
                     onPress: () => {
-                        HandleUnlock(order.id);
+                        HandleUnlock(order?.id);
                         setShowConfetti(true);
                         setTimeout(() => setShowConfetti(false), 4000); // hide confetti after 3 seconds
                     }
@@ -77,10 +77,10 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
 
     const HandleUnlock = async (id: any) => {
         console.log('id', id);
-        
-        const token:any = await getToken();
-        const newUser:any = await getUser();
-      
+
+        const token: any = await getToken();
+        const newUser: any = await getUser();
+
         if (!token) {
             Alert.alert('You need to login first');
             return;
@@ -139,7 +139,7 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
             );
 
             const lead = await res.json();
-            
+
             setIsUnlocked((lead.data.unlockLead?.artisantUnlockedLead || [])?.map((e: any) => e?.id)?.includes(JSON.parse(newUser)?.id));
         } catch (error: any) {
             return Alert.alert(error.message)
@@ -149,8 +149,14 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
 
 
     useEffect(() => {
-        if (order?.artisantUnlockedLead?.length > 0) {
-            setIsUnlocked((order?.artisantUnlockedLead || [])?.map((e: any) => e?.id)?.includes(JSON.parse(user)?.id));
+        console.log('====================================');
+        console.log('uuuu', JSON.parse(user)?.id);
+        console.log('====================================');
+        if (JSON.parse(user)?.id) {
+
+            if (order?.artisantUnlockedLead?.length > 0) {
+                setIsUnlocked((order?.artisantUnlockedLead || [])?.map((e: any) => e?.id)?.includes(JSON.parse(user)?.id));
+            }
         }
     }, [isUnlocked]);
 
@@ -158,19 +164,61 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
         <View style={{ flex: 1 }}>
             <ScrollView style={styles.container}>
                 <View style={styles.card}>
-                    <Image source={{ uri: order.images?.[0] }} className='w-full h-64' />
+                    <Image source={{ uri: order?.images?.[0] }} className='w-full h-64' />
                     <View className='p-3'>
-                        <Text style={styles.orderId}>{order.title}</Text>
-                        <Text >{order.description}</Text>
-                        <Text style={styles.label}>Location:</Text>
-                        <LocationView navigation={navigation} order={order} />
+                        <Text style={styles.orderId}>{order?.title}</Text>
+                        <Text >{order?.description}</Text>
+                        {
+                            order?.artisantUnlockedLead?.map((e: any) => e.id)?.includes(JSON.parse(user)?.id) &&
+                            <Text style={styles.label}>Location:</Text>
+                        }
+                        {/* <LocationView navigation={navigation} order={order} /> */}
+
+                        {
+                            order?.artisantUnlockedLead?.map((e: any) => e.id)?.includes(JSON.parse(user)?.id) ?
+
+                                order?.locationType === 'currentLocation' ? (
+                                    <View style={styles.mapContainer}>
+                                        <MapView
+                                            scrollEnabled={false}
+                                            style={styles.map}
+                                            initialRegion={{
+                                                latitude: JSON.parse(order?.location)?.latitude,
+                                                longitude: JSON.parse(order?.location)?.longitude,
+                                                latitudeDelta: 0.0922,
+                                                longitudeDelta: 0.0421,
+                                            }}
+                                        >
+                                            <Marker
+                                                coordinate={{
+                                                    latitude: JSON.parse(order?.location)?.latitude,
+                                                    longitude: JSON.parse(order?.location)?.longitude,
+                                                }}
+                                                title="My Location"
+                                            />
+                                        </MapView>
+                                    </View>
+                                ) : (
+                                    <Text>Location Details: {order?.location}</Text>
+                                ) :
+                                <Text style={styles.label}>
+                                    {
+                                        isNearCity(
+                                            order?.location ? order?.location : null,
+                                            moroccanCities
+                                        )
+                                    }
+                                </Text>
+                        }
+
+
                     </View>
                     <View className='px-3'>
                         <Text style={styles.label}>Images:</Text>
 
                         <ScrollView horizontal>
-                            {order.images.map((uri: any, index: any) => (
-                                <TouchableOpacity key={index} onPress={() => navigation.navigate('ImagePreview', { images: order.images })}>
+                            {order?.images.map((uri: any, index: any) => (
+                                <TouchableOpacity key={index} onPress={() => navigation.navigate('ImagePreview', { images: order?.images })}>
                                     <View className="w-24 h-24 bg-gray-200 rounded-lg mr-2">
                                         <Image
                                             source={{ uri }}
@@ -227,13 +275,13 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
                                 </View>
                                 :
                                 <View
-                                    // onPress={() => HandleUnlock(order.id)}
+                                    // onPress={() => HandleUnlock(order?.id)}
                                     className="px-3">
                                     <ButtonPrimary className='mt-3' Loading={false} setLoading={() => { }} onPress={handleAlert} text="Unlock now" />
                                 </View>
                             :
                             <View
-                                // onPress={() => HandleUnlock(order.id)}
+                                // onPress={() => HandleUnlock(order?.id)}
                                 className="px-3">
                                 <ButtonPrimary className='mt-3' Loading={false} setLoading={() => { }} onPress={handleAlert} text="Unlock now" />
                             </View>
@@ -337,6 +385,13 @@ const styles = StyleSheet.create({
         height: 150,
         borderRadius: 8,
         marginVertical: 8,
+    },
+    mapContainer: {
+        height: 200,
+        borderWidth: 1,
+        borderColor: 'black',
+        borderRadius: 8,
+        overflow: 'hidden',
     },
 });
 
