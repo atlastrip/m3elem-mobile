@@ -1,27 +1,20 @@
-// import * as firebase from "firebase/app";
 import { initializeApp, getApps } from 'firebase/app';
 import { getStorage } from 'firebase/storage';
-
+import { getFirestore } from 'firebase/firestore';
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBx2UtmVxKWHhLzJ3NyBLR4azfgViu48vs",
-  authDomain: "nails-fed39.firebaseapp.com",
-  databaseURL: "https://nails-fed39-default-rtdb.firebaseio.com",
-  projectId: "nails-fed39",
-  storageBucket: "nails-fed39.appspot.com",
-  messagingSenderId: "395625672032",
-  appId: "1:395625672032:web:aff8d8ce4ef4913caf4205"
+  apiKey: "AIzaSyAJ2LzirZ_7gEl3FCMrxeJPydDBWJ-K9BU",
+  authDomain: "atlastrip-a59f2.firebaseapp.com",
+  databaseURL: "https://atlastrip-a59f2-default-rtdb.firebaseio.com",
+  projectId: "atlastrip-a59f2",
+  storageBucket: "atlastrip-a59f2.appspot.com",
+  messagingSenderId: "296271851611",
+  appId: "1:296271851611:web:12cfb7a0a59e98fe344f7e",
+  measurementId: "G-Y23ZJ2C8Q5"
 };
 
-
-
-const Myapp = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-
-export { Myapp }
-export const storage = getStorage(Myapp);
-
-
-
-
-
+const myApp = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+export { myApp };
+export const storage = getStorage(myApp);
+export const firestore = getFirestore(myApp);

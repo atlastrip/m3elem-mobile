@@ -83,7 +83,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "apiUrl": "http://192.168.1.47:4000/m3elem",
+      "apiUrl": "https://backend.m3alempro.com/m3elem",
       "country": "ma",
       "currency": "mad"
     }

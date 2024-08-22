@@ -76,6 +76,7 @@ import Transactions from "@/pages/Auth/Artisan/Transactions";
 import MyLeads from "@/pages/Auth/Artisan/MyLeads";
 import PaymentMethodPage from "@/pages/Auth/Artisan/PaymentMethod";
 import MapViewArtisan from "@/pages/Auth/Artisan/Map";
+import ChatScreen from "@/pages/Chat";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -598,6 +599,13 @@ function RootNavigator() {
                         component={BottomTabNavigatorUser}
                       />
                       <Stack.Screen
+                        name="Chat"
+                        component={ChatScreen}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
+                      <Stack.Screen
                         name="ImagePreview"
                         component={ImagePreview}
                         options={{
@@ -642,6 +650,13 @@ function RootNavigator() {
                         options={{
                           headerShown: false,
                           presentation: 'modal',
+                        }}
+                      />
+                      <Stack.Screen
+                        name="Chat"
+                        component={ChatScreen}
+                        options={{
+                          headerShown: false,
                         }}
                       />
                       <Stack.Screen

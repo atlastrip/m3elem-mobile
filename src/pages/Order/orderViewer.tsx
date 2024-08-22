@@ -12,6 +12,7 @@ import { getToken } from '@/helpers/getToken';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Review } from '../Profession/artisan';
+import { createOrRetrieveConversation } from '@/helpers/createOrRetrieveConversation';
 
 
 
@@ -41,8 +42,8 @@ const SelectUnlockedArtisan = ({ visible, onClose, artisants, handlePresentModal
                     <Text style={styles.modalTitle}>Select Artisan</Text>
 
                     <ScrollView horizontal>
-                        {artisants?.map((lead: any) => (
-                            <>
+                        {artisants?.map((lead: any, i: any) => (
+                            <View key={i}>
                                 <TouchableOpacity
                                     onPress={() => {
                                         setChoosedArtisan(lead);
@@ -59,7 +60,7 @@ const SelectUnlockedArtisan = ({ visible, onClose, artisants, handlePresentModal
                                         className='text-xs break-words w-20 text-center  '
                                     >{`${lead.firstName} ${lead.lastName}`}</Text>
                                 </TouchableOpacity>
-                            </>
+                            </View>
                         ))}
                     </ScrollView>
                     <TouchableOpacity
@@ -78,7 +79,6 @@ const SelectUnlockedArtisan = ({ visible, onClose, artisants, handlePresentModal
 const OrderView = ({ route, navigation }: any) => {
     const { order, user }: any = route.params;
     const insets = useSafeAreaInsets();
-    console.log('order', order);
 
     const [reviews, setReviews]: any = useState([]); // Replace with actual reviews if available
     const [newReview, setNewReview] = useState({ user: '', comment: '', rating: '', professionId: '' });
@@ -107,10 +107,7 @@ const OrderView = ({ route, navigation }: any) => {
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
         headers.append("Authorization", `Bearer ${token}`);
-        console.log('====================================');
-        console.log('user.id', user?.id);
-        console.log('choosedArtisan.id', choosedArtisan?.id);
-        console.log('====================================');
+
         try {
             const res = await fetch(
                 Constants.expoConfig?.extra?.apiUrl as string,
@@ -155,6 +152,16 @@ const OrderView = ({ route, navigation }: any) => {
     useEffect(() => {
         getInfo();
     }, []);
+
+    const handleCreateConversation = async () => {
+        const conversationId = await createOrRetrieveConversation(order?.id, artisantInfo?.id, order?.owner?.id);
+        navigation.navigate('Chat', { conversationId, userId: artisantInfo?.id, userName: artisantInfo?.firstName, order });
+    };
+    const handleCreateConversationUser = async (artisan: any) => {
+        const conversationId = await createOrRetrieveConversation(order?.id, artisan?.id, artisantInfo?.id);
+        navigation.navigate('Chat', { conversationId, userId: artisantInfo?.id, userName: artisan?.firstName, order });
+    };
+    console.log({ order: order?.artisantUnlockedLead })
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -221,6 +228,8 @@ const OrderView = ({ route, navigation }: any) => {
 
 
 
+
+
                     {order?.review && (
                         // <View key={order?.review?.id} style={styles.reviewItem}>
                         //     <Text style={styles.reviewUser}>{order?.review?.owner?.firstName} + {""}+
@@ -243,6 +252,7 @@ const OrderView = ({ route, navigation }: any) => {
                             />
                         </View>
                     )}
+
 
 
                     {/* {order?.artisantUnlockedLead?.length > 0 && (
@@ -281,6 +291,66 @@ const OrderView = ({ route, navigation }: any) => {
                         />
                     }
 
+
+                    {artisantInfo?.role === 'user' ? (
+                        <View className="mt-5">
+                            <Text className='text-lg font-bold'>
+                                Conversations with artisans:
+                            </Text>
+                            {order?.artisantUnlockedLead?.map((artisan: any, i: any) => (
+                                <TouchableOpacity
+                                    key={i}
+                                    onPress={() => handleCreateConversationUser(artisan)}
+                                    className='p-3  rounded-md  items-between ' >
+                                    <View className='flex-row items-center justify-between'>
+                                        <View className='flex-row items-center '>
+                                            <Image src={artisan?.imageProfile} style={{ width: 50, height: 50, borderRadius: 9999 }} />
+                                            <View >
+                                                <Text className=' ml-3 font-bold'>
+                                                    {artisan?.firstName}{" "}{artisan?.lastName}
+                                                </Text>
+                                                <Text className=' ml-3'>
+                                                    Conversations
+                                                </Text>
+                                            </View>
+                                        </View>
+                                        <View >
+                                            <Ionicons name="chevron-forward" size={24} color={'gray'} />
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    ) : (
+                        <View className="mt-5">
+                            <Text className='text-lg font-bold'>
+                                Conversation:
+                            </Text>
+                            <TouchableOpacity
+                            
+                                    onPress={handleCreateConversation}
+                                    className='p-3  rounded-md  items-between ' >
+                                    <View className='flex-row items-center justify-between'>
+                                        <View className='flex-row items-center '>
+                                            <Image src={order?.owner?.imageProfile} className='bg-gray-200' style={{ width: 50, height: 50, borderRadius: 9999 }} />
+                                            <View >
+                                                <Text className=' ml-3 font-bold capitalize'>
+                                                    {order?.owner?.firstName}{" "}{order?.owner?.lastName}
+                                                </Text>
+                                                <Text className=' ml-3'>
+                                                    Conversations
+                                                </Text>
+                                            </View>
+                                        </View>
+                                        <View >
+                                            <Ionicons name="chevron-forward" size={24} color={'gray'} />
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+
+                        </View>
+                    )}
+
                     <View className='my-20' />
                     <SelectUnlockedArtisan visible={openModal} onClose={setOpenModal}
                         setChoosedArtisan={setChoosedArtisan}
@@ -307,9 +377,9 @@ const OrderView = ({ route, navigation }: any) => {
                             <View>
                                 <Text style={styles.label}>Select Professional:</Text>
                                 <View>
-                                    {order?.professionals?.map((profession: any) => (
+                                    {order?.professionals?.map((profession: any, i: any) => (
                                         <TouchableOpacity
-                                            key={profession?.id}
+                                            key={i}
                                             onPress={() => setSelectedProfession(profession?.text)}
                                             className='flex-row justify-between items-center p-3 my-1 rounded-md bg-gray-100'
                                         >
