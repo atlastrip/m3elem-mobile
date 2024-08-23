@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, TextInput, Button, Alert, Modal } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, TextInput, Button, Alert, Modal, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import BottomSheet, { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetModal, BottomSheetModalProvider, WINDOW_HEIGHT, WINDOW_WIDTH } from '@gorhom/bottom-sheet';
 import { Picker } from '@react-native-picker/picker';
 import { ButtonPrimary } from '@/components/index';
 import MapView, { Marker } from 'react-native-maps';
@@ -152,19 +152,33 @@ const OrderView = ({ route, navigation }: any) => {
     useEffect(() => {
         getInfo();
     }, []);
+    const [Loading, setLoading] = useState(false);
 
     const handleCreateConversation = async () => {
+        setLoading(true)
         const conversationId = await createOrRetrieveConversation(order?.id, artisantInfo?.id, order?.owner?.id);
+        setLoading(false)
         navigation.navigate('Chat', { conversationId, userId: artisantInfo?.id, userName: artisantInfo?.firstName, order });
     };
     const handleCreateConversationUser = async (artisan: any) => {
+        setLoading(true)
         const conversationId = await createOrRetrieveConversation(order?.id, artisan?.id, artisantInfo?.id);
+        setLoading(false)
         navigation.navigate('Chat', { conversationId, userId: artisantInfo?.id, userName: artisan?.firstName, order });
     };
     console.log({ order: order?.artisantUnlockedLead })
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
+            {Loading && (
+
+                <View style={{
+                    width : WINDOW_WIDTH,
+                    height : WINDOW_HEIGHT
+                }} className='justify-center absolute top-0 left-0 z-20 items-center bg-black/80'>
+                <ActivityIndicator size={50} />
+            </View>
+            )}
             <BottomSheetModalProvider>
                 <ScrollView style={[styles.container, { paddingTop: insets.top + 10 }]}>
                     <View className='flex-row items-center gap-2'>

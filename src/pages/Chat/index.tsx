@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { GiftedChat } from 'react-native-gifted-chat';
 import { Ionicons } from "@expo/vector-icons";
 import { collection, doc, onSnapshot, orderBy, query, addDoc } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';  // Import Firebase Auth
 import { firestore } from 'firebase';
 import { FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
 import { View } from 'react-native';
 import { Image } from 'react-native-animatable';
-import { Bubble } from 'react-native-gifted-chat';
 import { Platform } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -46,7 +43,7 @@ const ChatScreen = ({ route, navigation }: any) => {
         listenToMessages();
     }, [conversationId]);
 
-    
+
     const sendPushNotification = async (expoPushToken: string, messageText: string) => {
         const message = {
             to: expoPushToken,
@@ -55,18 +52,22 @@ const ChatScreen = ({ route, navigation }: any) => {
             body: messageText,
             data: { messageText },
         };
-    
-        await fetch('https://exp.host/--/api/v2/push/send', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Accept-encoding': 'gzip, deflate',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(message),
-        });
+
+        setTimeout(async () => {
+
+
+            await fetch('https://exp.host/--/api/v2/push/send', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Accept-encoding': 'gzip, deflate',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(message),
+            });
+        })
     };
-    
+
 
     const onSend = async (newMessages: any = []) => {
         try {
@@ -76,8 +77,8 @@ const ChatScreen = ({ route, navigation }: any) => {
             // @ts-ignore
             await Promise.all(newMessages.map(message => {
                 if (userId && userName) {
-                    const recipientPushToken = 'recipient-expo-push-token'; // Replace with the actual token
-                 sendPushNotification(recipientPushToken, message.text);
+                    const recipientPushToken = 'ExponentPushToken[eKzgiuHcPVgA3U-mCZipoG]'; // Replace with the actual token
+                    sendPushNotification(recipientPushToken, message.text);
                     return addDoc(messagesRef, {
                         ...message,
                         createdAt: new Date(),
@@ -90,7 +91,7 @@ const ChatScreen = ({ route, navigation }: any) => {
                     console.error("User data is missing or incomplete.");
                 }
             }));
-            
+
         } catch (err) {
             console.error("Error sending message: ", err);
             // @ts-ignore
@@ -130,8 +131,8 @@ const ChatScreen = ({ route, navigation }: any) => {
                     {item?.text?.length < 20 && (<Text style={[
                         styles.messageTime,
                         item.user._id === userId ?
-                        {color : 'white' , marginLeft : 2} : {}
-                        ]}>{messageTime}</Text>)}
+                            { color: 'white', marginLeft: 2 } : {}
+                    ]}>{messageTime}</Text>)}
                 </View>
                 {item?.text?.length >= 20 && (<Text style={styles.messageTime}>{messageTime}</Text>)}
             </View>
@@ -236,7 +237,7 @@ const styles = StyleSheet.create({
         maxWidth: '80%',
     },
     messageContainer: {
-        marginBottom: 15,
+        marginBottom: 0,
     },
     myMessageContainer: {
         alignItems: 'flex-end',
@@ -248,7 +249,7 @@ const styles = StyleSheet.create({
         color: '#999',
         fontSize: 12,
         marginTop: 0,
-        marginLeft : 2
+        marginLeft: 2
     },
     myMessage: {
         backgroundColor: COLORS.primary,
