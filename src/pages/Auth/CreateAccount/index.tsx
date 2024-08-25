@@ -45,8 +45,9 @@ WebBrowser.maybeCompleteAuthSession();
 
 
 
-
 const TreeComponent = ({ categories, setCategories }: any) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
   const toggleSelect = (path: any) => {
     const updateCategories = (items: any, path: any) => {
       if (path.length === 0) return items;
@@ -71,8 +72,19 @@ const TreeComponent = ({ categories, setCategories }: any) => {
     setCategories((prevCategories: any) => updateCategories(prevCategories, path));
   };
 
+  // @ts-ignore
   const renderLastElements = (items: any, path = []) => {
-    return items.map((item: any) => {
+    // Filter and sort the items
+    const filteredItems = items.filter((item: any) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const selectedItems = filteredItems.filter((item: any) => item.selected);
+    const unselectedItems = filteredItems.filter((item: any) => !item.selected);
+
+    const sortedItems = [...selectedItems, ...unselectedItems];
+  // @ts-ignore
+    return sortedItems.map((item: any) => {
       const newPath: any = [...path, item.id];
 
       if (!item.subcategories || item.subcategories.length === 0) {
@@ -80,19 +92,8 @@ const TreeComponent = ({ categories, setCategories }: any) => {
           <TouchableOpacity
             key={item.id}
             onPress={() => toggleSelect(newPath)}
-            // style={[
-            //   styles.categoryItem,
-            //   item.selected ? styles.categoryItemSelected : styles.categoryItemDefault,
-            // ]}
-            // className="gap-2"
-            className={`cursor-pointer flex-row  text-nowrap flex rounded-md ${item.selected ? 'bg-primary-500 text-white' : 'bg-white text-black'} p-2 my-2 border`}
-
+            className={`cursor-pointer flex-row text-nowrap flex rounded-md ${item.selected ? 'bg-primary-500 text-white' : 'bg-white text-black'} p-2 my-2 border`}
           >
-            {/* {item.selected && (
-              <Text
-              className="text-white hover:bg-white rounded-2xl hover:text-primary-500"
-              >✖</Text>
-            )} */}
             <Text style={styles.categoryItemText}>{item.name}</Text>
           </TouchableOpacity>
         );
@@ -101,11 +102,22 @@ const TreeComponent = ({ categories, setCategories }: any) => {
     });
   };
 
-  return <View
-    className="flex flex-row gap-3 "
-  >{renderLastElements(categories)}</View>
+  return (
+    <View>
+      <TextInput
+        placeholder="Search categories..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        className="text-black border-b border-primary-500 text-lg p-3 mb-2"
+        placeholderTextColor={"#00000050"}
+        textContentType="none"
+      />
+      <View className="gap-3">
+        {renderLastElements(categories)}
+      </View>
+    </View>
+  );
 };
-
 
 
 
@@ -995,13 +1007,12 @@ const CreateAccount = ({
                   }}>Choose categories:</Text>
                   {LoadingCategories ? <ActivityIndicator size="large" color="#0000ff" /> :
 
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      style={{ flexDirection: 'row', marginVertical: 8 }}
+                    <View
+
+
                     >
                       <TreeComponent categories={categories.reverse()} setCategories={setCategories} />
-                    </ScrollView>
+                    </View>
                   }
                 </View>
               )}

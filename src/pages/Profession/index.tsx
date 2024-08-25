@@ -347,7 +347,7 @@ const ProfessionPage = ({ navigation }: any) => {
                     {/* <View className="flex flex-wrap flex-row -mx-2"> */}
                     <View className=' pt-6 pb-7 flex-row flex-wrap gap-3 items-center justify-center w-fit ' >
 
-                        {services?.sort((a: any, b: any) => a?.text.toLowerCase().localeCompare(b.text.toLowerCase()))?.map((e, i) => (
+                        {services?.sort((a: any, b: any) => a?.text.toLowerCase().localeCompare(b.text.toLowerCase()))?.map((e : any, i: any) => (
                             <TouchableOpacity
                                 onPress={() => setSelectedProfession({ name: e.text, img: e.img, id: e.id })}
                                 key={i}
