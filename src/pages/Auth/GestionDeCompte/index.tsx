@@ -43,6 +43,7 @@ const GestionDeCompte = ({ navigation, route }: any) => {
   const [OpenMenu, setOpenMenu] = useState(false);
   const [username, setUsername] = useState("");
   const [FullName, setFullName] = useState("");
+  const [FirstName, setFirstName] = useState("");
   const [LastName, setLastName] = useState("");
   const [Email, setEmail] = useState("");
   const [User, setUser] = useState<IUser | null>(null);
@@ -54,6 +55,7 @@ const GestionDeCompte = ({ navigation, route }: any) => {
   const [media, setMedia] = useState<any[]>([]);
   const [checkProfile, setCheckProfile] = useState(false);
   const [LoadingMedia, setLoadingMedia] = useState("");
+  const [LoadingUser, setLoadingUser] = useState(false);
 
   const GetUserFromAsyncStorage = async () => {
     const user: any = await AsyncStorage.getItem("@user");
@@ -148,6 +150,9 @@ const GestionDeCompte = ({ navigation, route }: any) => {
       return;
     }
 
+    setLoadingUser(true);
+
+
     if (checkProfile) {
       try {
         const response = await fetch(ProfilePhoto);
@@ -230,12 +235,13 @@ const GestionDeCompte = ({ navigation, route }: any) => {
     const UpdateUserInfo: any = {
       id: JSON.parse(user).id,
       phone: username,
-      firstName: FullName.split(" ")[0],
-      lastName: FullName.split(" ")[1],
+      firstName: FirstName,
+      lastName: LastName,
       location: JSON.stringify(Location),
       imageProfile: ProfilePhoto,
       newImage: uploadedImages || [],
-      Radius: `${Radius}`
+      Radius: `${Radius}`,
+      categories: [],
     }
 
 
@@ -261,6 +267,13 @@ const GestionDeCompte = ({ navigation, route }: any) => {
               mutation updateUser($input: inputUpdateUser) {
                 updateUser(input: $input){
                   id
+                  firstName
+                  lastName
+                  email
+                  phone
+                  role
+                  imageProfile
+                  pushToken
                 }
               }
             `,
@@ -273,6 +286,10 @@ const GestionDeCompte = ({ navigation, route }: any) => {
 
       const json = await res.json();
       console.log('json', json);
+
+      await AsyncStorage.setItem("@user", JSON.stringify(json.data?.updateUser));
+      await AsyncStorage.setItem("@imageProfile", json.data?.updateUser?.imageProfile);
+
       setLoadingMedia("");
       await getInfo();
 
@@ -300,6 +317,7 @@ const GestionDeCompte = ({ navigation, route }: any) => {
 
 
     try {
+      setLoadingUser(true);
       const res = await fetch(
         Constants.expoConfig?.extra?.apiUrl as string,
         {
@@ -334,19 +352,25 @@ const GestionDeCompte = ({ navigation, route }: any) => {
       console.log('json.data', json?.data?.user);
       console.log('====================================');
       setUsername(json?.data?.user?.phone || "");
-      setFullName(json?.data?.user?.firstName + " " + json?.data?.user?.lastName || "");
+      // setFullName(json?.data?.user?.firstName + " " + json?.data?.user?.lastName || "");
+      setFirstName(json?.data?.user?.firstName || "");
+      setLastName(json?.data?.user?.lastName || "");
       setEmail(json?.data?.user?.email || "");
       setProfilePhoto(json?.data?.user?.imageProfile || "");
       setLocation(json?.data?.user?.location != "" ? JSON.parse(json?.data?.user?.location) : { latitude: 33.0, longitude: -7.0 });
       setPortfolio(json?.data?.user?.images || []);
       setRadius(parseInt(json?.data?.user?.Radius) || 15000);
       setMedia([]);
+      setLoadingUser(false);
 
     } catch (err1: any) {
       console.log('err2', err1.message);
+      setLoadingUser(false);
 
       Alert.alert("Erreur", "Une erreur est servenue lors de modification de votre compte.");
     }
+    setLoadingUser(false);
+
   };
 
   useEffect(() => {
@@ -483,12 +507,20 @@ const GestionDeCompte = ({ navigation, route }: any) => {
             </TouchableOpacity>
           )}
 
-          <Text className="text-black ml-2 mb-2">Full name :</Text>
+          <Text className="text-black ml-2 mb-2">First Name :</Text>
           <TextInput
-            value={FullName}
-            onChangeText={setFullName}
+            value={FirstName}
+            onChangeText={setFirstName}
             className="text-black border border-black/25 rounded-lg text-xl p-3 mb-3"
-            placeholder="Full Name"
+            placeholder="First Name"
+            textContentType="familyName"
+          />
+          <Text className="text-black ml-2 mb-2">Last Name :</Text>
+          <TextInput
+            value={LastName}
+            onChangeText={setLastName}
+            className="text-black border border-black/25 rounded-lg text-xl p-3 mb-3"
+            placeholder="Last Name"
             textContentType="familyName"
           />
           <Text className="text-black ml-2 mb-2">Phone number :</Text>
@@ -636,7 +668,7 @@ const GestionDeCompte = ({ navigation, route }: any) => {
               EditUser()
             }}
             setLoading={() => { }}
-            text="Save"
+            text={LoadingUser ? "Loading..." : "Save"}
           />
 
 

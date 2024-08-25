@@ -191,7 +191,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       onPress: () =>
         Linking.openURL(
           Platform.OS === "android"
-            ? "https://play.google.com/store/apps/details?id=com.pantofit.pantofit"
+            ? "https://play.google.com/store/apps/details?id=com.serviceday.serviceday"
             : "https://apps.apple.com/lr/app/pantofit/id1613173191"
         ),
       version: window?.version,

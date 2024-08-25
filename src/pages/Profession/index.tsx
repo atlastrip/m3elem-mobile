@@ -212,30 +212,30 @@ const ProfessionPage = ({ navigation }: any) => {
                                 source
                                 }
                                 reviews{
-                                id
-                                reviewer{
                                     id
-                                    firstName
-                                    lastName
-                                    imageProfile
-                                }
-                                owner{
-                                    id
-                                    firstName
-                                    lastName
-                                    imageProfile
-                                }
-                                description
-                                rating
-                                order{
-                                    id
-                                    title
-                                    professionals{
-                                    id
-                                    text
-                                    img
+                                    reviewer{
+                                        id
+                                        firstName
+                                        lastName
+                                        imageProfile
                                     }
-                                }
+                                    owner{
+                                        id
+                                        firstName
+                                        lastName
+                                        imageProfile
+                                    }
+                                    description
+                                    rating
+                                    order{
+                                        id
+                                        title
+                                        professionals{
+                                        id
+                                        text
+                                        img
+                                        }
+                                    }
                                 }
                             }
                             }

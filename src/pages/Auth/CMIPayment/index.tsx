@@ -167,8 +167,8 @@ const CMIPayment = ({
                 "a2",
                 `${
                   Platform.OS === "ios"
-                    ? "com.pantofit.pantofitapp"
-                    : "com.pantofit.pantofit"
+                    ? "com.serviceday.serviceday"
+                    : "com.serviceday.serviceday"
                 }`,
                 "771",
                 "Version 7.7.1",
@@ -238,8 +238,8 @@ const CMIPayment = ({
               "a2",
               `${
                 Platform.OS === "ios"
-                  ? "com.pantofit.pantofitapp"
-                  : "com.pantofit.pantofit"
+                  ? "com.serviceday.serviceday"
+                  : "com.serviceday.serviceday"
               }`,
               "771",
               "Version 7.7.1",

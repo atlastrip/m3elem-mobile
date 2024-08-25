@@ -12,7 +12,7 @@ import {
 import React, { useEffect, useState } from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
-import { Navigate } from "navigation";
+import { Navigate, registerForPushNotificationsAsyncBro } from "navigation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import * as AppleAuthentication from "expo-apple-authentication";
@@ -22,7 +22,6 @@ import { useDispatch } from "react-redux";
 import { isLogin, IUser, setUser } from "../../../store/User";
 import { ButtonPrimary } from "../../../components/index";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
-import { registerForPushNotificationsAsync } from "@/components/pushNotification";
 import { LoginWithApple } from "@/components/buttons/LoginWithApple";
 import LoadingPage from "@/components/Layout/LoadingPage";
 import * as Device from "expo-device";
@@ -109,7 +108,7 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
         );
         await AsyncStorage.setItem("@user", JSON.stringify(json.data?.login?.user));
         dispatch(isLogin(true));
-        const token = await registerForPushNotificationsAsync();
+        // const token = await registerForPushNotificationsAsync();
         console.info({ token });
 
       } else {
@@ -131,6 +130,13 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
     const headers = new Headers();
     headers.append("Content-Type", "application/json");
     try {
+
+      console.log('====================================');
+      console.log('yoooooooooooooo');
+      console.log('====================================');
+      const pushToken = await registerForPushNotificationsAsyncBro();
+      console.log({ pushToken });
+
       const res = await fetch(
         Constants.expoConfig?.extra?.apiUrl as string,
         {
@@ -148,6 +154,7 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
                   phone
                   role
                   imageProfile
+                  pushToken
                 }
                 token
               }
@@ -155,7 +162,8 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
             variables: {
               inputLogin: {
                 email: em || username,
-                password: ps || password
+                password: ps || password,
+                pushToken
               }
             }
           }),
@@ -175,6 +183,7 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
           await AsyncStorage.setItem("@imageProfile", json.data?.login?.user?.imageProfile);
         }
         await AsyncStorage.setItem("@user", JSON.stringify(json.data?.login?.user));
+        await AsyncStorage.setItem("@pushToken", json.data?.login?.user?.pushToken);
         await AsyncStorage.setItem("@signed-user", JSON.stringify({ email: em || username, password: ps || password }));
         dispatch(isLogin(true));
         dispatch(setUser(json.data?.login?.user));
@@ -186,7 +195,7 @@ const LoginScreen = ({ navigation }: { navigation: Navigate }) => {
         setLoading(false);
         setERR(JSON.stringify(json, undefined, 2));
       }
-    } catch (err) {
+    } catch (err: any) {
       setLoading(false);
       Alert.alert("error", JSON.stringify(err, undefined, 2));
       // Alert.alert(json?.detail);

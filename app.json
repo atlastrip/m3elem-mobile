@@ -39,7 +39,8 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/e6bfa8ea-7c06-4163-a38f-f99df894b43b"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -47,7 +48,6 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.soundly.soundvoyage",
-      "googleServicesFile": "./GoogleService-Info.plist",
       "buildNumber": "1",
       "infoPlist": {
         "UIBackgroundModes": [
@@ -64,8 +64,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "googleServicesFile": "./google-services.json",
-      "package": "com.pantofit.pantofit",
+      "package": "com.serviceday.serviceday",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyAmaB15kxOfK3LJDTdwOcgS5c4M5IOWMWE"
@@ -83,9 +82,15 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "apiUrl": "http://192.168.1.47:4000/m3elem",
+      "apiUrl": "https://backend.m3alempro.com/m3elem",
       "country": "ma",
-      "currency": "mad"
+      "currency": "mad",
+      "eas": {
+        "projectId": "e6bfa8ea-7c06-4163-a38f-f99df894b43b"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

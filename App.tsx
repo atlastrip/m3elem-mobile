@@ -7,12 +7,12 @@ import { configureStore } from '@reduxjs/toolkit';
 import { User } from "./src/store";
 
 
-
 const store: any = configureStore({
   reducer: {
     user: User,
   },
 })
+
 
 
 
@@ -51,7 +51,7 @@ const store: any = configureStore({
 
 
 const App = () => {
-  
+
 
 
   return (

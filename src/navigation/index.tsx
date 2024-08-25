@@ -704,6 +704,100 @@ function RootNavigator() {
   );
 }
 
+export function handleRegistrationError(errorMessage: string) {
+  Alert.alert(errorMessage);
+  throw new Error(errorMessage);
+}
+
+export async function registerForPushNotificationsAsyncBro() {
+  console.log('====================================');
+  console.log('yoooo');
+  console.log('====================================');
+  console.log('Constants.expoConfig.extra.eas.projectId', Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId);
+
+  // let token;
+  // if (Device.isDevice) {
+    
+  //   const { status: existingStatus } =
+  //   await Notifications.getPermissionsAsync();
+  //   let finalStatus = existingStatus;
+  //   if (existingStatus !== "granted") {
+  //     console.log('sss');
+
+  //     if (Platform.OS === 'android') {
+  //       Notifications.setNotificationChannelAsync('default', {
+  //         name: 'default',
+  //         importance: Notifications.AndroidImportance.MAX,
+  //         vibrationPattern: [0, 250, 250, 250],
+  //         lightColor: '#FF231F7C',
+  //       });
+  //     }
+      
+  //       const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  //       let finalStatus = existingStatus;
+  //       if (existingStatus !== 'granted') {
+  //         const { status } = await Notifications.requestPermissionsAsync();
+  //         finalStatus = status;
+  //       }
+  //       if (finalStatus !== 'granted') {
+  //         handleRegistrationError('Permission not granted to get push token for push notification!');
+  //         return;
+  //       }
+  //       const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId
+  //       if (!projectId) {
+  //         handleRegistrationError('Project ID not found');
+  //       }
+  //       try {
+  //         const pushTokenString = (
+  //           await Notifications.getExpoPushTokenAsync({
+  //             projectId,
+  //           })
+  //         ).data;
+  //         console.log(pushTokenString);
+  //         return pushTokenString;
+  //       } catch (e: unknown) {
+  //         handleRegistrationError(`${e}`);
+  //       }
+  //     // } else {
+  //     //   handleRegistrationError('Must use physical device for push notifications');
+  //     // }
+  //   }
+
+  // }
+  // return token;
+
+  let token;
+  if (Device.isDevice) {
+    const { status: existingStatus, canAskAgain } =
+      await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      Alert.alert("Info", "Veuillez activez les notifications.");
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync({
+      projectId: Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId,
+    })).data;
+    console.log(token);
+  } else {
+    Alert.alert("Must use physical device for Push Notifications");
+  }
+
+  if (Platform.OS === "android") {
+    Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    });
+  }
+
+  return token;
+}
 export default function Navigation() {
   // const queryClient = new QueryClient();
 
@@ -715,45 +809,11 @@ export default function Navigation() {
   const navigationRef = useRef<any>(null);
   const routeNameRef = useRef();
 
-  const dispatch = useDispatch();
   useEffect(() => {
-    registerForPushNotificationsAsync();
+    registerForPushNotificationsAsyncBro();
   }, []);
 
-  async function registerForPushNotificationsAsync() {
-    let token;
-    if (Device.isDevice) {
-      const { status: existingStatus } =
-        await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      if (existingStatus !== "granted") {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      if (finalStatus !== "granted") {
-        Alert.alert("Failed to get push token for push notification!");
-        return;
-      }
-      // token = (await Notifications.getExpoPushTokenAsync()).data;
-      token = ""
 
-      dispatch(setTokenPushNotification(token));
-      console.log(token);
-    } else {
-      Alert.alert("Must use physical device for Push Notifications");
-    }
-
-    if (Platform.OS === "android") {
-      Notifications.setNotificationChannelAsync("default", {
-        name: "default",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
-      });
-    }
-
-    return token;
-  }
   useEffect(() => {
     if (notificationListener) {
       notificationListener.current =

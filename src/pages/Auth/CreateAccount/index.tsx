@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import React, { FC, useEffect, useRef, useState } from "react";
-import { Navigate } from "navigation";
+import { Navigate, registerForPushNotificationsAsyncBro } from "navigation";
 import * as ImagePicker from 'expo-image-picker';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { IPack } from "../Reservation";
@@ -343,7 +343,8 @@ const CreateAccount = ({
       console.log('Uploaded Images:', uploadedImages);
       console.log('====================================');
 
-
+      const pushToken = await registerForPushNotificationsAsyncBro();
+      console.log({ pushToken });
       const role = SelectedAccount === "User" ? "user" : "artisant";
       const categories: any = selectedCategories?.map((e: any) => e.id) || []
       // @ts-ignore
@@ -359,7 +360,8 @@ const CreateAccount = ({
         professionals: professionals,
         newImage: media?.length > 0 ? uploadedImages : [],
         adress: adress,
-        aboutYou: aboutYou
+        aboutYou: aboutYou,
+        pushToken
       };
 
 
@@ -417,6 +419,8 @@ const CreateAccount = ({
           json.data?.signUp?.token
         );
         await AsyncStorage.setItem("@user", JSON.stringify(json.data?.signUp?.user));
+        await AsyncStorage.setItem("@pushToken", json.data?.login?.user?.pushToken);
+
         dispatch(isLogin(true));
         dispatch(setUser(json.data?.signUp?.user));
       } else {

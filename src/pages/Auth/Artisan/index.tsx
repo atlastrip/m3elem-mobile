@@ -62,7 +62,9 @@ const ArtisanHomePage = ({ navigation }: any) => {
                         variables: {
                             "input": {
                                 id: JSON.parse(user)?.id,
-                                available: !isEnabled
+                                available: !isEnabled,
+                                categories: [],
+                                newImage:[]
                             }
                         }
                     }),
@@ -70,10 +72,14 @@ const ArtisanHomePage = ({ navigation }: any) => {
             );
 
             const json = await res.json();
+            console.log('json broo', json);
             
             await getInfo();
 
         } catch (err1) {
+            console.log('====================================');
+            console.log('err1', err1);
+            console.log('====================================');
             Alert.alert("Erreur", "Une erreur est servenue lors de modification de votre compte.");
         }
     };
@@ -136,12 +142,12 @@ const ArtisanHomePage = ({ navigation }: any) => {
         navigation.navigate('OrderViewUser', { order: scannedData.order, user: scannedData.user });
     };
 
-    if (hasPermission === null) {
-        return <Text>Requesting for camera permission</Text>;
-    }
-    if (hasPermission === false) {
-        return <Text>No access to camera</Text>;
-    }
+    // if (hasPermission === null) {
+    //     return <Text>Requesting for camera permission</Text>;
+    // }
+    // if (hasPermission === false) {
+    //     return <Text>No access to camera</Text>;
+    // }
 
 
     

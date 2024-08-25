@@ -648,6 +648,8 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
 
             const json = await res.json();
             let fetchedLeads = json.data.getLeadsThatMatchUserProfessionals || [];
+            console.log('json.data',json.data);
+            
 
             // Apply filters
             if (filter.title) {

@@ -120,4 +120,4 @@ export default function App() {
   );
 }
 
-export { registerForPushNotificationsAsync, sendPushNotification };
+// export { registerForPushNotificationsAsync, sendPushNotification };
