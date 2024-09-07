@@ -12,6 +12,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getToken, getUser } from '@/helpers/getToken';
 import { useIsFocused } from '@react-navigation/native';
+import { IsCompleteProfile } from '@/components/IsCompleteProfile';
 
 
 const ArtisanHomePage = ({ navigation }: any) => {
@@ -64,7 +65,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
                                 id: JSON.parse(user)?.id,
                                 available: !isEnabled,
                                 categories: [],
-                                newImage:[]
+                                newImage: []
                             }
                         }
                     }),
@@ -73,7 +74,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
 
             const json = await res.json();
             console.log('json broo', json);
-            
+
             await getInfo();
 
         } catch (err1) {
@@ -121,6 +122,65 @@ const ArtisanHomePage = ({ navigation }: any) => {
 
 
 
+    const [isCompleted, setIsCompleted] = useState(false)
+    const [loading, setLoading] = useState(false)
+
+
+    const getProfileCompleted = async () => {
+
+        const token = await getToken();
+        const user: any = await getUser();
+        console.log('====================================');
+        console.log('token', token);
+        console.log('====================================');
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            setLoading(true);
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                   query ArtisantProfileCompleted {
+                          user{
+                            profileCompleted
+                          }
+                        }
+
+                    `,
+
+                    }),
+                }
+            );
+
+            const json = await res.json();
+            console.log('json', json?.data?.user?.profileCompleted);
+
+            setIsCompleted(json?.data?.user?.profileCompleted)
+
+            setLoading(false);
+        } catch (err: any) {
+            setLoading(false);
+            Alert.alert("error", JSON.stringify(err.message, undefined, 2));
+            // Alert.alert(json?.detail);
+        }
+    }
+
+
+    useEffect(() => {
+        getProfileCompleted()
+    }, [])
+
+
+
+
     useEffect(() => {
         getInfo()
     }, [IsFocused])
@@ -150,29 +210,29 @@ const ArtisanHomePage = ({ navigation }: any) => {
     // }
 
 
-    
 
-  const getLeads = async () => {
 
-    const token = await getToken();
-    const user: any = await getUser();
-    // setUser(user);
+    const getLeads = async () => {
 
-    if (!token) {
-      return;
-    }
-    const headers = new Headers();
-    headers.append("Content-Type", "application/json");
-    headers.append("Authorization", `Bearer ${token}`);
-    try {
-      setLoadingAcceptedLeads(true);
-      const res = await fetch(
-        Constants.expoConfig?.extra?.apiUrl as string,
-        {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            query: `
+        const token = await getToken();
+        const user: any = await getUser();
+        // setUser(user);
+
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            setLoadingAcceptedLeads(true);
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
                     query getAcceptedLeadsThatMatchUserProfessionals {
                         getAcceptedLeadsThatMatchUserProfessionals {
                                 id
@@ -182,22 +242,22 @@ const ArtisanHomePage = ({ navigation }: any) => {
 
                     `,
 
-          }),
+                    }),
+                }
+            );
+
+            const json = await res.json();
+
+            setLeads(json.data.getAcceptedLeadsThatMatchUserProfessionals);
+
+
+            setLoadingAcceptedLeads(false);
+        } catch (err: any) {
+            setLoadingAcceptedLeads(false);
+            Alert.alert("error", JSON.stringify(err.message, undefined, 2));
+            // Alert.alert(json?.detail);
         }
-      );
-
-      const json = await res.json();
-
-      setLeads(json.data.getAcceptedLeadsThatMatchUserProfessionals);
-
-
-      setLoadingAcceptedLeads(false);
-    } catch (err: any) {
-      setLoadingAcceptedLeads(false);
-      Alert.alert("error", JSON.stringify(err.message, undefined, 2));
-      // Alert.alert(json?.detail);
     }
-  }
 
 
 
@@ -212,6 +272,11 @@ const ArtisanHomePage = ({ navigation }: any) => {
             {country == 'usa' && (
                 <Image source={require('./Orders/images/flag-usa.jpg')} className='opacity-10' style={{ width: WINDOW_WIDTH, height: WINDOW_HEIGHT, position: "absolute", top: 0, left: 0 }} />
             )}
+
+            <IsCompleteProfile
+                profileCompletedData={isCompleted}
+                navigation={navigation}
+            />
             <View
                 style={{ paddingTop: insets.top + 10 }}
                 className="flex-1 z-20 ">

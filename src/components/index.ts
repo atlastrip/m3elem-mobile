@@ -5,3 +5,5 @@ export { SafeScreen } from "./safeArea";
 export { Layout } from "./Layout";
 export { ButtonPrimary } from "./buttons/Primary";
 export { Attendances } from "./Data/Attendances";
+export { IsCompleteProfile } from "./IsCompleteProfile"
+export { Results } from "./Results"

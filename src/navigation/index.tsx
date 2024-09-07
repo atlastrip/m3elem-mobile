@@ -77,6 +77,8 @@ import MyLeads from "@/pages/Auth/Artisan/MyLeads";
 import PaymentMethodPage from "@/pages/Auth/Artisan/PaymentMethod";
 import MapViewArtisan from "@/pages/Auth/Artisan/Map";
 import ChatScreen from "@/pages/Chat";
+import CompleteProfile from "@/pages/CompleteProfile";
+import InstantResult from "@/pages/InstantResult";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -135,6 +137,8 @@ export type IPages =
   | "PaymentMethod"
   | "Transactions"
   | "MyLeads"
+  | "CompleteProfile"
+  | "InstantResult"
   ;
 export interface Navigate {
   navigate: (page: IPages, Params?: any) => void;
@@ -267,6 +271,13 @@ const GroupeOrder = () => {
     <Stack.Screen
       name="OrderViewUser"
       component={OrderView}
+      options={{
+        headerShown: false,
+      }}
+    />
+    <Stack.Screen
+      name="InstantResult"
+      component={InstantResult}
       options={{
         headerShown: false,
       }}
@@ -606,6 +617,13 @@ function RootNavigator() {
                         }}
                       />
                       <Stack.Screen
+                        name="InstantResult"
+                        component={InstantResult}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
+                      <Stack.Screen
                         name="ImagePreview"
                         component={ImagePreview}
                         options={{
@@ -620,6 +638,7 @@ function RootNavigator() {
                           headerShown: false,
                         }}
                       />
+
                     </>
                   ) : (
                     <>
@@ -629,6 +648,16 @@ function RootNavigator() {
                         }}
                         name="Home"
                         component={BottomTabNavigator}
+                      />
+
+
+
+                      <Stack.Screen
+                        name="CompleteProfile"
+                        component={CompleteProfile}
+                        options={{
+                          headerShown: false,
+                        }}
                       />
                       <Stack.Screen
                         name="Transactions"
@@ -732,7 +761,7 @@ export async function registerForPushNotificationsAsyncBro() {
 
   // let token;
   // if (Device.isDevice) {
-    
+
   //   const { status: existingStatus } =
   //   await Notifications.getPermissionsAsync();
   //   let finalStatus = existingStatus;
@@ -747,7 +776,7 @@ export async function registerForPushNotificationsAsyncBro() {
   //         lightColor: '#FF231F7C',
   //       });
   //     }
-      
+
   //       const { status: existingStatus } = await Notifications.getPermissionsAsync();
   //       let finalStatus = existingStatus;
   //       if (existingStatus !== 'granted') {

@@ -83,6 +83,7 @@
     },
     "extra": {
       "apiUrl": "https://backend.m3alempro.com/m3elem",
+      "promptUrl": "https://backend.m3alempro.com",
       "country": "ma",
       "currency": "mad",
       "eas": {

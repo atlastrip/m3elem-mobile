@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { WINDOW_HEIGHT } from '@gorhom/bottom-sheet';
+import { IsCompleteProfile } from '@/components/IsCompleteProfile';
 
 export interface Audio {
   id: string
@@ -193,6 +194,7 @@ export default function HomeScreen({ navigation }: any) {
   const [order, setOrder] = React.useState(null);
   const [hasPermission, setHasPermission] = React.useState(null);
   const [scanned, setScanned] = React.useState(false);
+  const [searchCategory, setSearchCategory] = React.useState('');
 
   React.useEffect(() => {
     (async () => {
@@ -211,6 +213,17 @@ export default function HomeScreen({ navigation }: any) {
     navigation.navigate('OrderViewUser', { order: scannedData.order, user: scannedData.user });
 
   };
+
+
+
+  const goToFilter = () => {
+    console.log('searchCategory', searchCategory);
+
+    navigation.navigate('InstantResult', {
+      searchCategory: searchCategory,
+      searchZipCode: "15000",
+    });
+  }
 
   // if (hasPermission === null) {
   //   return <Text>Requesting for camera permission</Text>;
@@ -237,6 +250,7 @@ export default function HomeScreen({ navigation }: any) {
           position: "relative"
         }}
       >
+
         <Image
           style={{
             width: window.width,
@@ -255,7 +269,14 @@ export default function HomeScreen({ navigation }: any) {
             placeholderTextColor="black"
             className="text-black placeholder:text-black border border-black/25 bg-white w-full rounded-lg text-xl p-3 mb-3"
             placeholder="Search"
+            value={searchCategory}
+            onChangeText={setSearchCategory}
           />
+          <TouchableOpacity onPress={goToFilter} className='bg-primary-500 p-3 rounded-lg'>
+            <Text className='text-white font-bold text-xl text-center' >
+              Search
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
       <View className='flex items-center justify-between flex-row px-3' >
