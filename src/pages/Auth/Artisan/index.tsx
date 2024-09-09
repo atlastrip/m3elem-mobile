@@ -174,14 +174,12 @@ const ArtisanHomePage = ({ navigation }: any) => {
     }
 
 
+
+
+
     useEffect(() => {
         getProfileCompleted()
-    }, [])
 
-
-
-
-    useEffect(() => {
         getInfo()
     }, [IsFocused])
 

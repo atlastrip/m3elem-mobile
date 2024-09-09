@@ -1,14 +1,21 @@
+import { getToken } from '@/helpers/getToken';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-const IsCompleteProfile = ({ profileCompletedData,navigation }: any) => {
+const IsCompleteProfile = ({ profileCompletedData, navigation }: any) => {
 
-    const handleCompleteProfile = () => {
+
+
+    const handleCompleteProfile = async () => {
         // Logic to complete profile
         console.log("Complete profile clicked");
-        // go to CompleteProfile
-        navigation.navigate("CompleteProfile")
+        const token = await getToken();
+        console.log('token', token);
         
+
+        // go to CompleteProfile
+        navigation.navigate("CompleteProfile", { navigation });
+
     };
 
     return (
