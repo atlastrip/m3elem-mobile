@@ -9,12 +9,26 @@ import { Platform } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from 'constants/theme';
-
+import { getToken, getUser } from '@/helpers/getToken';
+import Constants from 'expo-constants';
 const ChatScreen = ({ route, navigation }: any) => {
     const { conversationId, userId, userName, order } = route.params;
     const [messages, setMessages] = useState([]);
     const [error, setError] = useState(null);
-    console.log({ route, userId, userName })
+    const [role, setRole] = useState('');
+
+
+    const getRole = async () => {
+        const newUser: any = await getUser();
+        setRole(JSON.parse(newUser)?.role);
+    }
+    // console.log({ route, userId, userName })
+
+
+
+    useEffect(() => {
+        getRole();
+    }, []);
     useEffect(() => {
         const listenToMessages = async () => {
             try {
@@ -77,7 +91,7 @@ const ChatScreen = ({ route, navigation }: any) => {
             // @ts-ignore
             await Promise.all(newMessages.map(message => {
                 if (userId && userName) {
-                    const recipientPushToken = 'ExponentPushToken[eKzgiuHcPVgA3U-mCZipoG]'; // Replace with the actual token
+                    const recipientPushToken = role === 'artisant' ? order?.owner?.expoPushToken : order?.artisant?.expoPushToken;
                     sendPushNotification(recipientPushToken, message.text);
                     return addDoc(messagesRef, {
                         ...message,
@@ -140,6 +154,72 @@ const ChatScreen = ({ route, navigation }: any) => {
     };
     const insets = useSafeAreaInsets()
 
+
+    const sendLastMessageToBackend = async (lastMessage: any) => {
+        const token = await getToken();
+        // setUser(user);
+        // console.log('====================================');
+        // console.log('token', token);
+        // console.log('====================================');
+        if (!token) {
+            return;
+        }
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("Authorization", `Bearer ${token}`);
+        try {
+            // console.log('====================================');
+            // console.log('filterArray', filterArray);
+            const res = await fetch(
+                Constants.expoConfig?.extra?.apiUrl as string,
+                {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({
+                        query: `
+                            mutation updateorderForChat($input: updateorderForChatInput) {
+                            updateorderForChat(input: $input) {
+                               id
+                            }
+                        }
+
+                            `,
+                        variables: {
+                            input: {
+                                id: order.id,
+                                lastMsg: lastMessage.text
+                            }
+                        }
+
+
+                    }),
+                }
+            );
+
+            const response = await res.json();
+            console.log('response yoooo', response);
+
+
+        } catch (error) {
+            console.log('error bro', error);
+        }
+    }
+
+    useEffect(() => {
+        const handleScreenExit = () => {
+            if (messages.length > 0) {
+                const lastMessage = messages[0];
+                sendLastMessageToBackend(lastMessage);
+            }
+        };
+
+        // Listen for when the user quits the chat screen
+        const unsubscribe = navigation.addListener('beforeRemove', handleScreenExit);
+
+        // Cleanup the listener on component unmount
+        return unsubscribe;
+    }, [navigation, messages]);
+
     return (
         <KeyboardAvoidingView
             style={styles.container}
@@ -157,7 +237,11 @@ const ChatScreen = ({ route, navigation }: any) => {
                     </TouchableOpacity>
                     <Image
                         className='bg-gray-200'
-                        source={{ uri: order?.images?.[0] }} style={{
+                        source={{
+                            uri: order?.images?.[0]
+                                || order?.artisant?.imageProfile
+
+                        }} style={{
                             width: 50,
                             height: 50,
                             borderRadius: 8,
@@ -167,7 +251,7 @@ const ChatScreen = ({ route, navigation }: any) => {
                             {order?.title}
                         </Text>
                         <Text className='text-lg capitalize' >
-                            {order?.owner?.firstName} {order?.owner?.lastName}
+                            {order?.artisant?.firstName} {order?.artisant?.lastName}
                         </Text>
 
                     </View>

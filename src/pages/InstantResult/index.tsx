@@ -169,7 +169,7 @@ const CategorySelectionPopup = ({
 //     );
 // };
 
-const InstantResult = ({ route }: any) => {
+const InstantResult = ({ route,navigation }: any) => {
     const [filters, setFilters] = useState([]);
     //   const searchParams = useSearchParams();
     // const [selectedFilters, setSelectedFilters] = useState({});
@@ -455,7 +455,9 @@ const InstantResult = ({ route }: any) => {
                     />
                 )}
             </View>
-            {loadingArtisants ? <ActivityIndicator size="large" color="#0000ff" /> : <Results Artisants={Artisants} />}
+            {loadingArtisants ? <ActivityIndicator size="large" color="#0000ff" /> : <Results
+                navigation={navigation}
+                Artisants={Artisants} />}
 
             <CategorySelectionPopup
                 categories={Newcategories}

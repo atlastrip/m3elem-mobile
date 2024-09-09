@@ -95,6 +95,7 @@
     "react-native-loading-spinner-overlay": "^3.0.1",
     "react-native-maps": "1.14.0",
     "react-native-modal": "^13.0.1",
+    "react-native-pager-view": "6.3.0",
     "react-native-paper": "^5.12.3",
     "react-native-qrcode-svg": "^6.2.0",
     "react-native-ratings": "^8.1.0",

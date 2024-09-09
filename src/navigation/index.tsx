@@ -79,6 +79,8 @@ import MapViewArtisan from "@/pages/Auth/Artisan/Map";
 import ChatScreen from "@/pages/Chat";
 import CompleteProfile from "@/pages/CompleteProfile";
 import InstantResult from "@/pages/InstantResult";
+import { ServiceProviderProfile } from "@/pages/ServiceProviderProfile";
+import ConversationsScreen from "@/pages/ConversationsScreen";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -139,6 +141,8 @@ export type IPages =
   | "MyLeads"
   | "CompleteProfile"
   | "InstantResult"
+  | "ServiceProviderProfile"
+  | "ConversationsScreen"
   ;
 export interface Navigate {
   navigate: (page: IPages, Params?: any) => void;
@@ -624,6 +628,13 @@ function RootNavigator() {
                         }}
                       />
                       <Stack.Screen
+                        name="ServiceProviderProfile"
+                        component={ServiceProviderProfile}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
+                      <Stack.Screen
                         name="ImagePreview"
                         component={ImagePreview}
                         options={{
@@ -634,6 +645,13 @@ function RootNavigator() {
                       <Stack.Screen
                         name="OrderViewUser"
                         component={OrderView}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
+                      <Stack.Screen
+                        name="ConversationsScreen"
+                        component={ConversationsScreen}
                         options={{
                           headerShown: false,
                         }}
@@ -684,6 +702,13 @@ function RootNavigator() {
                       <Stack.Screen
                         name="Chat"
                         component={ChatScreen}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
+                      <Stack.Screen
+                        name="ConversationsScreen"
+                        component={ConversationsScreen}
                         options={{
                           headerShown: false,
                         }}

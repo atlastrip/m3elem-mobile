@@ -610,6 +610,7 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
                                     leads {
                                         id
                                     }
+                                    pushToken
                                     firstName
                                     lastName
                                     phone
@@ -624,6 +625,7 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
                                     id
                                     firstName
                                     lastName
+                                    pushToken
                                     imageProfile
                                 }
                                 location
@@ -633,6 +635,7 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
                                 rating
                                 owner{
                                   id
+                                  pushToken
                                   firstName
                                   lastName
                                   imageProfile

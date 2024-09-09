@@ -68,12 +68,13 @@ const AverageRatingDisplay = ({ reviews }: any) => {
 };
 
 // Component to display artisan's image and details
-const ArtisanCard = ({ artisan }: any) => {
+const ArtisanCard = ({ artisan, navigation }: any) => {
     return (
         <TouchableOpacity
             style={styles.cardContainer}
             onPress={() => {
                 // Handle navigation or click events
+                navigation.navigate('ServiceProviderProfile', { id: artisan.id, role: 'artisant' });
             }}
         >
             <View style={styles.imageContainer}>
@@ -104,16 +105,19 @@ const ArtisanCard = ({ artisan }: any) => {
 };
 
 // Component to render a list of artisans
-const Results = ({ Artisants }: any) => {
+const Results = ({ Artisants, navigation }: any) => {
     // console.log('Artisants', Artisants);
-    
+
     const artisans = Artisants.filter((e: any) => e.role === 'artisant');
 
     return (
         <FlatList
             data={artisans}
+
             keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => <ArtisanCard artisan={item} />}
+            renderItem={({ item }) => <ArtisanCard
+                navigation={navigation}
+                artisan={item} />}
         />
     );
 };

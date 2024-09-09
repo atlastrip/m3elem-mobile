@@ -112,6 +112,7 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
                                     lastName
                                     phone
                                     imageProfile
+                                    pushToken
                                     }
                                     professionals {
                                     id
@@ -123,6 +124,7 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
                                     firstName
                                       lastName
                                       imageProfile
+                                      pushToken
                                     }
                                     location
                                     review{
@@ -132,6 +134,7 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
                                 owner{
                                   id
                                   firstName
+                                  pushToken
                                   lastName
                                   imageProfile
                                 }

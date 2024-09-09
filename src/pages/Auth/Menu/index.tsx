@@ -49,7 +49,7 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
         setImageProfile(img);
 
         // @ts-ignore
-        console.log({ user: JSON.parse(user) })
+        // console.log({ user: JSON.parse(user) })
         // @ts-ignore
         setUser(JSON.parse(user));
       })();
@@ -122,6 +122,13 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
           PageName: "Contact",
           Url: "https://www.serviceday.ma/contact",
         }),
+    },
+    {
+      name: "Conversations",
+      icon: <MaterialIcons name="chat" color="white" size={20} />,
+      colorIcon: "blue",
+      onPress: () =>
+        navigation.navigate("ConversationsScreen"),
     },
     // {
     //   name: "Pantofit podcast",
@@ -210,8 +217,10 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
   const HandleConnected = async () => {
     const UserFromAsyncStorage = await AsyncStorage.getItem("@user");
     const ParsedUser: any = await JSON.parse(UserFromAsyncStorage || "");
+    console.log('ParsedUser', ParsedUser);
+
     // @ts-ignore
-    setIsConnected(!!ParsedUser?.phone)
+    setIsConnected(!!ParsedUser?.email)
   }
   useEffect(() => {
     HandleConnected();

@@ -305,12 +305,12 @@ const ArtisanPage: React.FC = ({ route }: any) => {
                                                 <TouchableOpacity key={index} onPress={() => openImageModal(index)}>
                                                     <View className="w-24 h-24 bg-gray-200 rounded-lg mr-2">
                                                         {
-                                                            mediaItem.name.split('.')[1].toLowerCase() == 'jpg' || mediaItem.name.split('.')[1].toLowerCase() == 'png' || mediaItem.name.split('.')[1].toLowerCase() == 'jpeg' ? (
+                                                            mediaItem?.name?.split('.')[1]?.toLowerCase() == 'jpg' || mediaItem?.name?.split('.')[1]?.toLowerCase() == 'png' || mediaItem?.name?.split('.')[1]?.toLowerCase() == 'jpeg' ? (
                                                                 <Image
                                                                     source={{ uri: mediaItem?.source }}
                                                                     className="w-24 h-24 rounded-lg"
                                                                 />
-                                                            ) : mediaItem.name.split('.')[1] == 'mp4' ? (
+                                                            ) : mediaItem?.name?.split('.')[1] == 'mp4' ? (
                                                                 <Video
                                                                     source={{ uri: mediaItem?.source }}
                                                                     style={{ width: 96, height: 96, borderRadius: 8 }}
@@ -319,7 +319,7 @@ const ArtisanPage: React.FC = ({ route }: any) => {
                                                                     resizeMode={ResizeMode.COVER}
                                                                     isMuted={false}
                                                                 />
-                                                            ) : mediaItem.name.split('.')[1] == 'gif' ? (
+                                                            ) : mediaItem?.name?.split('.')[1] == 'gif' ? (
                                                                 <Image
                                                                     source={{ uri: mediaItem?.source }}
                                                                     className="w-24 h-24 rounded-lg"
