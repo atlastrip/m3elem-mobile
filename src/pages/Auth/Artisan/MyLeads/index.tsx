@@ -7,6 +7,7 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Linking } from 'react-native';
 import { getToken, getUser } from '@/helpers/getToken';
 import Constants from 'expo-constants';
+import { createOrRetrieveConversation } from '@/helpers/createOrRetrieveConversation';
 
 
 
@@ -162,11 +163,26 @@ const MyLeads = ({ navigation }: any) => {
     Linking.openURL('tel:' + user?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', ''));
   };
 
-  const handleWhatsApp = (user: any) => {
-    const url = 'whatsapp://send?phone=' + user?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', '') + '&text=Hello';
-    Linking.openURL(url).catch(() => {
-      Alert.alert('Make sure WhatsApp is installed on your device');
+  const handleWhatsApp = async (order: any) => {
+    const artisant: any = await getUser();
+    // console.log('order', order);
+    // console.log('order?.orderId', order?.orderId);
+    // console.log('artisant id', JSON.parse(artisant)?.id);
+    // console.log('order?.owner?.id', order?.order?.owner?.id);
+    console.log('====================================');
+    // // console.log('conversationId',conversationId);
+    // console.log('====================================');
+    console.log('order?.order', order?.order);
+
+
+    const conversationId = await createOrRetrieveConversation(order?.orderId, JSON.parse(artisant)?.id, order?.order?.owner?.id);
+    navigation.navigate('Chat', {
+      conversationId, userId: JSON.parse(artisant)?.id, userName: JSON.parse(artisant)?.firstName, order: order?.order
     });
+    // const url = 'whatsapp://send?phone=' + user?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', '') + '&text=Hello';
+    // Linking.openURL(url).catch(() => {
+    //   Alert.alert('Make sure WhatsApp is installed on your device');
+    // });
   };
   const handleDone = (user: any) => {
     Alert.alert("Mark this direct lead", "", [
@@ -275,6 +291,7 @@ const MyLeads = ({ navigation }: any) => {
                                 leads {
                                     id
                                 }
+                                
                                 firstName
                                 lastName
                                 phone
@@ -316,9 +333,9 @@ const MyLeads = ({ navigation }: any) => {
 
 
 
-  console.log('====================================');
-  console.log('leads', leads);
-  console.log('====================================');
+  // console.log('====================================');
+  // console.log('leads', leads);
+  // console.log('====================================');
 
   const getDirectedLeads = async () => {
 
@@ -341,30 +358,50 @@ const MyLeads = ({ navigation }: any) => {
           headers,
           body: JSON.stringify({
             query: `
-                    query getDirectedLeads {
-                          getDirectedLeads{
-                            id
-                            title
-                            status
-                            locationType
-                            owner{
-                              id
-                              firstName
-                              lastName
-                              phone
-                              imageProfile
-                              
-                            }
-                            callOrWhatsapp
-                            professionals{
-                              id
-                              text
-                              img
-                            }
-                            directLeadStatus
-                            createdAt
-                          }
+                    
+                query getDirectedLeads {
+                  getDirectedLeads {
+                    id
+                    title
+                    description
+                    status
+                    directLeadStatus
+                    images
+                    owner {
+                        id
+                        firstName
+                        lastName
+                        pushToken
+                        imageProfile
+                        images{
+                            id 
+                            source
                         }
+                        }
+                    professionals {
+                      id
+                      text
+                      img
+                    }
+                    artisantId{
+                        id
+                        firstName
+                        lastName
+                        pushToken
+                        imageProfile
+                        images {
+                            id 
+                            source
+                        }
+                                                
+                    }
+                    artisantUnlockedLead {
+                      id
+                    }
+                    location
+                    createdAt
+                  }
+                }
 
                     `,
 
@@ -376,12 +413,15 @@ const MyLeads = ({ navigation }: any) => {
 
 
       setDirectLeads(json?.data?.getDirectedLeads?.map((lead: any) => {
+        console.log('lead?.directLeadStatus',lead?.directLeadStatus);
+        
         return {
           user: {
             orderId: lead.id,
             fullName: lead.owner.firstName + " " + lead.owner.lastName,
             phone: lead.owner.phone,
             image: lead.owner.imageProfile,
+            order: lead,
             isDone: lead?.directLeadStatus,
             createdAt: lead.createdAt
           }
@@ -499,16 +539,16 @@ const MyLeads = ({ navigation }: any) => {
                     }
                     <View className='ml-3 flex-grow' >
                       <Text className='font-bold text-left text-lg' >
-                        {order?.user?.fullName}
+                      {order?.user?.fullName?.length > 18 ? order?.user?.fullName?.substr(0, 18) + '...' : order?.user?.fullName}
                       </Text>
                       <Text className='font-bold text-left text-lg ' >
                         {order?.user?.phone}
                       </Text>
                     </View>
                     <View className='flex-row items-center'>
-                      <TouchableOpacity onPress={() => handleWhatsApp(order?.user)} style={{ backgroundColor: COLORS.primary }} className='w-10 h-10 mr-1 justify-center items-center rounded-lg'>
+                      <TouchableOpacity onPress={() => handleWhatsApp(order.user)} style={{ backgroundColor: COLORS.primary }} className='w-10 h-10 mr-1 justify-center items-center rounded-lg'>
                         <Text className='font-bold text-full text-white' >
-                          <Ionicons name="logo-whatsapp" size={18} />
+                          <Ionicons name="chatbox" size={18} />
                         </Text>
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => handlePhoneCall(order?.user)} style={{ backgroundColor: COLORS.primary }} className='w-10 h-10 justify-center items-center rounded-lg'>

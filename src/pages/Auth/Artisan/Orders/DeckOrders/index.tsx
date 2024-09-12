@@ -60,9 +60,22 @@ const SwiperComponent = ({ navigation }: any) => {
                 }
             );
 
+
+            if (!res.ok) {
+                // Response is not in the success range (200-299)
+                const errorText = await res.text();  // Get error response body as text
+                throw new Error(`HTTP Error: ${res.status} - ${errorText}`);
+            }
             const json = await res.json();
             setShowConfetti(false);
             setLoadingUnlock(false);
+
+            // Check if there are any GraphQL errors
+            if (json.errors && json.errors.length > 0) {
+                console.log("GraphQL Error: ", json.errors[0].message);
+                throw new Error(json.errors[0].message);  // This will be caught by the catch block
+            }
+
             console.log('====================================');
             console.log('json', json);
             console.log('====================================');

@@ -5,7 +5,7 @@ import { getToken, getUser } from '@/helpers/getToken';
 import Constants from 'expo-constants';
 import { useIsFocused } from '@react-navigation/native';
 
-const ConversationsScreen = ({ navigation }: any) => {
+const DirectConversationsScreenForUser = ({ navigation }: any) => {
     const [conversations, setConversations] = useState([]);
     const [loading, setLoading] = useState(false);
     const [role, setRole] = useState('');
@@ -33,8 +33,8 @@ const ConversationsScreen = ({ navigation }: any) => {
                         headers,
                         body: JSON.stringify({
                             query: `
-                            query getDirectedLeads {
-                                getDirectedLeads {
+                            query getDirectedLeadsForUser {
+                                getDirectedLeadsForUser {
                                     id
                                     title
                                     description
@@ -80,7 +80,9 @@ const ConversationsScreen = ({ navigation }: any) => {
                 );
 
                 const response = await res.json();
-                setConversations(response?.data?.getDirectedLeads);
+                console.log('response', response?.data?.getDirectedLeadsForUser);
+                
+                setConversations(response?.data?.getDirectedLeadsForUser);
                 setLoading(false); // Turn off loading
             } catch (error) {
                 console.log(error);
@@ -94,7 +96,9 @@ const ConversationsScreen = ({ navigation }: any) => {
     const renderConversationItem = ({ item }: any) => {
         const profileImage = item?.images[0];
         const name = item?.title;
-
+        console.log('====================================');
+        console.log('item yooooooooo', item);
+        console.log('====================================');
         return (
             <TouchableOpacity
                 style={styles.conversationItem}
@@ -242,4 +246,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ConversationsScreen;
+export default DirectConversationsScreenForUser;

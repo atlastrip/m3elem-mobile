@@ -156,28 +156,43 @@ const OrderView = ({ route, navigation }: any) => {
 
     const handleCreateConversation = async () => {
         setLoading(true)
+        console.log('order?.id, artisantInfo?.id, order?.owner?.id', order?.id, artisantInfo?.id, order?.owner?.id);
+
         const conversationId = await createOrRetrieveConversation(order?.id, artisantInfo?.id, order?.owner?.id);
         setLoading(false)
-        navigation.navigate('Chat', { conversationId, userId: artisantInfo?.id, userName: artisantInfo?.firstName, order });
+        navigation.navigate('Chat', {
+            conversationId, userId: artisantInfo?.id, userName: artisantInfo?.firstName, order: {
+                ...order,
+                artisantId: artisantInfo
+            }
+        });
     };
     const handleCreateConversationUser = async (artisan: any) => {
         setLoading(true)
-        const conversationId = await createOrRetrieveConversation(order?.id, artisan?.id, artisantInfo?.id);
+        console.log('order?.id, artisantInfo?.id, order?.owner?.id user', order?.id, artisan?.id, order?.owner?.id);
+
+        const conversationId = await createOrRetrieveConversation(order?.id, artisan?.id, order?.owner?.id);
         setLoading(false)
-        navigation.navigate('Chat', { conversationId, userId: artisantInfo?.id, userName: artisan?.firstName, order });
+        navigation.navigate('Chat', {
+            conversationId, userId: order?.owner?.id, userName: order?.owner?.firstName, order: {
+                ...order,
+                artisantId: artisan
+            }
+        });
+
     };
-    console.log({ order: order?.artisantUnlockedLead })
+    // console.log('order wast orderviweer', order);
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             {Loading && (
 
                 <View style={{
-                    width : WINDOW_WIDTH,
-                    height : WINDOW_HEIGHT
+                    width: WINDOW_WIDTH,
+                    height: WINDOW_HEIGHT
                 }} className='justify-center absolute top-0 left-0 z-20 items-center bg-black/80'>
-                <ActivityIndicator size={50} />
-            </View>
+                    <ActivityIndicator size={50} />
+                </View>
             )}
             <BottomSheetModalProvider>
                 <ScrollView style={[styles.container, { paddingTop: insets.top + 10 }]}>
@@ -341,26 +356,26 @@ const OrderView = ({ route, navigation }: any) => {
                                 Conversation:
                             </Text>
                             <TouchableOpacity
-                            
-                                    onPress={handleCreateConversation}
-                                    className='p-3  rounded-md  items-between ' >
-                                    <View className='flex-row items-center justify-between'>
-                                        <View className='flex-row items-center '>
-                                            <Image src={order?.owner?.imageProfile} className='bg-gray-200' style={{ width: 50, height: 50, borderRadius: 9999 }} />
-                                            <View >
-                                                <Text className=' ml-3 font-bold capitalize'>
-                                                    {order?.owner?.firstName}{" "}{order?.owner?.lastName}
-                                                </Text>
-                                                <Text className=' ml-3'>
-                                                    Conversations
-                                                </Text>
-                                            </View>
-                                        </View>
+
+                                onPress={handleCreateConversation}
+                                className='p-3  rounded-md  items-between ' >
+                                <View className='flex-row items-center justify-between'>
+                                    <View className='flex-row items-center '>
+                                        <Image src={order?.owner?.imageProfile} className='bg-gray-200' style={{ width: 50, height: 50, borderRadius: 9999 }} />
                                         <View >
-                                            <Ionicons name="chevron-forward" size={24} color={'gray'} />
+                                            <Text className=' ml-3 font-bold capitalize'>
+                                                {order?.owner?.firstName}{" "}{order?.owner?.lastName}
+                                            </Text>
+                                            <Text className=' ml-3'>
+                                                Conversations
+                                            </Text>
                                         </View>
                                     </View>
-                                </TouchableOpacity>
+                                    <View >
+                                        <Ionicons name="chevron-forward" size={24} color={'gray'} />
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
 
                         </View>
                     )}

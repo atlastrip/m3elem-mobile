@@ -102,6 +102,17 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
                                     status
                                     images
                                     locationType
+                                    artisantId {
+                                    id
+                                    leads {
+                                        id
+                                    }
+                                    pushToken
+                                    firstName
+                                    lastName
+                                    phone
+                                    imageProfile
+                                }
                                     owner {
                                     id
                                     leads {

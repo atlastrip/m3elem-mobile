@@ -142,7 +142,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
         navigation.navigate("Transactions"),
     },
     {
-      name: "Conversations",
+      name: "Direct Leads",
       icon: <MaterialIcons name="chat" color="white" size={20} />,
       colorIcon: "blue",
       onPress: () =>
@@ -180,14 +180,14 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
           PageName: "Contact",
           Url: "https://www.serviceday.ma/contact",
         }),
-    },
-    {
-      name: "Conversations",
-      icon: <MaterialIcons name="chat" color="white" size={20} />,
-      colorIcon: "blue",
-      onPress: () =>
-        navigation.navigate("ConversationsScreen"),
-    },
+    }
+    // {
+    //   name: "Conversations",
+    //   icon: <MaterialIcons name="chat" color="white" size={20} />,
+    //   colorIcon: "blue",
+    //   onPress: () =>
+    //     navigation.navigate("ConversationsScreen"),
+    // },
     // {
     //   name: "Pantofit podcast",
     //   icon: <MaterialCommunityIcons name="podcast" color="white" size={20} />,

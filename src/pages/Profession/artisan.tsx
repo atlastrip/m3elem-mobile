@@ -10,6 +10,7 @@ import { getToken, getUser } from '@/helpers/getToken';
 import Constants from 'expo-constants';
 import { FontAwesome } from '@expo/vector-icons';
 import { ResizeMode, Video } from 'expo-av';
+import { createOrRetrieveConversation } from '@/helpers/createOrRetrieveConversation';
 
 interface ReviewProps {
     name: string;
@@ -67,7 +68,7 @@ export const Review: React.FC<ReviewProps> = ({ name, comment, rating, timeAgo, 
     );
 };
 
-const ArtisanPage: React.FC = ({ route }: any) => {
+const ArtisanPage: React.FC = ({ route, navigation }: any) => {
 
     const { artisan, SelectedProfession } = route.params;
     console.log('SelectedProfession', SelectedProfession);
@@ -75,7 +76,18 @@ const ArtisanPage: React.FC = ({ route }: any) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+    const [userId, setUserId]: any = useState(null);
     const images = artisan?.images.map((uri: any) => uri?.source) || [];
+
+
+
+    const fetchUserId = async () => {
+        const newUser: any = await getUser();
+        setUserId(JSON.parse(newUser));
+    };
+    useEffect(() => {
+        fetchUserId();
+    }, [])
 
     const openImageModal = (index: number) => {
         setCurrentImageIndex(index);
@@ -111,12 +123,30 @@ const ArtisanPage: React.FC = ({ route }: any) => {
         console.log('====================================');
         console.log('data?.data?.addDirectLead', data?.data?.addDirectLead);
         console.log('====================================');
-        if (!JSON.parse(data?.data?.addDirectLead)?.isOkay) return Alert.alert(JSON.parse(data?.data?.addDirectLead)?.error)
 
-        const url = `whatsapp://send?phone=${artisan?.phone}&text=Hello`;
-        Linking.openURL(url).catch(() => {
-            Alert.alert('Make sure WhatsApp is installed on your device');
-        });
+
+        if (data?.data?.addDirectLead?.id) {
+            const conversationId = await createOrRetrieveConversation(
+                data?.data?.addDirectLead?.id,
+                data?.data?.addDirectLead?.artisantId?.id,
+                userId?.id
+            );
+
+            setLoading(false);
+            navigation.navigate('Chat', {
+                conversationId,
+                userId: userId?.id,
+                userName: userId?.firstName,
+                order: {
+                    ...data?.data?.addDirectLead,
+                    owner: userId,
+                    artisant: data?.data?.addDirectLead?.artisantId
+                }
+            });
+        } else {
+            setLoading(false);
+            return Alert.alert(data?.data?.addDirectLead?.error);
+        }
     };
     const snapPoints = useMemo(() => ['20%', '35%'], []);
     const [BottomView, setBottomView] = useState("book");
@@ -138,7 +168,9 @@ const ArtisanPage: React.FC = ({ route }: any) => {
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
         headers.append("Authorization", `Bearer ${token}`);
-
+        // console.log('SelectedProfession', SelectedProfession);
+        // console.log('artisan', artisan);
+        // console.log('callMethod', callMethod);
 
         try {
 
@@ -152,7 +184,45 @@ const ArtisanPage: React.FC = ({ route }: any) => {
                     body: JSON.stringify({
                         query: `
                             mutation addDirectLead($input: directLeadInput) {
-                                addDirectLead(input: $input)
+                                addDirectLead(input: $input){
+                                        id
+                                        owner{
+                                            id
+                                            firstName
+                                            lastName
+                                            pushToken
+                                            imageProfile
+                                            images {
+                                            id 
+                                            source
+                                            }
+                                        }
+                                        artisantUnlockedLead{
+                                            id
+                                            firstName
+                                            lastName
+                                            pushToken
+                                            imageProfile
+                                            images {
+                                            id 
+                                            source
+                                            }
+                                        }
+                                        artisantId{
+                                            id
+                                            firstName
+                                            lastName
+                                            pushToken
+                                            imageProfile
+                                            images {
+                                            id 
+                                            source
+                                            }
+                                        }
+                                    
+                                    error
+                                    isOkay
+                                }
                             }
     
                             `,
@@ -449,7 +519,7 @@ const ArtisanPage: React.FC = ({ route }: any) => {
                             images={images.map((uri: any) => ({ uri }))}
                             imageIndex={currentImageIndex}
                             visible={isModalVisible}
-                            
+
                             onRequestClose={() => setIsModalVisible(false)}
                         />
 

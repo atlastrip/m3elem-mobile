@@ -124,11 +124,18 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
         }),
     },
     {
-      name: "Conversations",
+      name: "Orders",
       icon: <MaterialIcons name="chat" color="white" size={20} />,
       colorIcon: "blue",
       onPress: () =>
-        navigation.navigate("ConversationsScreen"),
+        navigation.navigate("OrdersUserWithConversationsScreen"),
+    },
+    {
+      name: "Direct Leads",
+      icon: <MaterialIcons name="chat" color="white" size={20} />,
+      colorIcon: "blue",
+      onPress: () =>
+        navigation.navigate("DirectConversationsScreenForUser"),
     },
     // {
     //   name: "Pantofit podcast",

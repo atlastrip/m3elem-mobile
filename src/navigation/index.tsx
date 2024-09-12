@@ -81,6 +81,9 @@ import CompleteProfile from "@/pages/CompleteProfile";
 import InstantResult from "@/pages/InstantResult";
 import { ServiceProviderProfile } from "@/pages/ServiceProviderProfile";
 import ConversationsScreen from "@/pages/ConversationsScreen";
+import OrdersUserWithConversationsScreen from "@/pages/OrdersUserWithConversationsScreen";
+import ConversationsScreenForUnlockedArtisant from "@/pages/ConversationsScreenForUnlockedArtisant";
+import DirectConversationsScreenForUser from "@/pages/DirectConversationsScreenForUser";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -143,6 +146,9 @@ export type IPages =
   | "InstantResult"
   | "ServiceProviderProfile"
   | "ConversationsScreen"
+  | "OrdersUserWithConversationsScreen"
+  | "ConversationsScreenForUnlockedArtisant"
+  | "DirectConversationsScreenForUser"
   ;
 export interface Navigate {
   navigate: (page: IPages, Params?: any) => void;
@@ -650,8 +656,22 @@ function RootNavigator() {
                         }}
                       />
                       <Stack.Screen
-                        name="ConversationsScreen"
-                        component={ConversationsScreen}
+                        name="OrdersUserWithConversationsScreen"
+                        component={OrdersUserWithConversationsScreen}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
+                      <Stack.Screen
+                        name="ConversationsScreenForUnlockedArtisant"
+                        component={ConversationsScreenForUnlockedArtisant}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
+                      <Stack.Screen
+                        name="DirectConversationsScreenForUser"
+                        component={DirectConversationsScreenForUser}
                         options={{
                           headerShown: false,
                         }}

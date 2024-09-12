@@ -5,7 +5,7 @@ import { getToken, getUser } from '@/helpers/getToken';
 import Constants from 'expo-constants';
 import { useIsFocused } from '@react-navigation/native';
 
-const ConversationsScreen = ({ navigation }: any) => {
+const OrdersUserWithConversationsScreen = ({ navigation }: any) => {
     const [conversations, setConversations] = useState([]);
     const [loading, setLoading] = useState(false);
     const [role, setRole] = useState('');
@@ -17,7 +17,7 @@ const ConversationsScreen = ({ navigation }: any) => {
             const token = await getToken();
             const newUser: any = await getUser();
             setRole(JSON.parse(newUser)?.role);
-            console.log('role', role);
+            // console.log('role', role);
 
             if (!token) return;
 
@@ -33,8 +33,8 @@ const ConversationsScreen = ({ navigation }: any) => {
                         headers,
                         body: JSON.stringify({
                             query: `
-                            query getDirectedLeads {
-                                getDirectedLeads {
+                            query leads {
+                                leads {
                                     id
                                     title
                                     description
@@ -70,8 +70,17 @@ const ConversationsScreen = ({ navigation }: any) => {
                                     }
                                     artisantUnlockedLead {
                                         id
+                                        firstName
+                                        lastName
+                                        pushToken
+                                        imageProfile
+                                        images {
+                                            id 
+                                            source
+                                        }
                                     }
                                     location
+                                    createdAt
                                 }
                             }
                             `,
@@ -80,7 +89,7 @@ const ConversationsScreen = ({ navigation }: any) => {
                 );
 
                 const response = await res.json();
-                setConversations(response?.data?.getDirectedLeads);
+                setConversations(response?.data?.leads);
                 setLoading(false); // Turn off loading
             } catch (error) {
                 console.log(error);
@@ -91,39 +100,88 @@ const ConversationsScreen = ({ navigation }: any) => {
         fetchConversations();
     }, [isFocused]);
 
+    // const renderConversationItem = ({ item }: any) => {
+    //     const profileImage = item?.images[0];
+    //     const name = item?.title;
+    //     console.log('====================================');
+    //     console.log('item', item);
+    //     console.log('====================================');
+
+    //     return (
+    //         <TouchableOpacity
+    //             style={styles.conversationItem}
+    //             onPress={async () => {
+    //                 try {
+    //                     const conversationId: any = await createOrRetrieveConversation(
+    //                         item?.id,
+    //                         item?.artisantId?.id,
+    //                         item?.owner?.id
+    //                     );
+
+    //                     if (role === 'user') {
+    //                         navigation.navigate('Chat', {
+    //                             conversationId,
+    //                             userId: item?.owner?.id,
+    //                             userName: item?.owner?.firstName,
+    //                             order: item
+    //                         });
+    //                     } else {
+    //                         navigation.navigate('Chat', {
+    //                             conversationId,
+    //                             userId: item?.artisantId?.id,
+    //                             userName: item?.artisantId.firstName,
+    //                             order: item
+    //                         });
+    //                     }
+    //                 } catch (error) {
+    //                     console.log('error', error);
+    //                 }
+    //             }}
+    //         >
+    //             <View style={styles.profileContainer}>
+    //                 {profileImage ? (
+    //                     <Image
+    //                         source={{ uri: profileImage }}
+    //                         style={styles.profileImage}
+    //                     />
+    //                 ) : (
+    //                     <View style={styles.defaultProfileImage}>
+    //                         <Text style={styles.defaultProfileText}>
+    //                             {name.charAt(0)}
+    //                         </Text>
+    //                     </View>
+    //                 )}
+
+    //                 <View style={styles.conversationTextContainer}>
+    //                     <Text style={styles.conversationTitle}>
+    //                         {name}
+    //                     </Text>
+    //                     <Text style={styles.lastMessage}>
+    //                         {
+    //                          item?.createdAt?.split('T')[0]
+
+    //                         }
+    //                     </Text>
+    //                 </View>
+    //             </View>
+    //         </TouchableOpacity>
+    //     );
+    // };
+
     const renderConversationItem = ({ item }: any) => {
         const profileImage = item?.images[0];
         const name = item?.title;
-
+        // console.log('item', item);
+        
         return (
             <TouchableOpacity
                 style={styles.conversationItem}
-                onPress={async () => {
-                    try {
-                        const conversationId: any = await createOrRetrieveConversation(
-                            item?.id,
-                            item?.artisantId?.id,
-                            item?.owner?.id
-                        );
-
-                        if (role === 'user') {
-                            navigation.navigate('Chat', {
-                                conversationId,
-                                userId: item?.owner?.id,
-                                userName: item?.owner?.firstName,
-                                order: item
-                            });
-                        } else {
-                            navigation.navigate('Chat', {
-                                conversationId,
-                                userId: item?.artisantId?.id,
-                                userName: item?.artisantId.firstName,
-                                order: item
-                            });
-                        }
-                    } catch (error) {
-                        console.log('error', error);
-                    }
+                onPress={() => {
+                    // Navigate to ConversationScreen and pass the artisantUnlockedLead
+                    navigation.navigate('ConversationsScreenForUnlockedArtisant', {
+                        leads: item?.artisantUnlockedLead, // Passing artisantUnlockedLead
+                        order: item, // You can pass the order for additional context
+                    });
                 }}
             >
                 <View style={styles.profileContainer}>
@@ -145,7 +203,7 @@ const ConversationsScreen = ({ navigation }: any) => {
                             {name}
                         </Text>
                         <Text style={styles.lastMessage}>
-                            {item?.lastMsg || 'No recent message'}
+                            {item?.createdAt?.split('T')[0]}
                         </Text>
                     </View>
                 </View>
@@ -153,12 +211,13 @@ const ConversationsScreen = ({ navigation }: any) => {
         );
     };
 
+
     return (
         <View style={styles.container}>
             {/* Professional Header for Orders */}
             <View style={styles.header}>
                 <Text style={styles.headerText}>
-                    Direct Leads
+                    Leads
                 </Text>
             </View>
 
@@ -172,7 +231,7 @@ const ConversationsScreen = ({ navigation }: any) => {
                     keyExtractor={(item: any) => item.id.toString()}
                 />
             ) : (
-                <Text style={styles.noConversationsText}>No conversations available.</Text>
+                <Text style={styles.noConversationsText}>No Leads available.</Text>
             )}
         </View>
     );
@@ -242,4 +301,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ConversationsScreen;
+export default OrdersUserWithConversationsScreen;

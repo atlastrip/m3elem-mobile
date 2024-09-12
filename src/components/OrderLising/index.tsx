@@ -540,7 +540,6 @@ function haversine(lat1: any, lon1: any, lat2: any, lon2: any) {
 export function isNearCity(location: any, cities: any, maxDistance = 50) {
 
     try {
-        console.log('location', location);
 
 
         if (!location) {
@@ -549,8 +548,6 @@ export function isNearCity(location: any, cities: any, maxDistance = 50) {
 
             const { latitude, longitude } = JSON.parse(location)
 
-            console.log('lat', latitude);
-            console.log('lon', longitude);
 
 
             for (let city of cities) {
@@ -563,9 +560,9 @@ export function isNearCity(location: any, cities: any, maxDistance = 50) {
             return 'The location is not near any listed cities in Morocco.';
         }
     } catch (error: any) {
-        console.log('====================================');
-        console.log('error', error.message);
-        console.log('====================================');
+        // console.log('====================================');
+        // console.log('error', error.message);
+        // console.log('====================================');
     }
 }
 
@@ -616,6 +613,15 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
                                     phone
                                     imageProfile
                                 }
+                                artisantId {
+                                    id
+                                  
+                                    pushToken
+                                    firstName
+                                    lastName
+                                    phone
+                                    imageProfile
+                                }
                                 professionals {
                                     id
                                     text
@@ -651,8 +657,7 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
 
             const json = await res.json();
             let fetchedLeads = json.data.getLeadsThatMatchUserProfessionals || [];
-            console.log('json.data',json.data);
-            
+
 
             // Apply filters
             if (filter.title) {
@@ -688,13 +693,11 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
     };
 
     useEffect(() => {
-        console.log('====================================');
-        console.log('filter', filter);
-        console.log('====================================');
         if (isFocused) {
             getLeads();
         }
     }, [isFocused, filter]);
+
 
     const HandleUnlock = async (id: any) => {
         const token = await getToken();
@@ -704,47 +707,61 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
         if (!token) {
             return;
         }
+
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
         headers.append("Authorization", `Bearer ${token}`);
 
         try {
-            const res = await fetch(
-                Constants.expoConfig?.extra?.apiUrl as string,
-                {
-                    method: "POST",
-                    headers,
-                    body: JSON.stringify({
-                        query: `
-                        mutation unlockLead($input: LeadUnlockInput) {
-                            unlockLead(input: $input) {
-                                id
-                            }
-                        }
-                        `,
-                        variables: {
-                            input: {
-                                id: id
-                            }
-                        }
-                    }),
+            const res = await fetch(Constants.expoConfig?.extra?.apiUrl as string, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                    query: `
+                mutation unlockLead($input: LeadUnlockInput) {
+                  unlockLead(input: $input) {
+                    id
+                  }
                 }
-            );
+              `,
+                    variables: {
+                        input: {
+                            id: id,
+                        },
+                    },
+                }),
+            });
+
+            // Check if response is ok (status 200-299)
+            if (!res.ok) {
+                // Response is not in the success range (200-299)
+                const errorText = await res.text();  // Get error response body as text
+                throw new Error(`HTTP Error: ${res.status} - ${errorText}`);
+            }
 
             const json = await res.json();
-            await getLeads();
+
+            // Check if there are any GraphQL errors
+            if (json.errors && json.errors.length > 0) {
+                console.log("GraphQL Error: ", json.errors[0].message);
+                throw new Error(json.errors[0].message);  // This will be caught by the catch block
+            }
+
+            // Handle successful response
+            console.log("Lead unlocked successfully", json?.data?.unlockLead?.id);
+            await getLeads();  // Refresh the leads after successful mutation
+
         } catch (error: any) {
+            console.log("Caught error: ", error.message);
+
+            // Display the error message in an alert
             return Alert.alert(error.message);
         }
     };
 
-
-
-    // isNearCity(
-    //     JSON.parse(leads[0]?.order?.location)?.latitude,
-    //     JSON.parse(leads[0]?.order?.location)?.longitude,
-    //     moroccanCities
-    // )
+    console.log('====================================');
+    console.log('leads broooooooooo', leads);
+    console.log('====================================');
 
     return (
         <ScrollView style={styles.container}>

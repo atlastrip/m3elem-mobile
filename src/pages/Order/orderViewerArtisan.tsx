@@ -15,18 +15,29 @@ import { COLORS } from 'constants/theme';
 import { MaterialIcons } from "@expo/vector-icons";
 import Constants from 'expo-constants';
 import { getToken, getUser } from '@/helpers/getToken';
+import { createOrRetrieveConversation } from '@/helpers/createOrRetrieveConversation';
 
 
 const OrderViewerArtisan = ({ route, navigation }: any) => {
     const { order, user } = route.params;
     const insets = useSafeAreaInsets();
     const [isUnlocked, setIsUnlocked] = useState(false);
+    const [role, setRole] = useState('');
 
     const [reviews, setReviews] = useState([]); // Replace with actual reviews if available
     const [newReview, setNewReview] = useState({ user: '', comment: '', rating: '', professionId: '' });
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
     const snapPoints = useMemo(() => ['50%', '80%'], []);
+
+
+    const getRole = async () => {
+        const newUser: any = await getUser();
+        setRole(JSON.parse(newUser)?.role);
+    }
+    useEffect(() => {
+        getRole();
+    }, []);
 
     const handlePresentModalPress = useCallback(() => {
         setSelectedProfession(null)
@@ -66,11 +77,36 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
         Linking.openURL('tel:' + order?.owner?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', ''));
     };
 
-    const handleWhatsApp = () => {
-        const url = 'whatsapp://send?phone=' + order?.owner?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', '') + '&text=Hello';
-        Linking.openURL(url).catch(() => {
-            Alert.alert('Make sure WhatsApp is installed on your device');
-        });
+    const handleWhatsApp = async (order: any) => {
+        const artisant = JSON.parse(user);
+        // console.log('order', order);
+        // // console.log('user', user);
+        // console.log('user', JSON.parse(user)?.id);
+        // console.log('order?.owner?.id', order?.owner?.id);
+
+        // 66e1d6aec720ac434c5e139f 66a3b6dc96ee6d0dc0b0ab4c 667c3353f376c235ac178e20
+        // const handleCreateConversation = async () => {
+        //     setLoading(true)
+        //     const conversationId = await createOrRetrieveConversation(order?.id, artisantInfo?.id, order?.owner?.id);
+        //     setLoading(false)
+        //     navigation.navigate('Chat', { conversationId, userId: artisantInfo?.id, userName: artisantInfo?.firstName, order });
+        // };
+        console.log('====================================');
+        console.log('role', role);
+        console.log('====================================');
+        if (role === 'user') {
+            const conversationId = await createOrRetrieveConversation(order?.id, order?.owner?.id, JSON.parse(user)?.id);
+            navigation.navigate('Chat', { conversationId, userId: order?.owner?.id, userName: order?.owner?.firstName, order });
+        } else {
+            const conversationId = await createOrRetrieveConversation(order?.id, JSON.parse(user)?.id, order?.owner?.id);
+            navigation.navigate('Chat', { conversationId, userId: JSON.parse(user)?.id, userName: JSON.parse(user)?.firstName, order });
+
+        }
+
+        // const url = 'whatsapp://send?phone=' + order?.owner?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', '') + '&text=Hello';
+        // Linking.openURL(url).catch(() => {
+        //     Alert.alert('Make sure WhatsApp is installed on your device');
+        // });
     };
 
 
@@ -138,14 +174,30 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
                 }
             );
 
+            // Check if response is ok (status 200-299)
+            if (!res.ok) {
+                // Response is not in the success range (200-299)
+                const errorText = await res.text();  // Get error response body as text
+                throw new Error(`HTTP Error: ${res.status} - ${errorText}`);
+            }
+
             const lead = await res.json();
 
+
+            // Check if there are any GraphQL errors
+            if (lead.errors && lead.errors.length > 0) {
+                console.log("GraphQL Error: ", lead.errors[0].message);
+                throw new Error(lead.errors[0].message);  // This will be caught by the catch block
+            }
             setIsUnlocked((lead.data.unlockLead?.artisantUnlockedLead || [])?.map((e: any) => e?.id)?.includes(JSON.parse(newUser)?.id));
         } catch (error: any) {
             return Alert.alert(error.message)
         }
     }
 
+
+    console.log('order mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm',order);
+    
 
 
     useEffect(() => {
@@ -250,9 +302,11 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
                                 </Text>
                             </View>
                             <View className='flex-row items-center'>
-                                <TouchableOpacity onPress={handleWhatsApp} style={{ backgroundColor: COLORS.primary }} className='w-10 h-10 mr-1 justify-center items-center rounded-lg'>
+                                <TouchableOpacity onPress={() => {
+                                    handleWhatsApp(order);
+                                }} style={{ backgroundColor: COLORS.primary }} className='w-10 h-10 mr-1 justify-center items-center rounded-lg'>
                                     <Text className='font-bold text-full text-white' >
-                                        <Ionicons name="logo-whatsapp" size={18} />
+                                        <Ionicons name="chatbox" size={18} />
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={handlePhoneCall} style={{ backgroundColor: COLORS.primary }} className='w-10 h-10 justify-center items-center rounded-lg'>

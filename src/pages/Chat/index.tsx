@@ -91,7 +91,7 @@ const ChatScreen = ({ route, navigation }: any) => {
             // @ts-ignore
             await Promise.all(newMessages.map(message => {
                 if (userId && userName) {
-                    const recipientPushToken = role === 'artisant' ? order?.owner?.expoPushToken : order?.artisant?.expoPushToken;
+                    const recipientPushToken = role === 'artisant' ? order?.owner?.expoPushToken : (order?.artisant?.expoPushToken || order?.artisantId?.expoPushToken);
                     sendPushNotification(recipientPushToken, message.text);
                     return addDoc(messagesRef, {
                         ...message,
@@ -220,6 +220,7 @@ const ChatScreen = ({ route, navigation }: any) => {
         return unsubscribe;
     }, [navigation, messages]);
 
+
     return (
         <KeyboardAvoidingView
             style={styles.container}
@@ -251,7 +252,9 @@ const ChatScreen = ({ route, navigation }: any) => {
                             {order?.title}
                         </Text>
                         <Text className='text-lg capitalize' >
-                            {order?.artisant?.firstName} {order?.artisant?.lastName}
+                            {
+                                role === 'artisant' ? order?.owner?.firstName + " " + order?.owner?.lastName : (order?.artisant?.firstName || order?.artisantId?.firstName) + " " + (order?.artisant?.lastName || order?.artisantId?.lastName)
+                            }
                         </Text>
 
                     </View>

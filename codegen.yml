@@ -1,6 +1,6 @@
 overwrite: true
 watch: false
-schema: "https://m3elem-app-ecj9f.ondigitalocean.app/m3elem"
+schema: "http://192.168.0.151:4000/m3elem"
 documents: "**/*.gql"
 generates:
   src/api/graphql/generated/index.ts:
