@@ -58,9 +58,9 @@ const ChatScreen = ({ route, navigation }: any) => {
     }, [conversationId]);
 
 
-    const sendPushNotification = async (expoPushToken: string, messageText: string) => {
+    const sendPushNotification = async (pushToken: string, messageText: string) => {
         const message = {
-            to: expoPushToken,
+            to: pushToken,
             sound: 'default',
             title: 'New Message',
             body: messageText,
@@ -87,11 +87,12 @@ const ChatScreen = ({ route, navigation }: any) => {
         try {
             const conversationRef = doc(firestore, 'conversations', conversationId);
             const messagesRef = collection(conversationRef, 'messages');
+            console.log('order?.owner?.pushToken', order?.owner?.pushToken);
 
             // @ts-ignore
             await Promise.all(newMessages.map(message => {
                 if (userId && userName) {
-                    const recipientPushToken = role === 'artisant' ? order?.owner?.expoPushToken : (order?.artisant?.expoPushToken || order?.artisantId?.expoPushToken);
+                    const recipientPushToken = role === 'artisant' ? order?.owner?.pushToken : (order?.artisant?.pushToken || order?.artisantId?.pushToken);
                     sendPushNotification(recipientPushToken, message.text);
                     return addDoc(messagesRef, {
                         ...message,

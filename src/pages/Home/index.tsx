@@ -195,6 +195,7 @@ export default function HomeScreen({ navigation }: any) {
   const [hasPermission, setHasPermission] = React.useState(null);
   const [scanned, setScanned] = React.useState(false);
   const [searchCategory, setSearchCategory] = React.useState('');
+  const [searchZipCode, setSearchZipCode] = React.useState('');
 
   React.useEffect(() => {
     (async () => {
@@ -217,11 +218,9 @@ export default function HomeScreen({ navigation }: any) {
 
 
   const goToFilter = () => {
-    console.log('searchCategory', searchCategory);
-
     navigation.navigate('InstantResult', {
       searchCategory: searchCategory,
-      searchZipCode: "15000",
+      searchZipCode: searchZipCode
     });
   }
 
@@ -265,13 +264,24 @@ export default function HomeScreen({ navigation }: any) {
           <Text className='text-5xl font-bold text-white ' >
             Service day
           </Text>
-          <TextInput
-            placeholderTextColor="black"
-            className="text-black placeholder:text-black border border-black/25 bg-white w-full rounded-lg text-xl p-3 mb-3"
-            placeholder="Search"
-            value={searchCategory}
-            onChangeText={setSearchCategory}
-          />
+          <View
+            className='flex-row items-center justify-between'
+          >
+            <TextInput
+              placeholderTextColor="black"
+              className="text-black placeholder:text-black border border-black/25 bg-white w-[70%] rounded-lg text-xl p-3 mb-3"
+              placeholder="Search"
+              value={searchCategory}
+              onChangeText={setSearchCategory}
+            />
+            <TextInput
+              placeholderTextColor="black"
+              className="text-black placeholder:text-black border border-black/25 bg-white  rounded-lg text-xl p-3 mb-3 w-[30%]"
+              placeholder="Zip Code"
+              value={searchZipCode}
+              onChangeText={setSearchZipCode}
+            />
+          </View>
           <TouchableOpacity onPress={goToFilter} className='bg-primary-500 p-3 rounded-lg'>
             <Text className='text-white font-bold text-xl text-center' >
               Search

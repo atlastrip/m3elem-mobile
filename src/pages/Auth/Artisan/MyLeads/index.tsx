@@ -152,6 +152,7 @@ const MyLeads = ({ navigation }: any) => {
   const [show, setShow] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<any>();
+  const [role, setRole] = useState('');
 
   const scrollToElement = (scrollViewRef: any, elementIndex: number) => {
     if (scrollViewRef.current) {
@@ -162,6 +163,17 @@ const MyLeads = ({ navigation }: any) => {
   const handlePhoneCall = (user: any) => {
     Linking.openURL('tel:' + user?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', ''));
   };
+
+
+
+  const handleGetRole = async () => {
+    const user: any = await getUser();
+    setRole(JSON.parse(user)?.role);
+  }
+
+  useEffect(() => {
+    handleGetRole();
+  }, []);
 
   const handleWhatsApp = async (order: any) => {
     const artisant: any = await getUser();
@@ -177,7 +189,7 @@ const MyLeads = ({ navigation }: any) => {
 
     const conversationId = await createOrRetrieveConversation(order?.orderId, JSON.parse(artisant)?.id, order?.order?.owner?.id);
     navigation.navigate('Chat', {
-      conversationId, userId: JSON.parse(artisant)?.id, userName: JSON.parse(artisant)?.firstName, order: order?.order
+      conversationId, userId: JSON.parse(artisant)?.id, userName: JSON.parse(artisant)?.firstName, order: order?.order, role
     });
     // const url = 'whatsapp://send?phone=' + user?.phone?.split(' ')?.join('')?.split('-')?.join('')?.replace('+', '') + '&text=Hello';
     // Linking.openURL(url).catch(() => {
@@ -413,8 +425,8 @@ const MyLeads = ({ navigation }: any) => {
 
 
       setDirectLeads(json?.data?.getDirectedLeads?.map((lead: any) => {
-        console.log('lead?.directLeadStatus',lead?.directLeadStatus);
-        
+        console.log('lead?.directLeadStatus', lead?.directLeadStatus);
+
         return {
           user: {
             orderId: lead.id,
@@ -539,7 +551,7 @@ const MyLeads = ({ navigation }: any) => {
                     }
                     <View className='ml-3 flex-grow' >
                       <Text className='font-bold text-left text-lg' >
-                      {order?.user?.fullName?.length > 18 ? order?.user?.fullName?.substr(0, 18) + '...' : order?.user?.fullName}
+                        {order?.user?.fullName?.length > 18 ? order?.user?.fullName?.substr(0, 18) + '...' : order?.user?.fullName}
                       </Text>
                       <Text className='font-bold text-left text-lg ' >
                         {order?.user?.phone}
