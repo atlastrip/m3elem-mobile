@@ -24,6 +24,7 @@ interface TAudio {
     id: string
     name: string
     img: string
+    category: any
 }
 
 interface Review {
@@ -121,6 +122,10 @@ const ProfessionPage = ({ navigation }: any) => {
 
         const token = await getToken();
         const user: any = await getUser();
+        // setUser(user);
+        console.log('====================================');
+        console.log('token', token);
+        console.log('====================================');
         if (!token) {
             return;
         }
@@ -136,15 +141,23 @@ const ProfessionPage = ({ navigation }: any) => {
                     headers,
                     body: JSON.stringify({
                         query: `
-                    query Professionals {
-                        Professionals{
+                        
+                    query getAllCategories {
+                      getAllCategories {
+                        id
+                        name
+                        icon
+                        professionals{
                           id
                           text
                           img
+                          createdAt
                         }
                       }
-
-                    `,
+    }
+    
+    
+                        `,
 
                     }),
                 }
@@ -152,7 +165,7 @@ const ProfessionPage = ({ navigation }: any) => {
 
             const json = await res.json();
 
-            setServices(json.data.Professionals);
+            setServices(json.data.getAllCategories);
 
 
             setLoading(false);
@@ -347,18 +360,28 @@ const ProfessionPage = ({ navigation }: any) => {
                     {/* <View className="flex flex-wrap flex-row -mx-2"> */}
                     <View className=' pt-6 pb-7 flex-row flex-wrap gap-3 items-center justify-center w-fit ' >
 
-                        {services?.sort((a: any, b: any) => a?.text.toLowerCase().localeCompare(b.text.toLowerCase()))?.map((e : any, i: any) => (
+                        {services?.sort((a: any, b: any) => a?.name.toLowerCase().localeCompare(b.name.toLowerCase()))?.map((e: any, i: any) => (
                             <TouchableOpacity
-                                onPress={() => setSelectedProfession({ name: e.text, img: e.img, id: e.id })}
+                                onPress={() => {
+                                    console.log('e', e);
+
+
+                                    setSelectedProfession({
+                                        name: e?.professionals[0]?.text, img: e?.professionals[0]?.img, id: e?.professionals[0]?.id, category: e
+                                    })
+                                }}
                                 key={i}
                                 className={``} >
                                 <View className='bg-gray-50 rounded-full items-center justify-center' style={{ width: window.width * .22, height: window.width * .22 }}>
-                                    <Image style={{ width: window.width * .13, height: window.width * .13 }} source={{ uri: e.img }} />
+                                    <Image style={{ width: window.width * .22, height: window.width * .22,
+                                                          borderRadius: window.width * .18 / 2
+
+                                     }} source={{ uri: e.icon }} />
                                 </View>
                                 <Text
                                     style={{ flexWrap: 'wrap', width: window.width * .20 }}
                                     className={`text-sm flex-wrap text-primary-500 font-bold text-center break-words`} >
-                                    {e.text.length > 10 ? e.text.slice(0, 6) + "..." : e.text}
+                                    {e.name.length > 10 ? e.name.slice(0, 6) + "..." : e.name}
                                 </Text>
                             </TouchableOpacity>
                         ))}
@@ -386,10 +409,17 @@ const ProfessionPage = ({ navigation }: any) => {
                                 key={i}
                                 className='px-3'>
                                 <TouchableOpacity
-                                    onPress={() => navigation.navigate('ArtisanPage', {
-                                        artisan: e,
-                                        SelectedProfession
-                                    })}
+                                    onPress={() => {
+                                        // console.log('====================================');
+                                        // console.log('e', e);
+                                        console.log('SelectedProfession in ProfessionaPage', SelectedProfession);
+
+                                        // console.log('====================================');
+                                        navigation.navigate('ArtisanPage', {
+                                            artisan: e,
+                                            SelectedProfession
+                                        })
+                                    }}
                                     className="flex-row  items-center p-4 bg-white rounded-lg shadow-md my-2">
                                     <Image source={{
                                         uri: e?.images[0]?.source

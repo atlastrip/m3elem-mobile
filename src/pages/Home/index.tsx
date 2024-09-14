@@ -154,13 +154,21 @@ export default function HomeScreen({ navigation }: any) {
           headers,
           body: JSON.stringify({
             query: `
-                    query Professionals {
-                        Professionals{
-                          id
-                          text
-                          img
-                        }
-                      }
+                    
+                query getAllCategories {
+                  getAllCategories {
+                    id
+                    name
+                    icon
+                    professionals{
+                      id
+                      text
+                      img
+                      createdAt
+                    }
+                  }
+}
+
 
                     `,
 
@@ -169,8 +177,10 @@ export default function HomeScreen({ navigation }: any) {
       );
 
       const json = await res.json();
-
-      setServices(json.data.Professionals);
+      console.log('====================================');
+      console.log('json.data.getAllCategories',json.data.getAllCategories);
+      console.log('====================================');
+      setServices(json.data.getAllCategories);
 
 
       setLoading(false);
@@ -303,16 +313,22 @@ export default function HomeScreen({ navigation }: any) {
       <View className='flex-row'>
 
         <View className=' pt-0 pb-7 flex-row flex-wrap gap-3 items-center justify-center w-fit ' >
-          {services?.sort((a, b) => a?.text.toLowerCase().localeCompare(b.text.toLowerCase()))?.slice(0, 8)?.map((e, i) => (
+          {services?.sort((a, b) => a?.name.toLowerCase().localeCompare(b.name.toLowerCase()))?.map((e:any, i) => (
             <TouchableOpacity
-              onPress={() => navigation.navigate('Order', { profession: [e] })}
+              onPress={() => {
+                console.log('e', e);
+                
+                navigation.navigate('Order', { profession: [e] })
+              }}
               key={i}
               className={``} >
               <View className='bg-white rounded-full items-center justify-center' style={{ width: window.width * .22, height: window.width * .22 }}>
-                <Image style={{ width: window.width * .13, height: window.width * .13 }} source={{ uri: e.img }} />
+                <Image style={{ width: window.width * .22, height: window.width * .22,
+                  borderRadius: window.width * .18 / 2
+                 }} source={{ uri: e?.icon }} />
               </View>
               <Text className={`text-sm text-primary-500 font-bold text-center`} >
-                {e.text}
+                {e.name.length > 10 ? e.name.substring(0, 10) + '...' : e.name}
               </Text>
             </TouchableOpacity>
           ))}

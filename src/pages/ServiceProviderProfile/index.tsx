@@ -166,7 +166,8 @@ const DisplayServiceProviders = ({ data, navigation, selectedCategories, title }
                             input: {
                                 title,
                                 images: data?.userByPK?.images[0]?.source,
-                                professionals: category?.professionals[0]?.id,
+                                // professionals: category?.professionals[0]?.id,
+                                categoryId: category?.id,
                                 directLeadStatus: "PENDING",
                                 callOrWhatsapp: contactType,
                                 artisantId: data?.userByPK?.id,

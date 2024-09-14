@@ -31,7 +31,7 @@ const CustomerReviews = ({ averageRating, totalReviews, ratingPercentages = [] }
                 <FontAwesome name="star" size={24} color="#FFD700" style={styles.starIcon} />
                 <Text style={styles.totalReviews}>Based on {totalReviews} reviews</Text>
             </View>
-            {ratingPercentages?.map((percentage, index) => (
+            {ratingPercentages?.map((percentage: any, index: any) => (
                 <View key={index} style={styles.ratingRow}>
                     <View style={styles.starLabelContainer}>
                         <FontAwesome name="star" size={16} color="#FFD700" />
@@ -168,10 +168,9 @@ const ArtisanPage: React.FC = ({ route, navigation }: any) => {
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
         headers.append("Authorization", `Bearer ${token}`);
-        // console.log('SelectedProfession', SelectedProfession);
+        console.log('SelectedProfession', SelectedProfession);
         // console.log('artisan', artisan);
         // console.log('callMethod', callMethod);
-
         try {
 
             setLoading(true);
@@ -230,7 +229,8 @@ const ArtisanPage: React.FC = ({ route, navigation }: any) => {
                             input: {
                                 title: `Direct lead `,
                                 images: SelectedProfession?.img,
-                                professionals: SelectedProfession?.id,
+                                // professionals: SelectedProfession?.id,
+                                categoryId: SelectedProfession?.category?.id,
                                 directLeadStatus: "PENDING",
                                 callOrWhatsapp: callMethod,
                                 artisantId: artisan?.id
@@ -559,7 +559,7 @@ const ArtisanPage: React.FC = ({ route, navigation }: any) => {
                                     className='flex-row justify-between items-center p-3 my-1 rounded-md bg-gray-100 '>
                                     <Text
                                         className='text-lg font-bold'>
-                                        Open WhatsApp
+                                        Direct Chat
                                     </Text>
                                     <Ionicons name="chevron-forward" size={20} />
                                 </TouchableOpacity>

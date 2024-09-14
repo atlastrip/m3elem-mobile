@@ -262,7 +262,11 @@ export default function Order({ route, navigation }: any) {
         }
     };
     const params = route?.params;
-    const pros = params?.profession;
+    const pros = params?.profession[0]?.professionals
+    const category = params?.profession[0]
+    console.log('====================================');
+    console.log('category', category);
+    console.log('====================================');
     const [professions, setProfessions]: any = useState([]);
     useEffect(() => {
         setProfessions(pros || []);
@@ -354,7 +358,7 @@ export default function Order({ route, navigation }: any) {
 
 
             console.log('====================================');
-            console.log('uploadedImages', uploadedImages);
+            console.log('category?.id', category?.id);
             console.log('====================================');
 
 
@@ -376,9 +380,10 @@ export default function Order({ route, navigation }: any) {
                                 description: description,
                                 title: title,
                                 images: uploadedImages,
-                                location: zipCode || address || JSON.stringify(currentLocation),
+                                location: zipCode || address,
                                 status: "NEW",
-                                professionals: professions.map((service: any) => service.id),
+                                // professionals: professions.map((service: any) => service.id),
+                                categoryId: category?.id,
                                 locationType: locationMethod,
                             },
                         },
@@ -445,7 +450,7 @@ export default function Order({ route, navigation }: any) {
                             <ScrollView horizontal
                                 ref={scrollViewRef}
                             >
-                                {
+                                {/* {
                                     professions?.length == 0 &&
 
                                     <TouchableOpacity
@@ -462,8 +467,8 @@ export default function Order({ route, navigation }: any) {
                                         </Text>
 
                                     </TouchableOpacity>
-                                }
-                                {(professions || [])?.sort((a: any, b: any) => a?.text.toLowerCase().localeCompare(b.text.toLowerCase()))?.map((e: any, i: any) => (
+                                } */}
+                                {/* {(professions || [])?.sort((a: any, b: any) => a?.text.toLowerCase().localeCompare(b.text.toLowerCase()))?.map((e: any, i: any) => (
                                     <TouchableOpacity
                                         // onPress={() => setSelectedProfession({ name: e.text, img: e.img, id: e.id })}
                                         key={i}
@@ -475,7 +480,23 @@ export default function Order({ route, navigation }: any) {
                                             </Text>
                                         </View>
                                     </TouchableOpacity>
-                                ))}
+                                ))} */}
+                                {
+                                    professions?.map((e: any, i: any) => (
+                                        <TouchableOpacity
+                                            // onPress={() => setSelectedProfession({ name: e.text, img: e.img, id: e.id })}
+                                            key={i}
+                                            className={` p-1 min-w-[100px] `} >
+                                            <View className='p-3 flex-row items-center justify-center w-fit shadow-sm bg-white border-primary-500/20 border-2 rounded-lg px-5 '>
+                                                <Image style={{ width: 50, height: 50 }} resizeMode='contain' source={{ uri: e.img }} />
+                                                <Text className={`text-lg text-primary-500 font-bold text-center`} >
+                                                    {e.text}
+                                                </Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                    ))
+                                }
+
                             </ScrollView>
                         </View>
                         <View className="mb-4">
@@ -530,7 +551,9 @@ export default function Order({ route, navigation }: any) {
                         </View> */}
 
                         <View className="mb-4">
-                            <Text className="text-base font-semibold mb-2">How do you want us to find you?</Text>
+                            <Text className="text-base font-semibold mb-2">
+                                Add Address:
+                            </Text>
                             <View className="flex-row justify-between mb-4">
                                 <TouchableOpacity
                                     onPress={() => handleLocationMethod('address')}
@@ -540,19 +563,19 @@ export default function Order({ route, navigation }: any) {
                                         style={{ color: locationMethod === 'address' ? "white" : "black" }}
                                         className="text-center">Use Address</Text>
                                 </TouchableOpacity>
-                                {country === 'usa' && (
-                                    <TouchableOpacity
-                                        onPress={() => handleLocationMethod('zipCode')}
-                                        style={[styles.locationButton, locationMethod === 'zipCode' && styles.selectedLocation]}
-                                    >
-                                        <MaterialCommunityIcons size={32} color={locationMethod === 'zipCode' ? "white" : "black"} name="map-marker-radius-outline" />
-                                        <Text
-                                            style={{ color: locationMethod === 'zipCode' ? "white" : "black" }}
-                                            className="text-center">Use Zip Code</Text>
-                                    </TouchableOpacity>
-                                )}
-
+                                {/* {country === 'usa' && ( */}
                                 <TouchableOpacity
+                                    onPress={() => handleLocationMethod('zipCode')}
+                                    style={[styles.locationButton, locationMethod === 'zipCode' && styles.selectedLocation]}
+                                >
+                                    <MaterialCommunityIcons size={32} color={locationMethod === 'zipCode' ? "white" : "black"} name="map-marker-radius-outline" />
+                                    <Text
+                                        style={{ color: locationMethod === 'zipCode' ? "white" : "black" }}
+                                        className="text-center">Use Zip Code</Text>
+                                </TouchableOpacity>
+                                {/* )} */}
+
+                                {/* <TouchableOpacity
                                     onPress={() => handleLocationMethod('currentLocation')}
                                     style={[styles.locationButton, locationMethod === 'currentLocation' && styles.selectedLocation]}
                                 >
@@ -560,7 +583,7 @@ export default function Order({ route, navigation }: any) {
                                     <Text
                                         style={{ color: locationMethod === 'currentLocation' ? "white" : "black" }}
                                         className="text-center">Use Current Location</Text>
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
                             </View>
 
                             {locationMethod === 'address' && (
@@ -583,11 +606,11 @@ export default function Order({ route, navigation }: any) {
                                 />
                             )}
 
-                            {locationMethod === 'currentLocation' && loadingLocation && (
+                            {/* {locationMethod === 'currentLocation' && loadingLocation && (
                                 <ActivityIndicator size="large" color="black" style={{ marginTop: 10 }} />
-                            )}
+                            )} */}
 
-                            {locationMethod === 'currentLocation' && !loadingLocation && showMap && currentLocation && (
+                            {/* {locationMethod === 'currentLocation' && !loadingLocation && showMap && currentLocation && (
                                 <View style={styles.mapContainer}>
                                     <MapView
                                         scrollEnabled={false}
@@ -595,7 +618,7 @@ export default function Order({ route, navigation }: any) {
                                         <Marker coordinate={{ latitude: currentLocation.latitude, longitude: currentLocation.longitude }} title="My Location" />
                                     </MapView>
                                 </View>
-                            )}
+                            )} */}
                         </View>
 
                         <View className="mt-4">
@@ -672,7 +695,7 @@ export default function Order({ route, navigation }: any) {
                         }
                     </View>
                     <View className='my-20' />
-                    <BottomSheetModal
+                    {/* <BottomSheetModal
                         snapPoints={snapPoints}
                         style={{
                             borderTopColor: "gray", borderTopWidth: 2,
@@ -726,7 +749,7 @@ export default function Order({ route, navigation }: any) {
                             </View>
                         </ScrollView>
 
-                    </BottomSheetModal>
+                    </BottomSheetModal> */}
 
                 </KeyboardAwareScrollView>
             </BottomSheetModalProvider>
