@@ -274,7 +274,7 @@ const OrderView = ({ route, navigation }: any) => {
                             <Review
                                 key={order?.review?.id}
                                 name={order?.owner?.firstName + ' ' + order?.owner?.lastName}
-                                comment={order?.description}
+                                comment={order?.review?.description}
                                 rating={order?.review?.rating}
                                 timeAgo={order?.timeAgo}
                                 image={order?.owner?.imageProfile}

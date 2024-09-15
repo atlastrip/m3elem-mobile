@@ -277,7 +277,7 @@ const ProfessionPage = ({ navigation }: any) => {
 
     useEffect(() => {
         getServices();
-    }, []);
+    }, [isFocused]);
 
 
 
@@ -373,10 +373,11 @@ const ProfessionPage = ({ navigation }: any) => {
                                 key={i}
                                 className={``} >
                                 <View className='bg-gray-50 rounded-full items-center justify-center' style={{ width: window.width * .22, height: window.width * .22 }}>
-                                    <Image style={{ width: window.width * .22, height: window.width * .22,
-                                                          borderRadius: window.width * .18 / 2
+                                    <Image style={{
+                                        width: window.width * .22, height: window.width * .22,
+                                        borderRadius: window.width * .18 / 2
 
-                                     }} source={{ uri: e.icon }} />
+                                    }} source={{ uri: e.icon }} />
                                 </View>
                                 <Text
                                     style={{ flexWrap: 'wrap', width: window.width * .20 }}

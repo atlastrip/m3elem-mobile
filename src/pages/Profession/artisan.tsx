@@ -49,6 +49,9 @@ const CustomerReviews = ({ averageRating, totalReviews, ratingPercentages = [] }
 
 export const Review: React.FC<ReviewProps> = ({ name, comment, rating, timeAgo, image }: any) => {
 
+    console.log('====================================');
+    console.log('comment',comment);
+    console.log('====================================');
 
     return (
         <View className="flex-row items-start mt-4">
