@@ -33,8 +33,8 @@ const OrdersUserWithConversationsScreen = ({ navigation }: any) => {
                         headers,
                         body: JSON.stringify({
                             query: `
-                            query leads {
-                                leads {
+                            query getLeadsForUser {
+                                getLeadsForUser {
                                     id
                                     title
                                     description
@@ -89,7 +89,7 @@ const OrdersUserWithConversationsScreen = ({ navigation }: any) => {
                 );
 
                 const response = await res.json();
-                setConversations(response?.data?.leads);
+                setConversations(response?.data?.getLeadsForUser);
                 setLoading(false); // Turn off loading
             } catch (error) {
                 console.log(error);

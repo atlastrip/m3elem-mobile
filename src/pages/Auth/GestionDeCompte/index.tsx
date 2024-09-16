@@ -35,6 +35,7 @@ import { getToken, getUser } from "@/helpers/getToken";
 import { storage } from "../../../firebase/index";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import Menu from "../Menu";
+import ZipCodeSelector from "@/components/ZipCodeSelector";
 
 const GestionDeCompte = ({ navigation, route }: any) => {
   const insets = useSafeAreaInsets();
@@ -56,6 +57,8 @@ const GestionDeCompte = ({ navigation, route }: any) => {
   const [checkProfile, setCheckProfile] = useState(false);
   const [LoadingMedia, setLoadingMedia] = useState("");
   const [LoadingUser, setLoadingUser] = useState(false);
+  const [selectedStates, setSelectedStates] = useState<string[]>([]);
+  const [selectedZipCodes, setSelectedZipCodes] = useState<string[]>([]);
 
   const GetUserFromAsyncStorage = async () => {
     const user: any = await AsyncStorage.getItem("@user");
@@ -340,6 +343,8 @@ const GestionDeCompte = ({ navigation, route }: any) => {
                     
                   }
                   Radius
+                  zipCodes 
+                  states
                 }
               }
             `,
@@ -362,6 +367,8 @@ const GestionDeCompte = ({ navigation, route }: any) => {
       setRadius(parseInt(json?.data?.user?.Radius) || 15000);
       setMedia([]);
       setLoadingUser(false);
+      setSelectedStates(json?.data?.user?.states || []);
+      setSelectedZipCodes(json?.data?.user?.zipCodes || []);
 
     } catch (err1: any) {
       console.log('err2', err1.message);
@@ -660,6 +667,13 @@ const GestionDeCompte = ({ navigation, route }: any) => {
                   </TouchableOpacity>
                 ))}
           </ScrollView>
+
+          <ZipCodeSelector
+            selectedStates={selectedStates}
+            setSelectedStates={setSelectedStates}
+            selectedZipCodes={selectedZipCodes}
+            setSelectedZipCodes={setSelectedZipCodes}
+          />
 
 
           <ButtonPrimary
