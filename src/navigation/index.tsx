@@ -903,34 +903,74 @@ export default function Navigation() {
   }, []);
 
 
+  // useEffect(() => {
+  //   if (notificationListener) {
+  //     notificationListener.current =
+  //       Notifications.addNotificationReceivedListener((notification) => {
+  //         setNotification(notification);
+  //       });
+  //     responseListener.current =
+  //       Notifications.addNotificationResponseReceivedListener((response) => {
+  //         console.log(JSON.stringify({ notification: response }, undefined, 2));
+  //         const Page = response?.notification.request?.content?.data?.Page;
+  //         const Params = response?.notification.request?.content?.data?.Params;
+
+  //         if (Params) {
+  //           navigationRef.current?.navigate(Page, Params);
+  //         } else if (typeof Page === "string") {
+  //           navigationRef.current?.navigate(Page);
+  //         }
+  //         console.info({ Page, Params });
+  //       });
+
+  //     return () => {
+  //       Notifications.removeNotificationSubscription(
+  //         notificationListener?.current
+  //       );
+  //       Notifications.removeNotificationSubscription(responseListener?.current);
+  //     };
+  //   }
+  // }, [responseListener.current]);
   useEffect(() => {
     if (notificationListener) {
-      notificationListener.current =
-        Notifications.addNotificationReceivedListener((notification) => {
-          setNotification(notification);
-        });
-      responseListener.current =
-        Notifications.addNotificationResponseReceivedListener((response) => {
-          console.log(JSON.stringify({ notification: response }, undefined, 2));
-          const Page = response?.notification.request?.content?.data?.Page;
-          const Params = response?.notification.request?.content?.data?.Params;
+      // Listen for notifications when they are received
+      notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+        console.log('notification', notification);
+        
+        setNotification(notification);
+      });
 
+      // Listen for notification responses (when the user interacts with them)
+      responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log(JSON.stringify({ notification: response }, undefined, 2));
+
+        const data = response?.notification.request?.content?.data;
+        console.log('====================================');
+        console.log('data', data);
+        console.log('====================================');
+
+        if (data) {
+          const Page = data.Page || 'Home';  // Default to 'Home' if Page isn't available
+          const Params = data.Params || {};  // Default to an empty object if Params isn't available
+
+          // Navigate based on the notification data
           if (Params) {
             navigationRef.current?.navigate(Page, Params);
-          } else if (typeof Page === "string") {
+          } else if (typeof Page === 'string') {
             navigationRef.current?.navigate(Page);
           }
           console.info({ Page, Params });
-        });
+        }
+      });
 
+      // Cleanup the listeners on component unmount
       return () => {
-        Notifications.removeNotificationSubscription(
-          notificationListener?.current
-        );
+        Notifications.removeNotificationSubscription(notificationListener?.current);
         Notifications.removeNotificationSubscription(responseListener?.current);
       };
     }
   }, [responseListener.current]);
+
 
   // useEffect(()=>{
   //   SplashScreen.hideAsync();

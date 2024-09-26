@@ -46,7 +46,7 @@ module.exports = (expoConfig) => {
         tag: "withReactNativeFirebase",
         src: contents,
         newSrc: code,
-        anchor: /\s*get_default_flags\(\)/i,
+        anchor: /\s*use_native_modules!\s*/i,
         offset: 2,
         comment: "#",
       });

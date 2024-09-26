@@ -53,8 +53,8 @@ const ArtisanHomePage = ({ navigation }: any) => {
                     headers,
                     body: JSON.stringify({
                         query: `
-                            mutation updateUser($input: inputUpdateUser) {
-                                updateUser(input: $input){
+                            mutation isArtisantAvailable($input: isArtisantAvailableInput) {
+                                isArtisantAvailable(input: $input){
                                     id
                                     available
                                 }
@@ -62,10 +62,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
                         `,
                         variables: {
                             "input": {
-                                id: JSON.parse(user)?.id,
                                 available: !isEnabled,
-                                categories: [],
-                                newImage: []
                             }
                         }
                     }),
