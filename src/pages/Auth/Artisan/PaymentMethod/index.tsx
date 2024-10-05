@@ -107,17 +107,13 @@ const PaymentMethodPage = () => {
                     headers,
                     body: JSON.stringify({
                         query: `
-                            mutation updateUser($input: inputUpdateUser) {
-                                updateUser(input: $input){
-                                    id
-                                }
+                            mutation updatePaymentMethodChoosed($input: updatePaymentMethodForArtisant) {
+                                updatePaymentMethodChoosed(input: $input)
                             }
                         `,
                         variables: {
                             input: {
-                                id: JSON.parse(user)?.id,
                                 ...methods,
-                                newImage: []
                             }
                         }
                     }),

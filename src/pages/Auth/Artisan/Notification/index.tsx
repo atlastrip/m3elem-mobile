@@ -69,6 +69,8 @@ const NotificationsPage = () => {
 
 
         try {
+
+
             const res = await fetch(
                 Constants.expoConfig?.extra?.apiUrl as string,
                 {
@@ -76,18 +78,14 @@ const NotificationsPage = () => {
                     headers,
                     body: JSON.stringify({
                         query: `
-                            mutation updateUser($input: inputUpdateUser) {
-                                updateUser(input: $input){
-                                    id
-                                }
+                            mutation updatePushNotificationSettings($input: inputUpdatePushNotificationSettings) {
+                                updatePushNotificationSettings(input: $input)
                             }
                         `,
                         variables: {
                             input: {
-                                id: JSON.parse(user)?.id,
                                 ...methods,
-                                newImage: [],
-                                categories: [],
+                                
                             }
                         }
                     }),

@@ -294,6 +294,8 @@ const InstantResult = ({ route, navigation }: any) => {
         headers.append("Authorization", `Bearer ${token}`);
         try {
             setLoadingArtisants(true);
+            console.log('selectedCategories', selectedCategories);
+            
             // console.log('====================================');
             const filterArray = convertObjectToArray(selectedFilters);
             // console.log('filterArray', filterArray);
@@ -308,8 +310,12 @@ const InstantResult = ({ route, navigation }: any) => {
                             $filters: [FilterInputInfo]
                             $page: Int
                             $limit: Int
+                            $zipCode: String
+                            $categoryId: String
                             ) {
-                            getArtisansByFilters(filters: $filters, page: $page, limit: $limit) {
+                            getArtisansByFilters(filters: $filters, page: $page, limit: $limit, zipCode: $zipCode, categoryId: $categoryId
+
+                                ) {
                                 artisans {
                                 id
                                 firstName
@@ -353,7 +359,9 @@ const InstantResult = ({ route, navigation }: any) => {
                         variables: {
                             filters: filterArray,
                             page: value,
-                            limit: 10
+                            limit: 10,
+                            zipCode:zipCode,
+                            categoryId: selectedCategories[0],
                         }
 
 

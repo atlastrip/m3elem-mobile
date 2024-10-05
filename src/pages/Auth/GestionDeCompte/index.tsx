@@ -236,7 +236,6 @@ const GestionDeCompte = ({ navigation, route }: any) => {
     headers.append("Content-Type", "application/json");
     headers.append("Authorization", `Bearer ${token}`);
     const UpdateUserInfo: any = {
-      id: JSON.parse(user).id,
       phone: username,
       firstName: FirstName,
       lastName: LastName,
@@ -244,7 +243,6 @@ const GestionDeCompte = ({ navigation, route }: any) => {
       imageProfile: ProfilePhoto,
       newImage: uploadedImages || [],
       Radius: `${Radius}`,
-      categories: [],
     }
 
 
@@ -260,6 +258,7 @@ const GestionDeCompte = ({ navigation, route }: any) => {
 
     console.log('UpdateUserInfo', UpdateUserInfo);
     try {
+
       const res = await fetch(
         Constants.expoConfig?.extra?.apiUrl as string,
         {
@@ -267,8 +266,8 @@ const GestionDeCompte = ({ navigation, route }: any) => {
           headers,
           body: JSON.stringify({
             query: `
-              mutation updateUser($input: inputUpdateUser) {
-                updateUser(input: $input){
+              mutation updateAccountInMobile($input: inputUpdateAccountInMobile) {
+                updateAccountInMobile(input: $input){
                   id
                   firstName
                   lastName
@@ -288,10 +287,12 @@ const GestionDeCompte = ({ navigation, route }: any) => {
       );
 
       const json = await res.json();
-      console.log('json', json);
+      console.log('json', json.data?.updateAccountInMobile);
 
-      await AsyncStorage.setItem("@user", JSON.stringify(json.data?.updateUser));
-      await AsyncStorage.setItem("@imageProfile", json.data?.updateUser?.imageProfile);
+      await AsyncStorage.setItem("@user", JSON.stringify(json.data?.updateAccountInMobile));
+      if (json.data?.updateAccountInMobile?.imageProfile) {
+        await AsyncStorage.setItem("@imageProfile", json.data?.updateAccountInMobile?.imageProfile);
+      }
 
       setLoadingMedia("");
       await getInfo();
@@ -661,6 +662,7 @@ const GestionDeCompte = ({ navigation, route }: any) => {
 
                   >
                     <Image
+                      key={image?.id + index}
                       source={{ uri: image?.source }}
                       style={{ width: 100, height: 100, borderRadius: 50, marginRight: 10 }}
                     />
