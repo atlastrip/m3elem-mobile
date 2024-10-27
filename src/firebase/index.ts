@@ -3,7 +3,7 @@ import { getStorage } from 'firebase/storage';
 import { getFirestore } from 'firebase/firestore';
 
 
-const firebaseConfig = {
+const firebaseConfig =  {
   apiKey: "AIzaSyBWgQ7m6GE1AF6DvFKEY5VNprtxP7m6I7U",
   authDomain: "house-guru-b1e57.firebaseapp.com",
   projectId: "house-guru-b1e57",

@@ -178,7 +178,7 @@ export default function HomeScreen({ navigation }: any) {
 
       const json = await res.json();
       console.log('====================================');
-      console.log('json.data.getAllCategories',json.data.getAllCategories);
+      console.log('json.data.getAllCategories', json.data.getAllCategories);
       console.log('====================================');
       setServices(json.data.getAllCategories);
 
@@ -204,12 +204,13 @@ export default function HomeScreen({ navigation }: any) {
   const [order, setOrder] = React.useState(null);
   const [hasPermission, setHasPermission] = React.useState(null);
   const [scanned, setScanned] = React.useState(false);
-  const [searchCategory, setSearchCategory] = React.useState('');
-  const [searchZipCode, setSearchZipCode] = React.useState('');
+  const [searchCategory, setSearchCategory] = React.useState('Countertops');
+  const [searchZipCode, setSearchZipCode] = React.useState('90009');
 
   React.useEffect(() => {
     (async () => {
       const { status }: any = await BarCodeScanner.requestPermissionsAsync();
+      // @ts-ignore
       setHasPermission(status == 'granted');
     })();
   }, []);
@@ -313,19 +314,20 @@ export default function HomeScreen({ navigation }: any) {
       <View className='flex-row'>
 
         <View className=' pt-0 pb-7 flex-row flex-wrap gap-3 items-center justify-center w-fit ' >
-          {services?.sort((a, b) => a?.name.toLowerCase().localeCompare(b.name.toLowerCase()))?.map((e:any, i) => (
+          {services?.sort((a, b) => a?.name.toLowerCase().localeCompare(b.name.toLowerCase()))?.map((e: any, i) => (
             <TouchableOpacity
               onPress={() => {
                 console.log('e', e);
-                
+
                 navigation.navigate('Order', { profession: [e] })
               }}
               key={i}
               className={``} >
               <View className='bg-white rounded-full items-center justify-center' style={{ width: window.width * .22, height: window.width * .22 }}>
-                <Image style={{ width: window.width * .22, height: window.width * .22,
+                <Image style={{
+                  width: window.width * .22, height: window.width * .22,
                   borderRadius: window.width * .18 / 2
-                 }} source={{ uri: e?.icon }} />
+                }} source={{ uri: e?.icon }} />
               </View>
               <Text className={`text-sm text-primary-500 font-bold text-center`} >
                 {e.name.length > 10 ? e.name.substring(0, 10) + '...' : e.name}

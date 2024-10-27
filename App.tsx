@@ -5,6 +5,7 @@ import Navigation from "./src/navigation";
 import { Provider as ProviderRedux } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { User } from "./src/store";
+import { Provider as PaperProvider } from 'react-native-paper';
 
 
 const store: any = configureStore({
@@ -56,11 +57,14 @@ const App = () => {
 
   return (
 
-    <ProviderRedux store={store}>
-      {/* <ApolloProvider client={client}> */}
-      <Navigation />
-      {/* </ApolloProvider> */}
-    </ProviderRedux>
+    <PaperProvider>
+
+      <ProviderRedux store={store}>
+        {/* <ApolloProvider client={client}> */}
+        <Navigation />
+        {/* </ApolloProvider> */}
+      </ProviderRedux>
+    </PaperProvider>
   );
 }
 

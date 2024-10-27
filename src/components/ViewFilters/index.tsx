@@ -82,6 +82,8 @@ const ViewFilters = ({ filters, selectedFilters, setSelectedFilters, handleGetAr
                 borderRadius: 5,
                 alignSelf: 'center',
                 display: !modalVisible ? 'flex' : 'none',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
             }}>
                 <Text style={{
                     color: '#fff',

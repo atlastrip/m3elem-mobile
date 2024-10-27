@@ -109,6 +109,12 @@ const ZipCodeSelector: React.FC<ZipCodeSelectorProps> = ({
         );
     };
 
+
+  
+
+    console.log('selectedZipCodes was zipcode selector', selectedZipCodes);
+    
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
             {!selectedStateCity ? (
