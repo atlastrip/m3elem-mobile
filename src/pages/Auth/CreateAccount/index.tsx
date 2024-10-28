@@ -1398,84 +1398,146 @@
 // });
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Dimensions, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
-
+import { getToken } from '@/helpers/getToken';
+import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width } = Dimensions.get('window');
 
-export default function EnchantedRegistrationForm() {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
+export default function EnchantedRegistrationForm({ navigation }: any) {
+  const [firstName, setFirstName] = useState('briwa');
+  const [lastName, setLastName] = useState('liwaaa');
+  const [email, setEmail] = useState('ryozakiazeddine@gmail.com');
+  const [password, setPassword] = useState('123');
+  const [loading, setLoading] = useState(false);
+  // const [phone, setPhone] = useState('');
   const [enableTextMessages, setEnableTextMessages] = useState(false);
 
-  const handleCreateAccount = () => {
+  const handleCreateAccount = async () => {
     // Implement account creation logic here
-    console.log('Create account', { firstName, lastName, email, password, phone, enableTextMessages });
+
+
+    const token = await getToken();
+    const headers = new Headers({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    });
+
+    try {
+      setLoading(true);
+      const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          query: `
+            mutation createNormalUserInMobile ($input: inputCreateNormalUserInMobile) {
+              createNormalUserInMobile(input: $input) {
+                user {
+                  id
+                }
+                token
+              }
+            }
+          `,
+          variables: {
+            input: {
+              firstName,
+              lastName,
+              email,
+              password,
+              enableTextMessage: enableTextMessages
+            }
+          }
+        }),
+      });
+
+      const data = await response.json();
+      console.log('Create account response', data.data.createNormalUserInMobile.token);
+
+      if (!data.data.createNormalUserInMobile) {
+        if (data?.errors[0]?.message) {
+          throw new Error(data?.errors[0]?.message);
+        }
+      }
+
+
+      // save the token and user data to async storage
+      await AsyncStorage.setItem('@setTokenToVerifyOtp', data.data.createNormalUserInMobile.token);
+      console.log('Token', data.data.createNormalUserInMobile.token);
+
+      setLoading(false);
+      navigation.navigate('PhoneVerificationScreen');
+    } catch (error: any) {
+      setLoading(false);
+      Alert.alert(error.message);
+    }
   };
 
   const AnimatedInput = Animated.createAnimatedComponent(TextInput);
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Animated.Text entering={FadeInDown.delay(200).duration(1000)} style={styles.title}>
-          Create A HOUSE GURU account
-        </Animated.Text>
-        
-        <Animated.View entering={FadeInUp.delay(400).duration(1000)} style={styles.formContainer}>
-          <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={24} color="#4CAF50" style={styles.icon} />
-            <AnimatedInput
-              style={styles.input}
-              value={firstName}
-              onChangeText={setFirstName}
-              placeholder="First Name"
-              placeholderTextColor="#a0a0a0"
-            />
-          </View>
-          
-          <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={24} color="#4CAF50" style={styles.icon} />
-            <AnimatedInput
-              style={styles.input}
-              value={lastName}
-              onChangeText={setLastName}
-              placeholder="Last Name"
-              placeholderTextColor="#a0a0a0"
-            />
-          </View>
-          
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={24} color="#4CAF50" style={styles.icon} />
-            <AnimatedInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="Email Address"
-              placeholderTextColor="#a0a0a0"
-              keyboardType="email-address"
-            />
-          </View>
-          
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={24} color="#4CAF50" style={styles.icon} />
-            <AnimatedInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Password"
-              placeholderTextColor="#a0a0a0"
-              secureTextEntry
-            />
-          </View>
-          
-          <View style={styles.inputContainer}>
+      <LinearGradient
+        colors={['#4CAF50', '#2E7D32']}
+        style={styles.container}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Animated.Text entering={FadeInDown.delay(200).duration(1000)} style={styles.title}>
+            Create A HOUSE GURU account
+          </Animated.Text>
+
+          <Animated.View entering={FadeInUp.delay(400).duration(1000)} style={styles.formContainer}>
+            <View style={styles.inputContainer}>
+              <Ionicons name="person-outline" size={24} color="#4CAF50" style={styles.icon} />
+              <AnimatedInput
+                style={styles.input}
+                value={firstName}
+                onChangeText={setFirstName}
+                placeholder="First Name"
+                placeholderTextColor="#a0a0a0"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Ionicons name="person-outline" size={24} color="#4CAF50" style={styles.icon} />
+              <AnimatedInput
+                style={styles.input}
+                value={lastName}
+                onChangeText={setLastName}
+                placeholder="Last Name"
+                placeholderTextColor="#a0a0a0"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Ionicons name="mail-outline" size={24} color="#4CAF50" style={styles.icon} />
+              <AnimatedInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Email Address"
+                placeholderTextColor="#a0a0a0"
+                keyboardType="email-address"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Ionicons name="lock-closed-outline" size={24} color="#4CAF50" style={styles.icon} />
+              <AnimatedInput
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Password"
+                placeholderTextColor="#a0a0a0"
+                secureTextEntry
+              />
+            </View>
+
+            {/* <View style={styles.inputContainer}>
             <Ionicons name="call-outline" size={24} color="#4CAF50" style={styles.icon} />
             <AnimatedInput
               style={styles.input}
@@ -1485,47 +1547,57 @@ export default function EnchantedRegistrationForm() {
               placeholderTextColor="#a0a0a0"
               keyboardType="phone-pad"
             />
-          </View>
-          
-          <TouchableOpacity
-            style={styles.checkboxContainer}
-            onPress={() => setEnableTextMessages(!enableTextMessages)}
-          >
-            <View style={[styles.checkbox, enableTextMessages && styles.checkboxChecked]}>
-              {enableTextMessages && <Ionicons name="checkmark" size={18} color="#fff" />}
-            </View>
-            <Text style={styles.checkboxLabel}>Enable text messages</Text>
-          </TouchableOpacity>
-          
-          <Text style={styles.termsText}>
-            By checking this box, you authorize A HOUSE GURU to send you automated text messages. Opt out anytime. Terms apply.
-          </Text>
-          
-          <TouchableOpacity style={styles.button} onPress={handleCreateAccount}>
-            <LinearGradient
-              colors={['#4CAF50', '#45a049']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.buttonGradient}
+          </View> */}
+
+            <TouchableOpacity
+              style={styles.checkboxContainer}
+              onPress={() => setEnableTextMessages(!enableTextMessages)}
             >
-              <Text style={styles.buttonText}>Create Account</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          
-          <Text style={styles.termsText}>
-            By clicking Create Account, you agree to the Terms of Use and Privacy Policy.
-          </Text>
-          
-          <TouchableOpacity>
-            <Text style={styles.loginLink}>Already have an account? Log in</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </ScrollView>
+              <View style={[styles.checkbox, enableTextMessages && styles.checkboxChecked]}>
+                {enableTextMessages && <Ionicons name="checkmark" size={18} color="#fff" />}
+              </View>
+              <Text style={styles.checkboxLabel}>Enable text messages</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.termsText}>
+              By checking this box, you authorize A HOUSE GURU to send you automated text messages. Opt out anytime. Terms apply.
+            </Text>
+
+            <TouchableOpacity style={styles.button} onPress={handleCreateAccount}>
+              <LinearGradient
+                colors={['#4CAF50', '#45a049']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.buttonGradient}
+              >
+                {
+                  loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Create Account</Text>
+
+                }
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <Text style={styles.termsText}>
+              By clicking Create Account, you agree to the Terms of Use and Privacy Policy.
+            </Text>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Login')}
+            >
+              <Text style={styles.loginLink}>Already have an account? Log in</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </ScrollView>
+      </LinearGradient>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#7c3aed', // Purple background
+  },
   safeArea: {
     flex: 1,
     backgroundColor: '#f5f5f5',

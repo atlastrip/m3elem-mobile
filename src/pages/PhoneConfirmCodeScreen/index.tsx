@@ -9,8 +9,10 @@ const PhoneConfirmCodeScreen = ({ navigation }: any) => {
             style={{ flex: 1 }}
         >
 
-           
-            <ConfirmPhoneCode />
+
+            <ConfirmPhoneCode
+                navigation={navigation}
+            />
         </View>
     )
 }

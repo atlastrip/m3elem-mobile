@@ -10,6 +10,7 @@ const PhoneVerificationScreen = ({ navigation }: any) => {
         >
 
             <VerificationScreens
+            navigation={navigation}
             />
         </View>
     )

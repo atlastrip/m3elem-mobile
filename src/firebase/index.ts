@@ -1,9 +1,10 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getStorage } from 'firebase/storage';
 import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 
-const firebaseConfig =  {
+export const firebaseConfig = {
   apiKey: "AIzaSyBWgQ7m6GE1AF6DvFKEY5VNprtxP7m6I7U",
   authDomain: "house-guru-b1e57.firebaseapp.com",
   projectId: "house-guru-b1e57",
@@ -18,3 +19,4 @@ const myApp = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 export { myApp };
 export const storage = getStorage(myApp);
 export const firestore = getFirestore(myApp);
+export const Newauth = getAuth(myApp);
