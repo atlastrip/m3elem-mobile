@@ -1221,7 +1221,12 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
 const TABS = [
   { key: 'profile', title: 'Profile' },
+  { key: 'budget', title: 'Budget' },
+  { key: 'categories', title: 'Categories' },
+  { key: 'documents', title: 'Get Verified' },
+  { key: 'business', title: 'Business' },
   { key: 'address', title: 'Address' },
+  { key: 'requirements', title: 'Requirements' }
 ];
 
 const RenderProfile = ({
@@ -1292,7 +1297,7 @@ const RenderProfile = ({
   </TouchableWithoutFeedback>
 );
 
-export default function UserSettings() {
+export default function GestionDeCompteArtisant() {
   const [currentTab, setCurrentTab] = useState('profile');
   const [selectedCategories, setSelectedCategories]: any = useState([]);
   const [isEnabled, setIsEnabled] = useState(false);
@@ -1472,6 +1477,86 @@ export default function UserSettings() {
 
 
 
+  const UpdateCategories = async () => {
+    const token = await getToken();
+    const headers = new Headers({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    });
+
+    try {
+      const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          query: `
+            mutation updateCategoriesForArtisantInMobile($input: inputUpdateCategoriesForArtisantInMobile) {
+              updateCategoriesForArtisantInMobile(input: $input)
+            }
+          `,
+          variables: {
+            input: {
+              categories: selectedCategories,
+            },
+          },
+        }),
+      });
+
+      const data = await response.json();
+      console.log('====================================');
+      console.log('data', data);
+      console.log('====================================');
+      Alert.alert("Categories Updated", "Your categories have been successfully updated.");
+      await fetchUserInfo();
+    } catch (error: any) {
+      Alert.alert("Categories Update Failed", error.message);
+    }
+  }
+
+
+  const handleUpdateBusiness = async () => {
+    const token = await getToken();
+    const headers = new Headers({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    });
+
+    try {
+      const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          query: `
+            mutation updateBusinessFormArtisantInMobile($input: inputUpdateBusinessFormArtisantInMobile) {
+              updateBusinessFormArtisantInMobile(input: $input)
+            }
+          `,
+
+          variables: {
+            input: {
+              businessName: formStateForBusiness.businessName,
+              yearFounded: formStateForBusiness.yearFounded,
+              numberOfEmployees: formStateForBusiness.numberOfEmployees,
+              streetAddress: formStateForBusiness.street,
+              city: formStateForBusiness.city,
+              state: formStateForBusiness.state,
+              suiteNumber: formStateForBusiness.zipCode,
+            },
+          },
+        }),
+      });
+
+      const data = await response.json();
+      console.log('====================================');
+      console.log('data', data);
+      console.log('====================================');
+      Alert.alert("Business Updated", "Your business information has been successfully updated.");
+      await fetchUserInfo();
+    } catch (error: any) {
+      Alert.alert("Business Update Failed", error.message);
+    }
+  }
+
   const updateUserInfo = async () => {
     setUploading(true);
     try {
@@ -1634,7 +1719,42 @@ export default function UserSettings() {
     }
   };
 
- 
+  const updateWeeklyBudget = async (newBudget: any) => {
+    const token = await getToken();
+    const headers = new Headers({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    });
+
+    try {
+      const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          query: `
+            mutation updateWeeklyBudget($input: inputUpdateWeeklyBudget) {
+              updateWeeklyBudget(input: $input) 
+            }
+          `,
+          variables: {
+            input: {
+              weeklyBudget: newBudget,
+            },
+          },
+        }),
+      });
+
+      const data = await response.json();
+      if (data.errors) {
+        throw new Error(data.errors[0].message);
+      }
+      setWeeklyBudget(newBudget);
+    } catch (error: any) {
+      Alert.alert("Weekly Budget Update Failed", error.message);
+    }
+  };
+
+
 
 
   const handleUpdateAddress = async () => {
@@ -1688,6 +1808,47 @@ export default function UserSettings() {
     );
   }
 
+  const renderBudget = () => (
+    <View style={styles.scene}>
+      {/* Weekly Budget Slider */}
+      <Text style={styles.sliderValue}>${weeklyBudget}</Text>
+      <Slider
+        style={styles.slider}
+        minimumValue={0}
+        maximumValue={10000}
+        step={100}
+        value={weeklyBudget}
+        onValueChange={updateWeeklyBudget}
+        minimumTrackTintColor="#4CAF50"
+        maximumTrackTintColor="#d3d3d3"
+        thumbTintColor="#4CAF50"
+      />
+    </View>
+  );
+
+  const renderCategories = () => (
+    <View style={styles.scene}>
+      <CategoriesCreateSelector
+        selectedCategories={selectedCategories}
+        setSelectedCategories={setSelectedCategories}
+      />
+    </View>
+  );
+
+  const renderDocuments = () => (
+    <View style={styles.scene}>
+      <UploadDocs />
+    </View>
+  );
+
+  const renderBusiness = () => (
+    <ScrollView style={styles.scene}>
+      <BusinessForm
+        NewFormState={formStateForBusiness}
+        setNewFormState={setFormStateForBusiness}
+      />
+    </ScrollView>
+  );
 
   const renderAddress = () => (
     <View style={styles.scene}>
@@ -1696,6 +1857,25 @@ export default function UserSettings() {
         setNewZipCode={setZipCode}
         NewselectedSuggestion={selectedSuggestion}
         setNewSelectedSuggestion={setSelectedSuggestion}
+      />
+    </View>
+  );
+
+  const renderSearchRequirementChecker = () => (
+    <View style={styles.scene}>
+      <SearchRequirementChecker
+        categories={SearchRequirementCheckerState?.categories}
+        isProfileComplete={SearchRequirementCheckerState?.profileCompleted}
+        userAmount={
+          SearchRequirementCheckerState?.paymentMethodChoosed === 'PayAsYouGo' ? 1000 :
+            parseInt(SearchRequirementCheckerState?.userAmount)
+        }
+        paymentMethodChoosed={SearchRequirementCheckerState?.paymentMethodChoosed}
+        minRequiredAmount={30}
+        acceptedByBO={SearchRequirementCheckerState?.acceptedByBO}
+        weeklySpent={SearchRequirementCheckerState?.weeklySpent}
+        weeklyLimit={SearchRequirementCheckerState?.weeklyLimit}
+        zipCodes={SearchRequirementCheckerState?.zipCodes}
       />
     </View>
   );
@@ -1721,8 +1901,18 @@ export default function UserSettings() {
     switch (currentTab) {
       case 'profile':
         return renderProfileComponent();
+      case 'budget':
+        return renderBudget();
+      case 'categories':
+        return renderCategories();
+      case 'documents':
+        return renderDocuments();
+      case 'business':
+        return renderBusiness();
       case 'address':
         return renderAddress();
+      case 'requirements':
+        return renderSearchRequirementChecker();
       default:
         return null;
     }
@@ -1781,7 +1971,7 @@ export default function UserSettings() {
               <Text style={styles.updateButtonText}>Update Settings</Text>
             </TouchableOpacity>
           )}
-          {/* 
+
           {['categories'].includes(currentTab) && (
             <TouchableOpacity
               style={styles.updateButton}
@@ -1801,16 +1991,16 @@ export default function UserSettings() {
                 <Text style={styles.updateButtonText}>Update Business</Text>
               </TouchableOpacity>
             )}
-               */}
-          {['address'].includes(currentTab) && (
-            <TouchableOpacity
-              style={styles.updateButton}
-              onPress={handleUpdateAddress}
-              disabled={uploading}
-            >
-              <Text style={styles.updateButtonText}>Update Address</Text>
-            </TouchableOpacity>
-          )}
+              
+              {['address'].includes(currentTab) && (
+                <TouchableOpacity
+                  style={styles.updateButton}
+                  onPress={handleUpdateAddress}
+                  disabled={uploading}
+                >
+                  <Text style={styles.updateButtonText}>Update Address</Text>
+                </TouchableOpacity>
+              )}
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

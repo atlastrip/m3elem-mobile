@@ -212,74 +212,74 @@
 //   };
 
 
-//   const uploadImagesToFirebase = async (media: any) => {
-//     try {
-//       console.log('====================================');
-//       console.log('media', media);
-//       console.log('====================================');
-//       let uploadedImages;
+// const uploadImagesToFirebase = async (media: any) => {
+//   try {
+//     console.log('====================================');
+//     console.log('media', media);
+//     console.log('====================================');
+//     let uploadedImages;
 
-//       if (media.length > 0) {
-//         uploadedImages = await Promise.all(
-//           media.map(async (item: any) => {
-//             try {
-//               // Fetch the image from the local URI
-//               const response = await fetch(item.uri);
-//               if (!response.ok) throw new Error('Network response was not ok');
+//     if (media.length > 0) {
+//       uploadedImages = await Promise.all(
+//         media.map(async (item: any) => {
+//           try {
+//             // Fetch the image from the local URI
+//             const response = await fetch(item.uri);
+//             if (!response.ok) throw new Error('Network response was not ok');
 
-//               // Convert the image to a blob
-//               const blob = await response.blob();
-//               console.log('Blob:', blob);
+//             // Convert the image to a blob
+//             const blob = await response.blob();
+//             console.log('Blob:', blob);
 
-//               // Create a reference to the Firebase Storage location
-//               const storageRef = ref(storage, `images/${Date.now()}_${item.fileName}`);
-//               console.log('StorageRef:', storageRef);
+//             // Create a reference to the Firebase Storage location
+//             const storageRef = ref(storage, `images/${Date.now()}_${item.fileName}`);
+//             console.log('StorageRef:', storageRef);
 
-//               // Upload the blob to Firebase Storage
-//               const uploadTask = uploadBytesResumable(storageRef, blob);
-//               console.log('UploadTask:', uploadTask);
+//             // Upload the blob to Firebase Storage
+//             const uploadTask = uploadBytesResumable(storageRef, blob);
+//             console.log('UploadTask:', uploadTask);
 
-//               // Monitor the upload progress
-//               return new Promise((resolve, reject) => {
-//                 uploadTask.on(
-//                   'state_changed',
-//                   (snapshot) => {
-//                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-//                     console.log('Upload is ' + progress + '% done');
-//                   },
-//                   (error) => {
-//                     console.error('Upload failed', error);
-//                     reject(error);
-//                   },
-//                   async () => {
-//                     // Get the download URL of the uploaded image
-//                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-//                     console.log('File available at', downloadURL);
-//                     const img = {
-//                       name: item.fileName,
-//                       size: `${item.fileSize}`,
-//                       source: downloadURL,
-//                       current: true,
-//                     }
-//                     resolve(img);
+//             // Monitor the upload progress
+//             return new Promise((resolve, reject) => {
+//               uploadTask.on(
+//                 'state_changed',
+//                 (snapshot) => {
+//                   const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+//                   console.log('Upload is ' + progress + '% done');
+//                 },
+//                 (error) => {
+//                   console.error('Upload failed', error);
+//                   reject(error);
+//                 },
+//                 async () => {
+//                   // Get the download URL of the uploaded image
+//                   const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+//                   console.log('File available at', downloadURL);
+//                   const img = {
+//                     name: item.fileName,
+//                     size: `${item.fileSize}`,
+//                     source: downloadURL,
+//                     current: true,
 //                   }
-//                 );
-//               });
-//             } catch (error: any) {
-//               console.error('Error in uploading image:', error.message);
-//               throw error;
-//             }
-//           })
-//         );
-//       }
-
-//       console.log('Uploaded Images:', uploadedImages);
-//       return uploadedImages;
-//     } catch (error) {
-//       console.error('Error in uploading images:', error);
-//       throw error;
+//                   resolve(img);
+//                 }
+//               );
+//             });
+//           } catch (error: any) {
+//             console.error('Error in uploading image:', error.message);
+//             throw error;
+//           }
+//         })
+//       );
 //     }
-//   };
+
+//     console.log('Uploaded Images:', uploadedImages);
+//     return uploadedImages;
+//   } catch (error) {
+//     console.error('Error in uploading images:', error);
+//     throw error;
+//   }
+// };
 
 //   const CreateAccount = async () => {
 //     const myHeaders = new Headers();
@@ -1177,201 +1177,284 @@
 // });
 
 
-// import React, { useState } from 'react';
-// import {
-//   View,
-//   Text,
-//   TextInput,
-//   TouchableOpacity,
-//   StyleSheet,
-//   Alert,
-//   KeyboardAvoidingView,
-//   Platform,
-//   ScrollView,
-// } from 'react-native';
-// import { useSafeAreaInsets } from 'react-native-safe-area-context';
+// import React, { useState, useEffect } from 'react';
+// import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+// import Animated, { useSharedValue, useAnimatedStyle, withSpring, withRepeat, withTiming, Easing } from 'react-native-reanimated';
 // import { Ionicons } from '@expo/vector-icons';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { useDispatch } from 'react-redux';
-// import { isLogin, setUser } from '../../../store/User';
-// import { COLORS } from '../../../constants/theme';
-// import { ButtonPrimary } from '@/components/index';
-// import { Navigate } from 'navigation';
 
-// export default function UserRegistration({ navigation }: { navigation: Navigate }) {
-//   const dispatch = useDispatch();
-//   const insets = useSafeAreaInsets();
+// const formFields = ['firstName', 'lastName', 'phone', 'email', 'password', 'address', 'aboutYou'];
 
-//   const [formData, setFormData]: any = useState({
-//     firstName: '',
-//     lastName: '',
-//     phone: '',
-//     email: '',
-//     password: '',
-//     address: '',
-//     aboutYou: '',
-//   });
-//   const [errors, setErrors]: any = useState({});
+// export default function MagicalArtisanForm() {
+//   const [formData, setFormData]:any = useState({});
+//   const [errors, setErrors]:any = useState({});
 //   const [showPassword, setShowPassword] = useState(false);
-//   const [loading, setLoading] = useState(false);
+//   const [loading, setLoading]:any = useState(false);
+//   const [categories, setCategories]:any = useState([]);
+//   const [selectedCategories, setSelectedCategories]:any = useState([]);
+//   const [media, setMedia]:any = useState([]);
 
-//   const handleInputChange = (name: string, value: string) => {
-//     setFormData((prev: any) => ({ ...prev, [name]: value }));
-//     setErrors((prev: any) => ({ ...prev, [name]: '' }));
+//   const buttonScale = useSharedValue(1);
+//   const rotation = useSharedValue(0);
+
+//   useEffect(() => {
+//     setCategories([
+//       { id: '1', name: 'Plumbing' },
+//       { id: '2', name: 'Electrical' },
+//       { id: '3', name: 'Carpentry' },
+//       { id: '4', name: 'Painting' },
+//     ]);
+//   }, []);
+
+//   const handleInputChange = (name:any, value:any) => {
+//     setFormData((prev:any) => ({ ...prev, [name]: value }));
+//     setErrors((prev:any) => ({ ...prev, [name]: '' }));
 //   };
 
-//   const validateForm = () => {
-//     let isValid = true;
-//     let newErrors: any = {};
-
-//     Object.keys(formData).forEach(key => {
-//       if (!formData[key]) {
-//         newErrors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} is required`;
-//         isValid = false;
-//       }
-//     });
-
-//     if (formData.email && !formData.email.match(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/)) {
-//       newErrors.email = 'Invalid email format';
-//       isValid = false;
-//     }
-
-//     setErrors(newErrors);
-//     return isValid;
+//   const toggleCategory = (categoryId:any) => {
+//     setSelectedCategories((prev:any) =>
+//       prev.includes(categoryId)
+//         ? prev.filter((id:any) => id !== categoryId)
+//         : [...prev, categoryId]
+//     );
 //   };
 
-//   const handleCreateAccount = async () => {
-//     if (!validateForm()) return;
-
+//   const handleCreateAccount = () => {
 //     setLoading(true);
-//     try {
-//       // This is where you would typically make an API call to create the user account
-//       // For demonstration purposes, we'll simulate a successful account creation
-//       const fakeUserData = {
-//         id: '123',
-//         ...formData,
-//         role: 'user',
-//       };
-//       const fakeToken = 'fake-jwt-token';
-
-//       await AsyncStorage.setItem('@token', fakeToken);
-//       await AsyncStorage.setItem('@user', JSON.stringify(fakeUserData));
-
-//       dispatch(isLogin(true));
-//       dispatch(setUser(fakeUserData));
-
-//       Alert.alert('Success', 'User account created successfully!');
-//       navigation.navigate('Home');
-//     } catch (error) {
-//       console.error('Error creating account:', error);
-//       Alert.alert('Error', 'Failed to create account. Please try again.');
-//     } finally {
+//     rotation.value = withRepeat(withTiming(360, { duration: 1000, easing: Easing.linear }), -1, false);
+//     setTimeout(() => {
 //       setLoading(false);
-//     }
+//       rotation.value = withTiming(0);
+//     }, 2000);
 //   };
+
+//   const animatedButtonStyle = useAnimatedStyle(() => {
+//     return {
+//       transform: [{ scale: withSpring(buttonScale.value) }],
+//     };
+//   });
+
+//   const spinnerStyle = useAnimatedStyle(() => {
+//     return {
+//       transform: [{ rotateZ: `${rotation.value}deg` }],
+//     };
+//   });
 
 //   return (
-//     <KeyboardAvoidingView
-//       style={[styles.container, { paddingTop: insets.top }]}
-//       behavior={Platform.OS === "ios" ? "padding" : "height"}
-//     >
-//       <ScrollView>
-//         <View style={styles.header}>
-//           <TouchableOpacity onPress={() => navigation.goBack()}>
-//             <Ionicons name="chevron-back" size={24} color={COLORS.primary} />
-//           </TouchableOpacity>
-//           <Text style={styles.headerTitle}>Create User Account</Text>
-//           <View style={{ width: 24 }} />
-//         </View>
+//     <ScrollView style={styles.container}>
+//       <View style={styles.header}>
+//         <Ionicons name="chevron-back" size={24} color="#4CAF50" />
+//         <Text style={styles.headerTitle}>Create Magical Artisan Account</Text>
+//       </View>
 
-//         {Object.keys(formData).map((key: any) => (
-//           <View key={key} style={styles.inputContainer}>
-//             <TextInput
-//               style={styles.input}
-//               placeholder={`Enter your ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}`}
-//               value={formData[key]}
-//               onChangeText={(text) => handleInputChange(key, text)}
-//               secureTextEntry={key === 'password' && !showPassword}
-//             />
-//             {errors[key] && <Text style={styles.errorText}>{errors[key]}</Text>}
-//             {key === 'password' && (
-//               <TouchableOpacity
-//                 style={styles.showPasswordButton}
-//                 onPress={() => setShowPassword(!showPassword)}
-//               >
-//                 <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color={COLORS.primary} />
-//               </TouchableOpacity>
-//             )}
+//       {formFields.map(field => (
+//         <View key={field} style={styles.inputContainer}>
+//           <Text style={styles.label}>{field.charAt(0).toUpperCase() + field.slice(1)}</Text>
+//           <TextInput
+//             style={styles.input}
+//             value={formData[field] || ''}
+//             onChangeText={(text) => handleInputChange(field, text)}
+//             secureTextEntry={field === 'password' && !showPassword}
+//             multiline={field === 'aboutYou'}
+//             numberOfLines={field === 'aboutYou' ? 4 : 1}
+//           />
+//           {field === 'password' && (
+//             <TouchableOpacity
+//               style={styles.eyeIcon}
+//               onPress={() => setShowPassword(!showPassword)}
+//             >
+//               <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="#4CAF50" />
+//             </TouchableOpacity>
+//           )}
+//           {errors[field] && <Text style={styles.errorText}>{errors[field]}</Text>}
+//         </View>
+//       ))}
+
+//       <Text style={styles.sectionTitle}>Choose categories:</Text>
+//       <View style={styles.categoriesContainer}>
+//         {categories.map((category:any) => (
+//           <TouchableOpacity
+//             key={category.id}
+//             style={[
+//               styles.categoryButton,
+//               selectedCategories.includes(category.id) && styles.selectedCategoryButton
+//             ]}
+//             onPress={() => toggleCategory(category.id)}
+//           >
+//             <Text style={[
+//               styles.categoryButtonText,
+//               selectedCategories.includes(category.id) && styles.selectedCategoryButtonText
+//             ]}>
+//               {category.name}
+//             </Text>
+//           </TouchableOpacity>
+//         ))}
+//       </View>
+
+//       <Text style={styles.sectionTitle}>Add media:</Text>
+//       <ScrollView horizontal style={styles.mediaContainer}>
+//         {media.map((item:any, index:any) => (
+//           <View key={index} style={styles.mediaItem}>
+//             <Image source={{ uri: item }} style={styles.mediaPreview} />
+//             <TouchableOpacity
+//               style={styles.removeMediaButton}
+//               onPress={() => setMedia(media.filter((_:any, i:any) => i !== index))}
+//             >
+//               <Ionicons name="close-circle" size={24} color="white" />
+//             </TouchableOpacity>
 //           </View>
 //         ))}
-
-//         <ButtonPrimary
-//           // @ts-ignore
-//           loading={loading}
-//           onPress={handleCreateAccount}
-//           text="Create User Account"
-//           style={styles.createAccountButton}
-//         />
-
-//         <View style={styles.loginPrompt}>
-//           <Text style={styles.loginPromptText}>Already have an account? </Text>
-//           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-//             <Text style={styles.loginLink}>Log in</Text>
-//           </TouchableOpacity>
-//         </View>
-
 //         <TouchableOpacity
-//           style={styles.switchToArtisan}
-//           onPress={() => {
-//             navigation.navigate('CreateAccountForArtisant');
-//           }}
+//           style={styles.addMediaButton}
+//           onPress={() => setMedia([...media, 'https://via.placeholder.com/150'])}
 //         >
-//           <Text style={styles.switchToArtisanText}>Register as an Artisan instead</Text>
+//           <Ionicons name="add" size={40} color="#4CAF50" />
 //         </TouchableOpacity>
 //       </ScrollView>
-//     </KeyboardAvoidingView>
+
+//       <Animated.View style={[styles.createAccountButtonContainer, animatedButtonStyle]}>
+//         <TouchableOpacity
+//           style={styles.createAccountButton}
+//           onPress={handleCreateAccount}
+//           onPressIn={() => (buttonScale.value = 0.95)}
+//           onPressOut={() => (buttonScale.value = 1)}
+//         >
+//           {loading ? (
+//             <Animated.View style={spinnerStyle}>
+//               <Ionicons name="sparkles" size={24} color="white" />
+//             </Animated.View>
+//           ) : (
+//             <Text style={styles.createAccountButtonText}>Create Magical Account</Text>
+//           )}
+//         </TouchableOpacity>
+//       </Animated.View>
+
+//       <View style={styles.loginPrompt}>
+//         <Text style={styles.loginPromptText}>Already have an account? </Text>
+//         <TouchableOpacity>
+//           <Text style={styles.loginLink}>Log in</Text>
+//         </TouchableOpacity>
+//       </View>
+//     </ScrollView>
 //   );
 // }
 
 // const styles = StyleSheet.create({
 //   container: {
 //     flex: 1,
-//     backgroundColor: 'white',
+//     backgroundColor: '#E8F5E9',
 //     padding: 16,
 //   },
 //   header: {
 //     flexDirection: 'row',
 //     alignItems: 'center',
-//     justifyContent: 'space-between',
 //     marginBottom: 24,
 //   },
 //   headerTitle: {
 //     fontSize: 24,
 //     fontWeight: 'bold',
-//     color: COLORS.primary,
+//     color: '#4CAF50',
+//     marginLeft: 8,
 //   },
 //   inputContainer: {
 //     marginBottom: 16,
 //   },
+//   label: {
+//     fontSize: 16,
+//     fontWeight: '600',
+//     color: '#2E7D32',
+//     marginBottom: 8,
+//   },
 //   input: {
-//     borderWidth: 1,
-//     borderColor: '#e0e0e0',
-//     borderRadius: 8,
+//     borderWidth: 2,
+//     borderColor: '#4CAF50',
+//     borderRadius: 12,
 //     padding: 12,
 //     fontSize: 16,
+//     backgroundColor: 'white',
+//     color: '#1B5E20',
+//   },
+//   eyeIcon: {
+//     position: 'absolute',
+//     right: 12,
+//     top: 40,
 //   },
 //   errorText: {
 //     color: 'red',
 //     fontSize: 12,
 //     marginTop: 4,
 //   },
-//   showPasswordButton: {
+//   sectionTitle: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     color: '#2E7D32',
+//     marginTop: 16,
+//     marginBottom: 8,
+//   },
+//   categoriesContainer: {
+//     flexDirection: 'row',
+//     flexWrap: 'wrap',
+//     marginBottom: 16,
+//   },
+//   categoryButton: {
+//     backgroundColor: '#C8E6C9',
+//     borderRadius: 20,
+//     paddingVertical: 8,
+//     paddingHorizontal: 16,
+//     margin: 4,
+//   },
+//   selectedCategoryButton: {
+//     backgroundColor: '#4CAF50',
+//   },
+//   categoryButtonText: {
+//     color: '#1B5E20',
+//     fontWeight: '600',
+//   },
+//   selectedCategoryButtonText: {
+//     color: 'white',
+//   },
+//   mediaContainer: {
+//     flexDirection: 'row',
+//     marginBottom: 16,
+//   },
+//   mediaItem: {
+//     marginRight: 8,
+//     position: 'relative',
+//   },
+//   mediaPreview: {
+//     width: 100,
+//     height: 100,
+//     borderRadius: 8,
+//   },
+//   removeMediaButton: {
 //     position: 'absolute',
-//     right: 12,
-//     top: 12,
+//     top: 4,
+//     right: 4,
+//     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+//     borderRadius: 12,
+//   },
+//   addMediaButton: {
+//     width: 100,
+//     height: 100,
+//     borderWidth: 2,
+//     borderColor: '#4CAF50',
+//     borderStyle: 'dashed',
+//     borderRadius: 8,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   createAccountButtonContainer: {
+//     marginTop: 24,
 //   },
 //   createAccountButton: {
-//     marginTop: 24,
+//     backgroundColor: '#4CAF50',
+//     borderRadius: 12,
+//     padding: 16,
+//     alignItems: 'center',
+//   },
+//   createAccountButtonText: {
+//     color: 'white',
+//     fontSize: 18,
+//     fontWeight: 'bold',
 //   },
 //   loginPrompt: {
 //     flexDirection: 'row',
@@ -1380,241 +1463,673 @@
 //   },
 //   loginPromptText: {
 //     fontSize: 16,
+//     color: '#1B5E20',
 //   },
 //   loginLink: {
 //     fontSize: 16,
-//     color: COLORS.primary,
+//     color: '#4CAF50',
 //     fontWeight: 'bold',
-//   },
-//   switchToArtisan: {
-//     marginTop: 24,
-//     alignItems: 'center',
-//   },
-//   switchToArtisanText: {
-//     fontSize: 16,
-//     color: COLORS.primary,
-//     textDecorationLine: 'underline',
 //   },
 // });
 
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
+// import React, { useState } from 'react';
+// import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+// import Animated, { FadeIn, FadeOut, Layout, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+// import { LinearGradient } from 'expo-linear-gradient';
+// import { BlurView } from 'expo-blur';
+// import { Feather } from '@expo/vector-icons';
+// import FormCreateArtisanCategories from './FormCreateArtisanCategories';
+
+// const { width, height } = Dimensions.get('window');
+
+// const services = [
+//   'Appliance Installation',
+//   'Appliance Repair',
+//   'Central Vacuum System',
+//   'Dishwasher Installation',
+//   'Dishwasher Repair',
+//   'Dryer Repair',
+//   'Garbage Disposal Repair',
+//   'Lawn Mower Repair',
+//   'Microwave Repair',
+//   'Refrigerator Repair',
+//   'Washing Machine Repair',
+//   'Washer Dryer Hookup',
+// ];
+
+// const categories = [
+//   'Appliances',
+//   'Additions & Remodels',
+//   'Carpentry & Woodworking',
+//   'Cleaning',
+//   'Concrete, Cement & Asphalt',
+//   'Countertops',
+//   'Design & Decor',
+// ];
+
+// const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
+//   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+//   const [viewMode, setViewMode] = useState('grid');
+//   const buttonScale = useSharedValue(1);
+
+//   const toggleService = (service: string) => {
+//     setSelectedServices((prev) =>
+//       prev.includes(service)
+//         ? prev.filter((s) => s !== service)
+//         : [...prev, service]
+//     );
+//   };
+
+//   const animatedButtonStyle = useAnimatedStyle(() => {
+//     return {
+//       transform: [{ scale: buttonScale.value }],
+//     };
+//   });
+
+//   const handlePressIn = () => {
+//     buttonScale.value = withSpring(0.95);
+//   };
+
+//   const handlePressOut = () => {
+//     buttonScale.value = withSpring(1);
+//   };
+
+//   return (
+//     <LinearGradient
+//       colors={['#4CAF50', '#2E7D32']}
+//       style={styles.container}
+//     >
+//       <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.content}>
+//         <BlurView intensity={100} style={styles.blurContainer}>
+//           <Text style={styles.title}>Select any other services you do.</Text>
+//           <View style={styles.viewToggle}>
+//             <TouchableOpacity
+//               style={[styles.toggleButton, viewMode === 'grid' && styles.activeToggleButton]}
+//               onPress={() => setViewMode('grid')}
+//             >
+//               <Feather name="grid" size={20} color={viewMode === 'grid' ? '#fff' : '#4CAF50'} />
+//               <Text style={[styles.toggleText, viewMode === 'grid' && styles.activeToggleText]}>Grid</Text>
+//             </TouchableOpacity>
+//             <TouchableOpacity
+//               style={[styles.toggleButton, viewMode === 'list' && styles.activeToggleButton]}
+//               onPress={() => setViewMode('list')}
+//             >
+//               <Feather name="list" size={20} color={viewMode === 'list' ? '#fff' : '#4CAF50'} />
+//               <Text style={[styles.toggleText, viewMode === 'list' && styles.activeToggleText]}>List</Text>
+//             </TouchableOpacity>
+//           </View>
+//           <ScrollView style={styles.scrollView}>
+//             <FormCreateArtisanCategories 
+//               selectedCategories
+//               setSelectedCategories,
+//               email,
+//               setEmail,
+//               phone,
+//               setPhone,
+//               showModal,
+//               setShowModal,
+//               Done,
+//               setDone,
+//               handleSignup,
+//               setEnableTextMessage,
+//               enableTextMessage,
+//               Loading
+//             />
+//           </ScrollView>
+//           <Animated.View style={[styles.buttonContainer, animatedButtonStyle]}>
+//             <TouchableOpacity
+//               style={styles.button}
+//               onPress={() => navigation.navigate('FirstScreen')}
+//               onPressIn={handlePressIn}
+//               onPressOut={handlePressOut}
+//             >
+//               <LinearGradient
+//                 colors={['#4CAF50', '#45a049']}
+//                 start={{ x: 0, y: 0 }}
+//                 end={{ x: 1, y: 1 }}
+//                 style={styles.buttonGradient}
+//               >
+//                 <Text style={styles.buttonText}>Next</Text>
+//               </LinearGradient>
+//             </TouchableOpacity>
+//           </Animated.View>
+//         </BlurView>
+//       </Animated.View>
+//     </LinearGradient>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//   },
+//   content: {
+//     width: width * 0.9,
+//     maxWidth: 400,
+//     height: height * 0.9,
+//   },
+//   blurContainer: {
+//     flex: 1,
+//     borderRadius: 20,
+//     overflow: 'hidden',
+//     padding: 20,
+//   },
+//   title: {
+//     fontSize: 24,
+//     fontWeight: 'bold',
+//     marginBottom: 20,
+//     color: '#fff',
+//     textAlign: 'center',
+//     textShadowColor: 'rgba(0, 0, 0, 0.1)',
+//     textShadowOffset: { width: 1, height: 1 },
+//     textShadowRadius: 2,
+//   },
+//   viewToggle: {
+//     flexDirection: 'row',
+//     justifyContent: 'center',
+//     marginBottom: 20,
+//   },
+//   toggleButton: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     backgroundColor: 'rgba(255, 255, 255, 0.9)',
+//     paddingVertical: 8,
+//     paddingHorizontal: 16,
+//     borderRadius: 20,
+//     marginHorizontal: 5,
+//   },
+//   activeToggleButton: {
+//     backgroundColor: '#4CAF50',
+//   },
+//   toggleText: {
+//     marginLeft: 5,
+//     color: '#4CAF50',
+//     fontWeight: 'bold',
+//   },
+//   activeToggleText: {
+//     color: '#fff',
+//   },
+//   scrollView: {
+//     flex: 1,
+//     marginBottom: 20,
+//   },
+//   grid: {
+//     flexDirection: 'row',
+//     flexWrap: 'wrap',
+//     justifyContent: 'space-between',
+//   },
+//   gridItem: {
+//     width: '48%',
+//     aspectRatio: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     backgroundColor: 'rgba(255, 255, 255, 0.9)',
+//     borderRadius: 10,
+//     marginBottom: 10,
+//     elevation: 3,
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 4,
+//   },
+//   selectedGridItem: {
+//     backgroundColor: '#4CAF50',
+//   },
+//   gridItemText: {
+//     textAlign: 'center',
+//     color: '#333',
+//     fontWeight: 'bold',
+//   },
+//   selectedGridItemText: {
+//     color: '#fff',
+//   },
+//   list: {
+//     width: '100%',
+//   },
+//   listItem: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     backgroundColor: 'rgba(255, 255, 255, 0.9)',
+//     padding: 15,
+//     borderRadius: 10,
+//     marginBottom: 10,
+//     elevation: 3,
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 4,
+//   },
+//   listItemText: {
+//     fontSize: 16,
+//     color: '#333',
+//     fontWeight: 'bold',
+//   },
+//   buttonContainer: {
+//     overflow: 'hidden',
+//     borderRadius: 10,
+//     marginTop: 10,
+//   },
+//   button: {
+//     width: '100%',
+//     height: 50,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   buttonGradient: {
+//     width: '100%',
+//     height: '100%',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   buttonText: {
+//     color: 'white',
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//   },
+// });
+
+// export default CreateAccountForArtisantNextPage;
+
+
+
+
+
+
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions, Modal, TextInput, Image } from 'react-native';
+import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { Feather, Ionicons } from '@expo/vector-icons';
+import FormCreateArtisanCategories from './FormCreateArtisanCategories';
+import PhoneInputComponent from '@/components/PhoneInputComponent';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
-export default function EnchantedRegistrationForm() {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+const Logo = () => (
+  <Image source={require('@/assets/handyman.png')} style={styles.logo} />
+);
+
+
+// Dummy data for categories
+const dummyCategories = [
+  { id: '1', name: 'Plumbing' },
+  { id: '2', name: 'Electrical' },
+  { id: '3', name: 'Carpentry' },
+  { id: '4', name: 'Painting' },
+  { id: '5', name: 'Landscaping' },
+];
+
+const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState('grid');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
-  const [enableTextMessages, setEnableTextMessages] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [done, setDone] = useState(false);
+  const [enableTextMessage, setEnableTextMessage] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const buttonScale = useSharedValue(1);
 
-  const handleCreateAccount = () => {
-    // Implement account creation logic here
-    console.log('Create account', { firstName, lastName, email, password, phone, enableTextMessages });
+  const handleSignup = async () => {
+    setLoading(true);
+    // Simulating an API call
+    // await new Promise(resolve => setTimeout(resolve, 2000));
+    // setLoading(false);
+    // // Navigate to next screen or show success message
+    // navigation.navigate('FirstScreen');
   };
 
-  const AnimatedInput = Animated.createAnimatedComponent(TextInput);
+  const animatedButtonStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: buttonScale.value }],
+    };
+  });
 
+  const handlePressIn = () => {
+    buttonScale.value = withSpring(0.95);
+  };
+
+  const handlePressOut = () => {
+    buttonScale.value = withSpring(1);
+  };
+  const modalAnimation = useSharedValue(0);
+
+
+  const animatedModalStyle = useAnimatedStyle(() => {
+    return {
+      opacity: modalAnimation.value,
+      transform: [{ scale: modalAnimation.value }],
+    };
+  });
+
+
+  useEffect(() => {
+    if (showModal) {
+      modalAnimation.value = withSpring(1);
+    } else {
+      modalAnimation.value = withSpring(0);
+    }
+  }, [showModal]);
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Animated.Text entering={FadeInDown.delay(200).duration(1000)} style={styles.title}>
-          Create A HOUSE GURU account
-        </Animated.Text>
-        
-        <Animated.View entering={FadeInUp.delay(400).duration(1000)} style={styles.formContainer}>
-          <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={24} color="#4CAF50" style={styles.icon} />
-            <AnimatedInput
-              style={styles.input}
-              value={firstName}
-              onChangeText={setFirstName}
-              placeholder="First Name"
-              placeholderTextColor="#a0a0a0"
-            />
-          </View>
-          
-          <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={24} color="#4CAF50" style={styles.icon} />
-            <AnimatedInput
-              style={styles.input}
-              value={lastName}
-              onChangeText={setLastName}
-              placeholder="Last Name"
-              placeholderTextColor="#a0a0a0"
-            />
-          </View>
-          
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={24} color="#4CAF50" style={styles.icon} />
-            <AnimatedInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="Email Address"
-              placeholderTextColor="#a0a0a0"
-              keyboardType="email-address"
-            />
-          </View>
-          
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={24} color="#4CAF50" style={styles.icon} />
-            <AnimatedInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Password"
-              placeholderTextColor="#a0a0a0"
-              secureTextEntry
-            />
-          </View>
-          
-          <View style={styles.inputContainer}>
-            <Ionicons name="call-outline" size={24} color="#4CAF50" style={styles.icon} />
-            <AnimatedInput
-              style={styles.input}
-              value={phone}
-              onChangeText={setPhone}
-              placeholder="Phone Number"
-              placeholderTextColor="#a0a0a0"
-              keyboardType="phone-pad"
-            />
-          </View>
-          
-          <TouchableOpacity
-            style={styles.checkboxContainer}
-            onPress={() => setEnableTextMessages(!enableTextMessages)}
-          >
-            <View style={[styles.checkbox, enableTextMessages && styles.checkboxChecked]}>
-              {enableTextMessages && <Ionicons name="checkmark" size={18} color="#fff" />}
-            </View>
-            <Text style={styles.checkboxLabel}>Enable text messages</Text>
-          </TouchableOpacity>
-          
-          <Text style={styles.termsText}>
-            By checking this box, you authorize A HOUSE GURU to send you automated text messages. Opt out anytime. Terms apply.
-          </Text>
-          
-          <TouchableOpacity style={styles.button} onPress={handleCreateAccount}>
-            <LinearGradient
-              colors={['#4CAF50', '#45a049']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.buttonGradient}
+    <LinearGradient
+      colors={['#4CAF50', '#2E7D32']}
+      style={styles.container}
+    >
+      <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.content}>
+        <BlurView intensity={100} style={styles.blurContainer}>
+          <Text style={styles.title}>Select any other services you do.</Text>
+          {/* <View style={styles.viewToggle}>
+            <TouchableOpacity
+              style={[styles.toggleButton, viewMode === 'grid' && styles.activeToggleButton]}
+              onPress={() => setViewMode('grid')}
             >
-              <Text style={styles.buttonText}>Create Account</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-          
-          <Text style={styles.termsText}>
-            By clicking Create Account, you agree to the Terms of Use and Privacy Policy.
-          </Text>
-          
-          <TouchableOpacity>
-            <Text style={styles.loginLink}>Already have an account? Log in</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </ScrollView>
-    </SafeAreaView>
+              <Feather name="grid" size={20} color={viewMode === 'grid' ? '#fff' : '#4CAF50'} />
+              <Text style={[styles.toggleText, viewMode === 'grid' && styles.activeToggleText]}>Grid</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.toggleButton, viewMode === 'list' && styles.activeToggleButton]}
+              onPress={() => setViewMode('list')}
+            >
+              <Feather name="list" size={20} color={viewMode === 'list' ? '#fff' : '#4CAF50'} />
+              <Text style={[styles.toggleText, viewMode === 'list' && styles.activeToggleText]}>List</Text>
+            </TouchableOpacity>
+          </View> */}
+          <ScrollView style={styles.scrollView}>
+            <FormCreateArtisanCategories
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+              email={email}
+              setEmail={setEmail}
+              phone={phone}
+              setPhone={setPhone}
+              showModal={showModal}
+              setShowModal={setShowModal}
+              Done={done}
+              setDone={setDone}
+              handleSignup={handleSignup}
+              setEnableTextMessage={setEnableTextMessage}
+              enableTextMessage={enableTextMessage}
+              Loading={loading}
+              categories={dummyCategories}
+              SelectedTypeOfView={viewMode}
+            />
+            <Modal
+
+              visible={showModal} transparent >
+              <Animated.View style={[styles.modalContainer, animatedModalStyle]}>
+                <View style={styles.modalContent}>
+                  <Logo />
+                  <Text style={styles.modalTitle}>New customers are waiting.</Text>
+                  <Text style={styles.modalSubtitle}>There are 30,000 leads on A HOUSE GURU a day.</Text>
+
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                  />
+
+                  {/* <PhoneInput
+                            defaultValue={phone}
+                            defaultCode="US"
+                            layout="first"
+                            onChangeText={(text) => {
+                                setPhone(text);
+                            }}
+                            withDarkTheme
+                            withShadow
+                            autoFocus
+                        /> */}
+
+                  <View
+                  className='flex-row items-center justify-between my-2'
+                  >
+                  {/* <PhoneInputComponent /> */}
+                  </View>
+
+                  <Text style={styles.disclaimer}>
+                    We'll text you with a verification code. Carrier rates may apply.
+                  </Text>
+
+                  <TouchableOpacity
+                    style={styles.checkbox}
+                    onPress={() => setEnableTextMessage(!enableTextMessage)}
+                  >
+                    <Ionicons
+                      name={enableTextMessage ? 'checkbox-outline' : 'square-outline'}
+                      size={24}
+                      color="#007AFF"
+                    />
+                    <Text style={styles.checkboxText}>Enable text messages</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.continueButton}
+                    onPress={async () => {
+                      // await handleSignup();
+                      setShowModal(false);
+                    }}
+                  >
+                    <Text style={styles.continueButtonText}>
+                      {false ? "Loading..." : "Continue"}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <Text style={styles.termsText}>
+                    By clicking Continue, you agree to the Terms of Use and Privacy Policy.
+                  </Text>
+
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setShowModal(false)}
+                  >
+                    <Ionicons name="close" size={24} color="black" />
+                  </TouchableOpacity>
+                </View>
+              </Animated.View>
+            </Modal>
+          </ScrollView>
+
+
+          <Animated.View style={[styles.buttonContainer, animatedButtonStyle]}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                // handleSignup();
+                setShowModal(true);
+              }}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+            >
+              <LinearGradient
+                colors={['#4CAF50', '#45a049']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.buttonGradient}
+              >
+                <Text style={styles.buttonText}>{loading ? 'Loading...' : 'Next'}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </Animated.View>
+          <Animated.View style={[styles.buttonContainer, animatedButtonStyle]}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('CreateAccountForArtisant')}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+            >
+              <LinearGradient
+                colors={['#4CAF50', '#45a049']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.buttonGradient}
+              >
+                <Text style={styles.buttonText}>{loading ? 'Loading...' : 'Back'}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </Animated.View>
+        </BlurView>
+      </Animated.View>
+    </LinearGradient>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollContent: {
-    flexGrow: 1,
+    alignItems: 'center',
     justifyContent: 'center',
+  },
+  content: {
+    width: width * 0.9,
+    maxWidth: 400,
+    height: height * 0.9,
+  },
+  blurContainer: {
+    flex: 1,
+    borderRadius: 20,
+    overflow: 'hidden',
     padding: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  formContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 20,
-    borderBottomWidth: 2,
-    borderBottomColor: '#e0e0e0',
-    paddingBottom: 5,
+    color: '#fff',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
-  icon: {
-    marginRight: 10,
+  viewToggle: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
   },
-  input: {
-    flex: 1,
-    height: 40,
-    color: '#333',
-    fontSize: 16,
-  },
-  checkboxContainer: {
+  toggleButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginHorizontal: 5,
   },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#4CAF50',
-    marginRight: 10,
+  activeToggleButton: {
+    backgroundColor: '#4CAF50',
+  },
+  toggleText: {
+    marginLeft: 5,
+    color: '#4CAF50',
+    fontWeight: 'bold',
+  },
+  activeToggleText: {
+    color: '#fff',
+  },
+  scrollView: {
+    flex: 1,
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    overflow: 'hidden',
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  button: {
+    width: '100%',
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkboxChecked: {
-    backgroundColor: '#4CAF50',
-  },
-  checkboxLabel: {
-    fontSize: 16,
-    color: '#333',
-  },
-  termsText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  button: {
-    borderRadius: 25,
-    overflow: 'hidden',
-    marginBottom: 20,
-  },
   buttonGradient: {
-    paddingVertical: 15,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
-    color: '#fff',
+    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
   },
-  loginLink: {
-    color: '#4CAF50',
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 24,
+    borderRadius: 16,
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 16,
     textAlign: 'center',
+  },
+  modalSubtitle: {
     fontSize: 16,
-    textDecorationLine: 'underline',
+    color: '#666',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 16,
+  },
+  disclaimer: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 8,
+  },
+  checkbox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  checkboxText: {
+    marginLeft: 8,
+    fontSize: 16,
+  },
+  continueButton: {
+    backgroundColor: '#007AFF',
+    padding: 16,
+    borderRadius: 8,
+    marginTop: 24,
+    alignItems: 'center',
+  },
+  continueButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  termsText: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+  },
+  logo: {
+    width: 30,
+    height: 30,
   },
 });
+
+export default CreateAccountForArtisantNextPage;

@@ -84,6 +84,11 @@ import ConversationsScreen from "@/pages/ConversationsScreen";
 import OrdersUserWithConversationsScreen from "@/pages/OrdersUserWithConversationsScreen";
 import ConversationsScreenForUnlockedArtisant from "@/pages/ConversationsScreenForUnlockedArtisant";
 import DirectConversationsScreenForUser from "@/pages/DirectConversationsScreenForUser";
+import PhoneVerificationScreen from "@/pages/PhoneVerificationScreen";
+import PhoneConfirmCodeScreen from "@/pages/PhoneConfirmCodeScreen";
+import CreateAccountForArtisant from "@/pages/Auth/CreateAccountForArtisant";
+import GestionDeCompteArtisant from "@/pages/Auth/GestionDeCompteArtisant";
+import CreateAccountForArtisantNextPage from "@/pages/Auth/CreateAccountForArtisantNextPage";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -149,6 +154,12 @@ export type IPages =
   | "OrdersUserWithConversationsScreen"
   | "ConversationsScreenForUnlockedArtisant"
   | "DirectConversationsScreenForUser"
+  | "PhoneVerificationScreen"
+  | "PhoneConfirmCodeScreen"
+  | "CreateAccountForArtisant"
+  | "GestionDeCompteArtisant"
+  | "CreateAccountForArtisantNextPage"
+
   ;
 export interface Navigate {
   navigate: (page: IPages, Params?: any) => void;
@@ -189,6 +200,11 @@ const GroupParametre = () => {
       <Stack.Screen
         name="GestionDeCompte"
         component={GestionDeCompte}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="GestionDeCompteArtisant"
+        component={GestionDeCompteArtisant}
         options={{ headerShown: false }}
       />
       <Stack.Screen
@@ -257,6 +273,11 @@ const GroupParametreArtisan = () => {
       <Stack.Screen
         name="GestionDeCompte"
         component={GestionDeCompte}
+        options={{ headerShown: false }}
+      />
+       <Stack.Screen
+        name="GestionDeCompteArtisant"
+        component={GestionDeCompteArtisant}
         options={{ headerShown: false }}
       />
       <Stack.Screen
@@ -605,6 +626,27 @@ function RootNavigator() {
                   component={CreateAccount}
                   options={{ headerShown: false }}
                 />
+                <Stack.Screen
+                  name="CreateAccountForArtisant"
+                  component={CreateAccountForArtisant}
+                  options={{ headerShown: false }}
+                />
+                 <Stack.Screen
+                  name="CreateAccountForArtisantNextPage"
+                  component={CreateAccountForArtisantNextPage}
+                  options={{ headerShown: false }}
+                />
+                 <Stack.Screen
+                  name="PhoneVerificationScreen"
+                  component={PhoneVerificationScreen}
+                  options={{ headerShown: false }}
+                />
+                 <Stack.Screen
+                  name="PhoneConfirmCodeScreen"
+                  component={PhoneConfirmCodeScreen}
+                  options={{ headerShown: false }}
+                />
+
               </Stack.Group>
 
             ) : (

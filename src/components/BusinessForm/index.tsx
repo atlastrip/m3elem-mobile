@@ -348,6 +348,7 @@ const BusinessForm: React.FC<any> = ({
     NewFormState,
     setNewFormState
 }: any) => {
+
     const [formState, setFormState] = useState<any>(NewFormState);
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [selectedSuggestion, setSelectedSuggestion] = useState<any>(null);
@@ -364,6 +365,10 @@ const BusinessForm: React.FC<any> = ({
             [name]: value,
         }));
         setSelectedSuggestion(null);
+        setNewFormState((prevState: any) => ({
+            ...prevState,
+            [name]: value,
+        }));
         if (name === 'street') {
             setSuggestions([]);
         }

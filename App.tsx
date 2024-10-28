@@ -7,6 +7,10 @@ import { configureStore } from '@reduxjs/toolkit';
 import { User } from "./src/store";
 import { Provider as PaperProvider } from 'react-native-paper';
 
+import { useFonts } from 'expo-font';
+
+
+
 
 const store: any = configureStore({
   reducer: {
@@ -49,6 +53,11 @@ const store: any = configureStore({
 // console.log('====================================');
 // console.log('client',client);
 // console.log('====================================');
+
+
+// useFonts({
+//   'TwemojiMozilla': require('./node_modules/react-native-international-phone-number/lib/assets/fonts/TwemojiMozilla.woff2'),
+// });
 
 
 const App = () => {

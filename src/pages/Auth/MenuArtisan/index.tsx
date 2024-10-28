@@ -315,7 +315,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
                 style={{ backgroundColor: COLORS.primary + 10 }}
                 className="rounded-lg ">
                 <TouchableOpacity
-                  onPress={() => navigation.navigate("GestionDeCompte")}
+                  onPress={() => navigation.navigate("GestionDeCompteArtisant")}
                   // onPress: () => navigation.navigate(""),
 
                   className="flex-row p-3 justify-between"
