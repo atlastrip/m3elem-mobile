@@ -1740,14 +1740,16 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions, Modal, TextInput, Image } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions, Modal, TextInput, Image, Alert } from 'react-native';
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import FormCreateArtisanCategories from './FormCreateArtisanCategories';
 import PhoneInputComponent from '@/components/PhoneInputComponent';
-
+import { useRoute } from '@react-navigation/native';
+import Constants from 'expo-constants';
+import { getToken } from '@/helpers/getToken';
 const { width, height } = Dimensions.get('window');
 
 const Logo = () => (
@@ -1765,23 +1767,99 @@ const dummyCategories = [
 ];
 
 const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories]: any = useState<[]>([]);
   const [viewMode, setViewMode] = useState('grid');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [done, setDone] = useState(false);
-  const [enableTextMessage, setEnableTextMessage] = useState(false);
+  const [enableTextMessage, setEnableTextMessage]: any = useState(false);
   const [loading, setLoading] = useState(false);
   const buttonScale = useSharedValue(1);
+  const route = useRoute();
+
+  const { categoryId, zipCode } = route.params as { categoryId: string, zipCode: string };
+
 
   const handleSignup = async () => {
-    setLoading(true);
-    // Simulating an API call
-    // await new Promise(resolve => setTimeout(resolve, 2000));
-    // setLoading(false);
-    // // Navigate to next screen or show success message
-    // navigation.navigate('FirstScreen');
+    // setLoading(true);
+
+
+    console.log('Email:', email);
+    console.log('Phone:', phone);
+    console.log('Selected categories:', selectedCategories);
+    console.log('Enable text message:', enableTextMessage);
+    console.log('====================================');
+    console.log('zip code:', zipCode);
+    console.log('====================================');
+    console.log('categoryId:', categoryId);
+
+
+
+    // const categories = JSON.parse(selectedCategories)
+    const categories: any = selectedCategories.find((category: any) => category?.id == categoryId)?.subcategories?.map((e: any) => e?.id)
+
+
+
+
+    const token = await getToken();
+    const headers = new Headers({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    });
+
+    try {
+      setLoading(true);
+      const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          query: `
+           
+    mutation signUpAsPro($inputSignUp: inputSignUp) {
+      signUpAsPro(inputSignUp: $inputSignUp) {
+        user {
+          id
+          firstName
+          lastName
+          email
+          password
+          provider
+          role
+          categories{
+            id
+          }
+        }
+        token
+      }
+    }
+          `,
+          variables: {
+            inputSignUp: {
+              email: email,
+              phone: phone,
+              role: "artisant",
+              categories: [...categories, categoryId],
+              zipCodes: [zipCode],
+              enableTextMessage: enableTextMessage,
+              confirmationResult: null,
+            }
+          }
+        }),
+      });
+
+      const data = await response.json();
+      console.log('data:', data.errors[0].message);
+
+      setLoading(false);
+    } catch (error: any) {
+      setLoading(false);
+      console.log('====================================');
+      console.log('error:', error.message);
+      console.log('====================================');
+      Alert.alert("Error", error.message);
+    }
+
   };
 
   const animatedButtonStyle = useAnimatedStyle(() => {
@@ -1874,6 +1952,13 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
                     onChangeText={setEmail}
                     keyboardType="email-address"
                   />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Phone"
+                    value={phone}
+                    onChangeText={setPhone}
+                    keyboardType="phone-pad"
+                  />
 
                   {/* <PhoneInput
                             defaultValue={phone}
@@ -1888,9 +1973,9 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
                         /> */}
 
                   <View
-                  className='flex-row items-center justify-between my-2'
+                    className='flex-row items-center justify-between my-2'
                   >
-                  {/* <PhoneInputComponent /> */}
+                    {/* <PhoneInputComponent /> */}
                   </View>
 
                   <Text style={styles.disclaimer}>
@@ -1912,8 +1997,8 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
                   <TouchableOpacity
                     style={styles.continueButton}
                     onPress={async () => {
-                      // await handleSignup();
-                      setShowModal(false);
+                      await handleSignup();
+                      // setShowModal(false);
                     }}
                   >
                     <Text style={styles.continueButtonText}>

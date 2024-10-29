@@ -511,19 +511,17 @@
 //         color: '#A5D6A7',
 //     },
 // });
-
-
 import React, { useState, useRef, useEffect } from 'react';
 import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    StyleSheet,
-    SafeAreaView,
-    ScrollView,
-    Keyboard,
-    Alert,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  Keyboard,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -536,148 +534,136 @@ import { useDispatch } from 'react-redux';
 import { isLogin, setUser } from 'store/User';
 
 const PhoneOtpConfirmationSvg = () => (
-    <Svg width="100" height="100" viewBox="0 0 24 24" fill="none">
-        <Path
-            d="M17.707 10.707a1 1 0 0 0-1.414-1.414L10 15.586l-2.293-2.293a1 1 0 0 0-1.414 1.414l3 3a1 1 0 0 0 1.414 0l7-7z"
-            fill="#4CAF50"
-        />
-        <Path
-            d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 2v16h12V4H6zm7 13h-2v2h2v-2zm-2-3h2v2h-2v-2zm-1-2v2h-2v-2h2zm2-2h2v2h-2v-2zm-3 0v2h-2v-2h2zm6 0v2h-2v-2h2z"
-            fill="#000"
-        />
-    </Svg>
+  <Svg width="100" height="100" viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M17.707 10.707a1 1 0 0 0-1.414-1.414L10 15.586l-2.293-2.293a1 1 0 0 0-1.414 1.414l3 3a1 1 0 0 0 1.414 0l7-7z"
+      fill="#4CAF50"
+    />
+    <Path
+      d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 2v16h12V4H6zm7 13h-2v2h2v-2zm-2-3h2v2h-2v-2zm-1-2v2h-2v-2h2zm2-2h2v2h-2v-2zm-3 0v2h-2v-2h2zm6 0v2h-2v-2h2z"
+      fill="#000"
+    />
+  </Svg>
 );
 
 const ConfirmPhoneCode = ({ navigation }: any) => {
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [verificationCode, setVerificationCode]: any = useState(['', '', '', '', '', '']); // Updated to 6 digits
-    const [isResendDisabled, setIsResendDisabled]: any = useState(true);
-    const [timer, setTimer] = useState(60);
-    const [isSending, setIsSending] = useState(false);
-    const { recaptchaBanner, verifyOtp } = useFirebaseLogin({ auth: Newauth, firebaseConfig: firebaseConfig });
-    const [verificationId, setVerificationId]: any = useState('');
-    const dispatch = useDispatch();
-    // Create refs for each TextInput
-    const inputRefs: any = useRef([]);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
+  const [isResendDisabled, setIsResendDisabled] = useState(true);
+  const [timer, setTimer] = useState(60);
+  const [isSending, setIsSending] = useState(false);
+  const { recaptchaBanner, verifyOtp } = useFirebaseLogin({ auth: Newauth, firebaseConfig: firebaseConfig });
+  const [verificationId, setVerificationId] = useState('');
+  const dispatch = useDispatch();
+  const inputRefs:any = useRef([]);
 
-    // Effect to handle the countdown timer
-    useEffect(() => {
-        let interval: any = null;
-        if (isResendDisabled) {
-            interval = setInterval(() => {
-                setTimer((prevTimer) => {
-                    if (prevTimer <= 1) {
-                        clearInterval(interval);
-                        setIsResendDisabled(false);
-                        return 60;
-                    }
-                    return prevTimer - 1;
-                });
-            }, 1000);
+  useEffect(() => {
+    let interval: any = null;
+    if (isResendDisabled) {
+      interval = setInterval(() => {
+        setTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            clearInterval(interval);
+            setIsResendDisabled(false);
+            return 60;
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isResendDisabled]);
+
+  const sendVerificationCode = async () => {
+    try {
+      setIsSending(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      Alert.alert('Success', 'Verification code sent!');
+      setIsResendDisabled(true);
+      setTimer(60);
+      clearVerificationCode();
+    } catch (error) {
+      Alert.alert('Error', 'Failed to send verification code. Please try again.');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const clearVerificationCode = () => {
+    setVerificationCode(['', '', '', '', '', '']);
+    focusFirstEmpty();
+  };
+
+  const focusFirstEmpty = () => {
+    const firstEmptyIndex = verificationCode.findIndex((digit: any) => digit === '');
+    if (firstEmptyIndex !== -1 && inputRefs.current[firstEmptyIndex]) {
+      inputRefs.current[firstEmptyIndex].focus();
+    } else {
+      Keyboard.dismiss();
+    }
+  };
+
+  const handleChangeText = (text: string, index: number) => {
+    if (/^\d$/.test(text) || text === '') {
+      const newCode = [...verificationCode];
+      newCode[index] = text;
+      setVerificationCode(newCode);
+      
+      if (text === '' && index > 0) {
+        inputRefs.current[index - 1].focus();
+      } else if (index < inputRefs.current.length - 1) {
+        inputRefs.current[index + 1].focus();
+      } else {
+        Keyboard.dismiss();
+        if (newCode.every(digit => digit !== '')) {
+          verifyCode(newCode.join(''));
         }
-        return () => clearInterval(interval);
-    }, [isResendDisabled]);
+      }
+    }
+  };
 
-    // Simulate sending the code (replace with actual API call)
-    const sendVerificationCode = async () => {
-        try {
-            setIsSending(true);
-            // Simulate network request delay
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            // Assume the code is sent successfully
-            Alert.alert('Success', 'Verification code sent!');
-            setIsResendDisabled(true);
-            setTimer(60);
-            setVerificationCode(['', '', '', '', '', '']); // Reset to 6 digits
-            focusFirstEmpty();
-        } catch (error) {
-            Alert.alert('Error', 'Failed to send verification code. Please try again.');
-        } finally {
-            setIsSending(false);
-        }
-    };
+  const handleKeyPress = ({ nativeEvent }: any, index: number) => {
+    if (nativeEvent.key === 'Backspace') {
+      if (verificationCode[index] === '' && index > 0) {
+        const newCode = [...verificationCode];
+        newCode[index - 1] = '';
+        setVerificationCode(newCode);
+        inputRefs.current[index - 1].focus();
+      }
+    }
+  };
 
-    // Function to focus the first empty input
-    const focusFirstEmpty = () => {
-        const firstEmptyIndex = verificationCode.findIndex((digit: any) => digit === '');
-        if (firstEmptyIndex !== -1 && inputRefs.current[firstEmptyIndex]) {
-            inputRefs.current[firstEmptyIndex].focus();
-        } else {
-            // If all are filled, dismiss the keyboard
-            Keyboard.dismiss();
-        }
-    };
+  const handleOnFocus = () => {
+    focusFirstEmpty();
+  };
 
-    // Handle text change for each input
-    const handleChangeText = (text: any, index: any) => {
-        if (/^\d$/.test(text)) { // Ensure only single digit is entered
-            const newCode = [...verificationCode];
-            newCode[index] = text;
-            setVerificationCode(newCode);
-            // Move to next input if not the last
-            if (index < inputRefs.current.length - 1) {
-                inputRefs.current[index + 1].focus();
-            } else {
-                // If last input, dismiss the keyboard and verify
-                Keyboard.dismiss();
-                verifyCode(newCode.join(''));
-            }
-        } else if (text === '') {
-            const newCode = [...verificationCode];
-            newCode[index] = ''; // Clear the digit
-            setVerificationCode(newCode);
-            // Move focus to the previous input if we're removing a digit
-            if (index > 0) {
-                inputRefs.current[index - 1].focus();
-            }
-        }
-    };
+  const verifyCode = async (code: string) => {
+    try {
+      console.log('Verifying code:', code);
 
-    // Handle key press for backspace
-    const handleKeyPress = ({ nativeEvent }: any, index: any) => {
-        if (nativeEvent.key === 'Backspace') {
-            if (verificationCode[index] === '' && index > 0) {
-                // Focus the previous input if the current input is empty
-                inputRefs.current[index - 1].focus();
-            }
-        }
-    };
+      if (code.length !== 6) {
+        throw new Error('Please enter a valid 6-digit code');
+      }
 
-    // Handle onFocus to focus the first empty input
-    const handleOnFocus = () => {
-        focusFirstEmpty();
-    };
+      setIsSending(true);
+      let yo = await verifyOtp(verificationId, code);
+      console.log('yo:', yo);
 
-    // Function to verify the code (you can implement this)
-    const verifyCode = async (code: any) => {
+      const token = await AsyncStorage.getItem('@setTokenToVerifyOtp');
 
-        try {
-            console.log('Verifying code:', code);
+      const headers = new Headers({
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      });
 
-            if (code.length !== 6) { // Updated to check for 6 digits
-                Alert.alert('Error', 'Please enter a valid 6-digit code');
-                return;
-            }
-
-            let yo = await verifyOtp(verificationId, code);
-            console.log('yo:', yo);
-
-
-            const token = await AsyncStorage.getItem('@setTokenToVerifyOtp');
-
-            const headers = new Headers({
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-            });
-
-            const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    query: `
+      const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          query: `
             mutation updateConfirmationOtpStep{
-                updateConfirmationOtpStep{
-                    user {
+              updateConfirmationOtpStep{
+                user {
                   id
                   firstName
                   lastName
@@ -688,240 +674,230 @@ const ConfirmPhoneCode = ({ navigation }: any) => {
                   pushToken
                 }
                 token
-                }
+              }
             }
           `,
+        }),
+      });
 
-                }),
-            });
+      const data = await response.json();
+      console.log('data:', data);
 
-            const data = await response.json();
-            console.log('====================================');
-            console.log('data:', data);
-            console.log('====================================');
-            return
-            await AsyncStorage.setItem('@token', data.data.updateConfirmationOtpStep.token);
-            await AsyncStorage.setItem('@user', JSON.stringify(data.data.updateConfirmationOtpStep.user));
-            await AsyncStorage.removeItem('@setTokenToVerifyOtp');
-            console.log('data:', data);
+      if (data.errors) {
+        throw new Error(data.errors[0].message);
+      }
 
-            Alert.alert('OTP Sent', 'Please check your phone for the verification code.');
-            dispatch(isLogin(true));
-            dispatch(setUser(data.data.updateConfirmationOtpStep.user));
+      await AsyncStorage.setItem('@token', data.data.updateConfirmationOtpStep.token);
+      await AsyncStorage.setItem('@user', JSON.stringify(data.data.updateConfirmationOtpStep.user));
+      await AsyncStorage.removeItem('@setTokenToVerifyOtp');
 
-        } catch (error) {
-            Alert.alert('Error', 'Failed to verify code. Please try again.');
-        }
-    };
+      Alert.alert('Success', 'Phone number verified successfully.');
+      dispatch(isLogin(true));
+      dispatch(setUser(data.data.updateConfirmationOtpStep.user));
 
-    // Handle Resend Code
-    const handleResendCode = () => {
-        if (!isResendDisabled) {
-            sendVerificationCode();
-        }
-    };
-
-    const getUserInfo = async () => {
-        const token = await AsyncStorage.getItem('@setTokenToVerifyOtp');
-
-        const headers = new Headers({
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-        });
-
-        const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({
-                query: `
-    query user {
-            user {
-            id
-            phone
-            confirmationResultInMobile
-     }
-}
-  `,
-
-            }),
-        });
-
-        const data = await response.json();
-
-        setPhoneNumber(data.data.user.phone);
-        setVerificationId(data.data.user.confirmationResultInMobile);
-        console.log('data:', data);
+    } catch (error) {
+      console.error('Verification error:', error);
+      Alert.alert('Error', 'Failed to verify code. Please try again.');
+      clearVerificationCode();
+    } finally {
+      setIsSending(false);
     }
+  };
 
-    useEffect(() => {
-        getUserInfo();
-    }, []);
+  const handleResendCode = () => {
+    if (!isResendDisabled) {
+      sendVerificationCode();
+    }
+  };
 
-    return (
-        <SafeAreaView style={styles.container}>
-            <LinearGradient
-                colors={['#4CAF50', '#2E7D32']}
-                style={styles.gradient}
+  const getUserInfo = async () => {
+    const token = await AsyncStorage.getItem('@setTokenToVerifyOtp');
+
+    const headers = new Headers({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    });
+
+    const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        query: `
+          query user {
+            user {
+              id
+              phone
+              confirmationResultInMobile
+            }
+          }
+        `,
+      }),
+    });
+
+    const data = await response.json();
+
+    setPhoneNumber(data.data.user.phone);
+    setVerificationId(data.data.user.confirmationResultInMobile);
+    console.log('data:', data);
+  }
+
+  useEffect(() => {
+    getUserInfo();
+  }, []);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <LinearGradient
+        colors={['#4CAF50', '#2E7D32']}
+        style={styles.gradient}
+      >
+        <ScrollView contentContainerStyle={styles.scrollView} keyboardShouldPersistTaps="handled">
+          <View style={styles.card}>
+            <View style={styles.iconContainer}>
+              <PhoneOtpConfirmationSvg />
+            </View>
+            <Text style={styles.title}>Verification Code</Text>
+            <Text style={styles.subtitle}>
+              Please enter the code sent to {phoneNumber}
+            </Text>
+            <View style={styles.codeInputContainer}>
+              {verificationCode.map((digit: string, index: number) => (
+                <TextInput
+                  key={index}
+                  ref={(ref) => (inputRefs.current[index] = ref)}
+                  style={styles.codeInput}
+                  value={digit}
+                  onChangeText={(text) => handleChangeText(text, index)}
+                  onKeyPress={(e) => handleKeyPress(e, index)}
+                  keyboardType="number-pad"
+                  maxLength={1}
+                  returnKeyType="done"
+                  onFocus={handleOnFocus}
+                  autoFocus={index === 0}
+                  importantForAutofill="no"
+                />
+              ))}
+            </View>
+            <TouchableOpacity
+              style={[styles.button, isSending && styles.buttonDisabled]}
+              onPress={() => verifyCode(verificationCode.join(''))}
+              disabled={isSending}
             >
-                <ScrollView contentContainerStyle={styles.scrollView} keyboardShouldPersistTaps="handled">
-                    {/* Verification Code Screen */}
-                    <View style={styles.card}>
-                        <View style={styles.iconContainer}>
-                            <PhoneOtpConfirmationSvg />
-                        </View>
-                        <Text style={styles.title}>Verification Code</Text>
-                        <Text style={styles.subtitle}>
-                            Please enter the code sent to {phoneNumber}
-                        </Text>
-                        <View style={styles.codeInputContainer}>
-                            {verificationCode.map((digit: any, index: any) => (
-                                <TextInput
-                                    key={index}
-                                    ref={(ref) => (inputRefs.current[index] = ref)}
-                                    style={styles.codeInput}
-                                    value={digit}
-                                    onChangeText={(text) =>
-                                        handleChangeText(text, index)
-                                    }
-                                    onKeyPress={(e) => handleKeyPress(e, index)}
-                                    keyboardType="number-pad"
-                                    maxLength={1}
-                                    returnKeyType="done"
-                                    onFocus={handleOnFocus}
-                                    autoFocus={index === 0 ? true : false}
-                                    importantForAutofill="no"
-                                />
-                            ))}
-                        </View>
-                        <TouchableOpacity
-                            style={[
-                                styles.button,
-                                isSending && styles.buttonDisabled,
-                            ]}
-                            onPress={() => verifyCode(verificationCode.join(''))}
-                            disabled={isSending}
-                        >
-                            {isSending ? (
-                                <Ionicons name="reload-outline" size={24} color="#fff" />
-                            ) : (
-                                <Text style={styles.buttonText}>VERIFY</Text>
-                            )}
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[
-                                styles.resendButton,
-                                isResendDisabled && styles.resendButtonDisabled,
-                            ]}
-                            onPress={handleResendCode}
-                            disabled={isResendDisabled || isSending}
-                        >
-                            <Text
-                                style={[
-                                    styles.resendButtonText,
-                                    isResendDisabled && styles.resendButtonTextDisabled,
-                                ]}
-                            >
-                                {isResendDisabled ? `Resend Code in ${timer}s` : 'Resend Code'}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                </ScrollView>
-            </LinearGradient>
-        </SafeAreaView>
-    );
+              {isSending ? (
+                <Ionicons name="reload-outline" size={24} color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>VERIFY</Text>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.resendButton, isResendDisabled && styles.resendButtonDisabled]}
+              onPress={handleResendCode}
+              disabled={isResendDisabled || isSending}
+            >
+              <Text
+                style={[styles.resendButtonText, isResendDisabled && styles.resendButtonTextDisabled]}
+              >
+                {isResendDisabled ? `Resend Code in ${timer}s` : 'Resend Code'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </LinearGradient>
+    </SafeAreaView>
+  );
 };
 
 export default ConfirmPhoneCode;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    gradient: {
-        flex: 1,
-    },
-    scrollView: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        padding: 20,
-    },
-    card: {
-        backgroundColor: 'white',
-        borderRadius: 24,
-        padding: 24,
-        marginBottom: 20,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 5,
-    },
-    iconContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#4CAF50',
-        borderRadius: 100, // Make it circular
-        padding: 20,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#2E7D32',
-        marginTop: 24,
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    subtitle: {
-        fontSize: 14,
-        color: 'gray',
-        marginBottom: 24,
-        textAlign: 'center',
-    },
-    codeInputContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '90%', // Adjusted to accommodate 6 inputs
-        marginBottom: 24,
-    },
-    codeInput: {
-        width: 40, // Adjusted width for 6 inputs
-        height: 50,
-        borderBottomWidth: 2,
-        borderBottomColor: '#4CAF50',
-        fontSize: 24,
-        textAlign: 'center',
-        color: '#000',
-    },
-    button: {
-        backgroundColor: '#10b981',
-        borderRadius: 8,
-        paddingVertical: 12,
-        paddingHorizontal: 24,
-        width: '100%',
-        alignItems: 'center',
-        flexDirection: 'row',
-        justifyContent: 'center',
-    },
-    buttonDisabled: {
-        backgroundColor: '#6EE7B7',
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    resendButton: {
-        marginTop: 16,
-    },
-    resendButtonDisabled: {
-        opacity: 0.6,
-    },
-    resendButtonText: {
-        color: '#2E7D32',
-        fontSize: 14,
-    },
-    resendButtonTextDisabled: {
-        color: '#A5D6A7',
-    },
+  container: {
+    flex: 1,
+  },
+  gradient: {
+    flex: 1,
+  },
+  scrollView: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: 20,
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 24,
+    padding: 24,
+    marginBottom: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  iconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#4CAF50',
+    borderRadius: 100,
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2E7D32',
+    marginTop: 24,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: 'gray',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  codeInputContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '90%',
+    marginBottom: 24,
+  },
+  codeInput: {
+    width: 40,
+    height: 50,
+    borderBottomWidth: 2,
+    borderBottomColor: '#4CAF50',
+    fontSize: 24,
+    textAlign: 'center',
+    color: '#000',
+  },
+  button: {
+    backgroundColor: '#10b981',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    width: '100%',
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  buttonDisabled: {
+    backgroundColor: '#6EE7B7',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  resendButton: {
+    marginTop: 16,
+  },
+  resendButtonDisabled: {
+    opacity: 0.6,
+  },
+  resendButtonText: {
+    color: '#2E7D32',
+    fontSize: 14,
+  },
+  resendButtonTextDisabled: {
+    color: '#A5D6A7',
+  },
 });

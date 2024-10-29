@@ -406,7 +406,7 @@
 
 
 
-//     const UpdateCategories = async () => {
+//     const GetCategories = async () => {
 //         const token = await getToken();
 //         const headers = new Headers({
 //             "Content-Type": "application/json",
@@ -453,7 +453,7 @@
 
 
 //     useEffect(() => {
-//         UpdateCategories()
+//         GetCategories()
 //     }, [])
 
 
@@ -822,7 +822,7 @@
 //         setShowModal(true);
 //     };
 
-//     const UpdateCategories = async () => {
+//     const GetCategories = async () => {
 //         const token = await getToken();
 //         const headers = new Headers({
 //             "Content-Type": "application/json",
@@ -855,7 +855,7 @@
 //     }
 
 //     useEffect(() => {
-//         UpdateCategories();
+//         GetCategories();
 //     }, []);
 
 //     return (
@@ -1202,7 +1202,7 @@
 //     setShowModal(true);
 //   };
 
-//   const UpdateCategories = async () => {
+//   const GetCategories = async () => {
 //     const token = await getToken();
 //     const headers = new Headers({
 //       "Content-Type": "application/json",
@@ -1235,7 +1235,7 @@
 //   }
 
 //   useEffect(() => {
-//     UpdateCategories();
+//     GetCategories();
 //   }, []);
 
 //   return (
@@ -1339,12 +1339,326 @@
 // });
 
 
+
+// import React, { useState, useEffect } from 'react';
+// import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, Alert, TextInput,Modal } from 'react-native';
+// import { Ionicons } from '@expo/vector-icons';
+// import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+// import { getToken } from '@/helpers/getToken';
+// import Constants from 'expo-constants';
+
+// const Logo = () => (
+//     <Image source={require('@/assets/handyman.png')} style={styles.logo} />
+// );
+
+// const RecursiveCategory = ({ category, selectedCategories, setSelectedCategories, level = 0, isTopLevel = true }: any) => {
+//     const [expanded, setExpanded] = useState(false);
+
+//     const toggleExpand = () => {
+//         setExpanded(!expanded);
+//     };
+
+//     const toggleSelection = (item: any) => {
+//         setSelectedCategories((prev: any) => {
+//             const isCurrentlySelected = prev.some((cat: any) => cat.id === item.id);
+//             let newSelection;
+
+//             if (isCurrentlySelected) {
+//                 // Deselect this category and all its subcategories
+//                 newSelection = prev.filter((cat: any) => !isDescendantOf(cat, item));
+//             } else {
+//                 // Select this category and all its subcategories
+//                 const descendantIds = getAllDescendantIds(item);
+//                 const descendantsToAdd = descendantIds.filter(id => !prev.some((cat: any) => cat.id === id));
+//                 newSelection = [...prev, item, ...descendantsToAdd.map(id => findCategoryById(item, id))];
+//             }
+
+//             return newSelection;
+//         });
+//     };
+
+//     const isDescendantOf = (descendant: any, ancestor: any) => {
+//         if (descendant.id === ancestor.id) return true;
+//         if (ancestor.subcategories) {
+//             return ancestor.subcategories.some((subcat: any) => isDescendantOf(descendant, subcat));
+//         }
+//         return false;
+//     };
+
+//     const getAllDescendantIds = (item: any) => {
+//         let ids = [item.id];
+//         if (item.subcategories) {
+//             item.subcategories.forEach((subcat: any) => {
+//                 ids = [...ids, ...getAllDescendantIds(subcat)];
+//             });
+//         }
+//         return ids;
+//     };
+
+//     const findCategoryById = (rootCategory: any, id: any) => {
+//         if (rootCategory.id === id) return rootCategory;
+//         if (rootCategory.subcategories) {
+//             for (let subcat of rootCategory.subcategories) {
+//                 const found: any = findCategoryById(subcat, id);
+//                 if (found) return found;
+//             }
+//         }
+//         return null;
+//     };
+
+//     const isSelected = selectedCategories.some((cat: any) => cat.id === category.id);
+//     const hasSubcategories = category.subcategories && category.subcategories.length > 0;
+
+//     return (
+//         <View style={{ marginLeft: level * 20 }}>
+//             <TouchableOpacity
+//                 style={[
+//                     styles.categoryItem,
+//                     !isTopLevel && styles.selectableCategory,
+//                     !isTopLevel && isSelected && styles.selectedCategory
+//                 ]}
+//                 onPress={isTopLevel ? toggleExpand : () => toggleSelection(category)}
+//             >
+//                 {hasSubcategories && (
+//                     <Ionicons
+//                         name={expanded ? 'chevron-down' : 'chevron-forward'}
+//                         size={24}
+//                         color="black"
+//                         style={styles.expandIcon}
+//                     />
+//                 )}
+//                 {!isTopLevel && (
+//                     <Ionicons
+//                         name={isSelected ? 'checkbox' : 'square-outline'}
+//                         size={24}
+//                         color={isSelected ? '#007AFF' : 'black'}
+//                         style={styles.checkboxIcon}
+//                     />
+//                 )}
+//                 <Text style={[
+//                     styles.categoryText,
+//                     !isTopLevel && isSelected && styles.selectedCategoryText
+//                 ]}>
+//                     {category.name}
+//                 </Text>
+//             </TouchableOpacity>
+//             {(expanded || (!isTopLevel && isSelected)) && hasSubcategories && (
+//                 <View>
+//                     {category.subcategories.map((subcat: any) => (
+//                         <RecursiveCategory
+//                             key={subcat.id}
+//                             category={subcat}
+//                             selectedCategories={selectedCategories}
+//                             setSelectedCategories={setSelectedCategories}
+//                             level={level + 1}
+//                             isTopLevel={false}
+//                         />
+//                     ))}
+//                 </View>
+//             )}
+//         </View>
+//     );
+// };
+
+// export default function FormCreateArtisanCategories({
+//     selectedCategories,
+//     setSelectedCategories,
+//     email,
+//     setEmail,
+//     phone,
+//     setPhone,
+//     showModal,
+//     setShowModal,
+//     Done,
+//     setDone,
+//     handleSignup,
+//     setEnableTextMessage,
+//     enableTextMessage,
+//     Loading
+// }: any) {
+//     const [selectedTypeOfView, setSelectedTypeOfView] = useState('list');
+//     const modalAnimation = useSharedValue(0);
+//     const [categories, setCategories] = useState([]);
+//     const [loading, setLoading] = useState(false);
+
+//     const animatedModalStyle = useAnimatedStyle(() => {
+//         return {
+//             opacity: modalAnimation.value,
+//             transform: [{ scale: modalAnimation.value }],
+//         };
+//     });
+
+//     useEffect(() => {
+//         if (showModal) {
+//             modalAnimation.value = withSpring(1);
+//         } else {
+//             modalAnimation.value = withSpring(0);
+//         }
+//     }, [showModal]);
+
+//     const handleNextClick = () => {
+//         setShowModal(true);
+//     };
+
+//     const GetCategories = async () => {
+//         const token = await getToken();
+//         const headers = new Headers({
+//             "Content-Type": "application/json",
+//             "Authorization": `Bearer ${token}`,
+//         });
+
+//         try {
+//             setLoading(true);
+//             const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
+//                 method: 'POST',
+//                 headers,
+//                 body: JSON.stringify({
+//                     query: `
+//             query getCategoriesAsString {
+//               getCategoriesAsString{
+//                 categoriesAsString
+//               }
+//             }
+//           `
+//                 }),
+//             });
+
+//             const data = await response.json();
+//             setLoading(false);
+//             setCategories(JSON.parse(data?.data?.getCategoriesAsString?.categoriesAsString));
+//         } catch (error: any) {
+//             setLoading(false);
+//             Alert.alert("Error", error.message);
+//         }
+//     }
+
+//     useEffect(() => {
+//         GetCategories();
+//     }, []);
+
+//     return (
+//         <ScrollView style={styles.container}>
+//             <View style={styles.content}>
+//                 {loading ? (
+//                     <View style={styles.loadingContainer}>
+//                         <Image source={require('@/assets/icon.png')} style={styles.loadingImage} />
+//                         <Text style={styles.loadingText}>We are working on it!</Text>
+//                     </View>
+//                 ) : (
+//                     <View style={styles.categoriesContainer}>
+//                         <View style={styles.categoriesHeader}>
+//                             <Text style={styles.categoriesTitle}>Select 1 or many services</Text>
+//                             <TouchableOpacity
+//                                 onPress={() => setSelectedTypeOfView(v => v === 'grid' ? 'list' : 'grid')}
+//                                 style={styles.viewToggle}
+//                             >
+//                                 <Ionicons name={selectedTypeOfView === 'list' ? 'list' : 'grid'} size={24} color="black" />
+//                             </TouchableOpacity>
+//                         </View>
+//                         {categories.map((category: any) => (
+//                             <RecursiveCategory
+//                                 key={category.id}
+//                                 category={category}
+//                                 selectedCategories={selectedCategories}
+//                                 setSelectedCategories={setSelectedCategories}
+//                                 isTopLevel={true}
+//                             />
+//                         ))}
+
+
+
+//                     </View>
+
+
+
+//                 )}
+//             </View>
+//         </ScrollView>
+//     );
+// }
+
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//     },
+//     content: {
+//         padding: 16,
+//     },
+//     loadingContainer: {
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         marginTop: 32,
+//     },
+//     loadingImage: {
+//         width: 100,
+//         height: 100,
+//     },
+//     loadingText: {
+//         fontSize: 18,
+//         fontWeight: 'bold',
+//         marginTop: 16,
+//     },
+//     categoriesContainer: {
+//         marginTop: 16,
+//     },
+//     categoriesHeader: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         alignItems: 'center',
+//         marginBottom: 16,
+//     },
+//     categoriesTitle: {
+//         fontSize: 18,
+//         fontWeight: 'bold',
+//     },
+//     viewToggle: {
+//         padding: 8,
+//         backgroundColor: '#f0f0f0',
+//         borderRadius: 8,
+//     },
+//     categoryItem: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         padding: 16,
+//         borderBottomWidth: 1,
+//         borderBottomColor: '#e0e0e0',
+//     },
+//     selectableCategory: {
+//         // backgroundColor: '#f9f9f9',
+//     },
+//     selectedCategory: {
+//         // backgroundColor: '#e6f2ff',
+//     },
+//     categoryText: {
+//         fontSize: 18,
+//         marginLeft: 8,
+//     },
+//     selectedCategoryText: {
+//         // color: '#007AFF',
+//         fontWeight: 'bold',
+//     },
+//     logo: {
+//         width: 30,
+//         height: 30,
+//     },
+//     expandIcon: {
+//         marginRight: 8,
+//     },
+//     checkboxIcon: {
+//         marginRight: 8,
+//     },
+   
+// });
+
+
+
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, Alert, TextInput,Modal } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, Alert, TextInput, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { getToken } from '@/helpers/getToken';
 import Constants from 'expo-constants';
+import { useRoute } from '@react-navigation/native';
 
 const Logo = () => (
     <Image source={require('@/assets/handyman.png')} style={styles.logo} />
@@ -1479,6 +1793,8 @@ export default function FormCreateArtisanCategories({
     const modalAnimation = useSharedValue(0);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
+    const route = useRoute();
+    const { categoryId, zipCode } = route.params as { categoryId: string, zipCode: string };
 
     const animatedModalStyle = useAnimatedStyle(() => {
         return {
@@ -1499,7 +1815,7 @@ export default function FormCreateArtisanCategories({
         setShowModal(true);
     };
 
-    const UpdateCategories = async () => {
+    const GetCategories = async () => {
         const token = await getToken();
         const headers = new Headers({
             "Content-Type": "application/json",
@@ -1524,15 +1840,48 @@ export default function FormCreateArtisanCategories({
 
             const data = await response.json();
             setLoading(false);
-            setCategories(JSON.parse(data?.data?.getCategoriesAsString?.categoriesAsString));
+            const parsedCategories = JSON.parse(data?.data?.getCategoriesAsString?.categoriesAsString);
+            setCategories(parsedCategories);
+
+            // Select the category and its children based on the categoryId from navigation
+            if (categoryId) {
+                const selectedCategory = findCategoryById(parsedCategories, categoryId);
+                if (selectedCategory) {
+                    const descendantIds = getAllDescendantIds(selectedCategory);
+                    const selectedCats = [selectedCategory, ...descendantIds.map(id => findCategoryById(parsedCategories, id))];
+                    setSelectedCategories(selectedCats);
+                }
+            }
         } catch (error: any) {
             setLoading(false);
             Alert.alert("Error", error.message);
         }
     }
 
+    const findCategoryById = (categories: any[], id: string): any => {
+        for (let category of categories) {
+            if (category.id === id) return category;
+            if (category.subcategories) {
+                const found = findCategoryById(category.subcategories, id);
+                if (found) return found;
+            }
+        }
+        return null;
+    };
+
+    const getAllDescendantIds = (category: any): string[] => {
+        let ids: string[] = [];
+        if (category.subcategories) {
+            category.subcategories.forEach((subcat: any) => {
+                ids.push(subcat.id);
+                ids = [...ids, ...getAllDescendantIds(subcat)];
+            });
+        }
+        return ids;
+    };
+
     useEffect(() => {
-        UpdateCategories();
+        GetCategories();
     }, []);
 
     return (
@@ -1563,15 +1912,60 @@ export default function FormCreateArtisanCategories({
                                 isTopLevel={true}
                             />
                         ))}
-
-
-
                     </View>
-
-
-
                 )}
+                <View style={styles.zipCodeContainer}>
+                    <Text style={styles.zipCodeText}>Your Zip Code: {zipCode}</Text>
+                </View>
+                <TouchableOpacity style={styles.nextButton} onPress={handleNextClick}>
+                    <Text style={styles.nextButtonText}>Next</Text>
+                </TouchableOpacity>
             </View>
+            {/* <Animated.View style={[styles.modalContainer, animatedModalStyle]}>
+                <Modal
+                    visible={showModal}
+                    transparent={true}
+                    animationType="none"
+                >
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Additional Information</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Email"
+                            value={email}
+                            onChangeText={setEmail}
+                            keyboardType="email-address"
+                        />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Phone"
+                            value={phone}
+                            onChangeText={setPhone}
+                            keyboardType="phone-pad"
+                        />
+                        <TouchableOpacity
+                            style={styles.checkboxContainer}
+                            onPress={() => setEnableTextMessage(!enableTextMessage)}
+                        >
+                            <Ionicons
+                                name={enableTextMessage ? 'checkbox' : 'square-outline'}
+                                size={24}
+                                color={enableTextMessage ? '#007AFF' : 'black'}
+                            />
+                            <Text style={styles.checkboxLabel}>Enable Text Messages</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.signupButton}
+                            onPress={handleSignup}
+                            disabled={Loading}
+                        >
+                            <Text style={styles.signupButtonText}>
+                                {Loading ? 'Signing Up...' : 'Sign Up'}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </Modal>
+            </Animated.View> */}
         </ScrollView>
     );
 }
@@ -1646,5 +2040,70 @@ const styles = StyleSheet.create({
     checkboxIcon: {
         marginRight: 8,
     },
-   
+    zipCodeContainer: {
+        marginTop: 16,
+        padding: 16,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 8,
+    },
+    zipCodeText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    nextButton: {
+        marginTop: 16,
+        backgroundColor: '#007AFF',
+        padding: 16,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    nextButtonText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 16,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 10,
+    },
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    checkboxLabel: {
+        marginLeft: 8,
+    },
+    signupButton: {
+        backgroundColor: '#007AFF',
+        padding: 16,
+        
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    signupButtonText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
 });
