@@ -89,6 +89,7 @@ import PhoneConfirmCodeScreen from "@/pages/PhoneConfirmCodeScreen";
 import CreateAccountForArtisant from "@/pages/Auth/CreateAccountForArtisant";
 import GestionDeCompteArtisant from "@/pages/Auth/GestionDeCompteArtisant";
 import CreateAccountForArtisantNextPage from "@/pages/Auth/CreateAccountForArtisantNextPage";
+import VerificationAccountArtisantScreen from "@/pages/VerificationAccountArtisantScreen";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -159,6 +160,8 @@ export type IPages =
   | "CreateAccountForArtisant"
   | "GestionDeCompteArtisant"
   | "CreateAccountForArtisantNextPage"
+  | "VerificationAccountArtisantScreen"
+
 
   ;
 export interface Navigate {
@@ -275,7 +278,7 @@ const GroupParametreArtisan = () => {
         component={GestionDeCompte}
         options={{ headerShown: false }}
       />
-       <Stack.Screen
+      <Stack.Screen
         name="GestionDeCompteArtisant"
         component={GestionDeCompteArtisant}
         options={{ headerShown: false }}
@@ -631,19 +634,24 @@ function RootNavigator() {
                   component={CreateAccountForArtisant}
                   options={{ headerShown: false }}
                 />
-                 <Stack.Screen
+                <Stack.Screen
                   name="CreateAccountForArtisantNextPage"
                   component={CreateAccountForArtisantNextPage}
                   options={{ headerShown: false }}
                 />
-                 <Stack.Screen
+                <Stack.Screen
                   name="PhoneVerificationScreen"
                   component={PhoneVerificationScreen}
                   options={{ headerShown: false }}
                 />
-                 <Stack.Screen
+                <Stack.Screen
                   name="PhoneConfirmCodeScreen"
                   component={PhoneConfirmCodeScreen}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="VerificationAccountArtisantScreen"
+                  component={VerificationAccountArtisantScreen}
                   options={{ headerShown: false }}
                 />
 
@@ -978,7 +986,7 @@ export default function Navigation() {
       // Listen for notifications when they are received
       notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
         console.log('notification', notification);
-        
+
         setNotification(notification);
       });
 

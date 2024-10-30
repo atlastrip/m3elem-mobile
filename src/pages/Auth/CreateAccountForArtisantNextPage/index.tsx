@@ -1739,9 +1739,497 @@
 
 
 
+// import React, { useEffect, useState } from 'react';
+// import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions, Modal, TextInput, Image, Alert } from 'react-native';
+// import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+// import { LinearGradient } from 'expo-linear-gradient';
+// import { BlurView } from 'expo-blur';
+// import { Feather, Ionicons } from '@expo/vector-icons';
+// import FormCreateArtisanCategories from './FormCreateArtisanCategories';
+// import PhoneInputComponent from '@/components/PhoneInputComponent';
+// import { useRoute } from '@react-navigation/native';
+// import Constants from 'expo-constants';
+// import { getToken } from '@/helpers/getToken';
+// const { width, height } = Dimensions.get('window');
+
+// const Logo = () => (
+//   <Image source={require('@/assets/handyman.png')} style={styles.logo} />
+// );
+
+
+// // Dummy data for categories
+// const dummyCategories = [
+//   { id: '1', name: 'Plumbing' },
+//   { id: '2', name: 'Electrical' },
+//   { id: '3', name: 'Carpentry' },
+//   { id: '4', name: 'Painting' },
+//   { id: '5', name: 'Landscaping' },
+// ];
+
+// const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
+//   const [selectedCategories, setSelectedCategories]: any = useState<[]>([]);
+//   const [viewMode, setViewMode] = useState('grid');
+//   const [email, setEmail] = useState('elhanouniazeddine@gmail.com');
+//   const [phone, setPhone] = useState('212659320333');
+//   const [showModal, setShowModal] = useState(false);
+//   const [done, setDone] = useState(false);
+//   const [enableTextMessage, setEnableTextMessage]: any = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const buttonScale = useSharedValue(1);
+//   const route = useRoute();
+
+//   const { categoryId, zipCode } = route.params as { categoryId: string, zipCode: string };
+
+
+//   const handleSignup = async () => {
+//     // setLoading(true);
+
+
+//     console.log('Email:', email);
+//     console.log('Phone:', phone);
+//     console.log('Selected categories:', selectedCategories);
+//     console.log('Enable text message:', enableTextMessage);
+//     console.log('====================================');
+//     console.log('zip code:', zipCode);
+//     console.log('====================================');
+//     console.log('categoryId:', categoryId);
+
+
+
+//     // const categories = JSON.parse(selectedCategories)
+//     const categories: any = selectedCategories.find((category: any) => category?.id == categoryId)?.subcategories?.map((e: any) => e?.id)
+
+
+
+
+//     const token = await getToken();
+//     const headers = new Headers({
+//       "Content-Type": "application/json",
+//       "Authorization": `Bearer ${token}`,
+//     });
+
+//     try {
+//       setLoading(true);
+//       const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
+//         method: 'POST',
+//         headers,
+//         body: JSON.stringify({
+//           query: `
+
+//     mutation signUpAsPro($inputSignUp: inputSignUp) {
+//       signUpAsPro(inputSignUp: $inputSignUp) {
+//         user {
+//           id
+//           firstName
+//           lastName
+//           email
+//           password
+//           provider
+//           role
+//           categories{
+//             id
+//           }
+//         }
+//         token
+//       }
+//     }
+//           `,
+//           variables: {
+//             inputSignUp: {
+//               email: email,
+//               phone: phone,
+//               role: "artisant",
+//               categories: [...categories, categoryId],
+//               zipCodes: [zipCode],
+//               enableTextMessage: enableTextMessage,
+//               confirmationResult: null,
+//             }
+//           }
+//         }),
+//       });
+
+//       const data = await response.json();
+//       console.log('data:', data.errors[0].message);
+
+//       if (data.errors[0].message) {
+//         Alert.alert("Error", data.errors[0].message);
+//         setLoading(false);
+//         return;
+//       }
+
+//       setLoading(false);
+//     } catch (error: any) {
+//       setLoading(false);
+//       console.log('====================================');
+//       console.log('error:', error.message);
+//       console.log('====================================');
+//       Alert.alert("Error", error.message);
+//     }
+
+//   };
+
+//   const animatedButtonStyle = useAnimatedStyle(() => {
+//     return {
+//       transform: [{ scale: buttonScale.value }],
+//     };
+//   });
+
+//   const handlePressIn = () => {
+//     buttonScale.value = withSpring(0.95);
+//   };
+
+//   const handlePressOut = () => {
+//     buttonScale.value = withSpring(1);
+//   };
+//   const modalAnimation = useSharedValue(0);
+
+
+//   const animatedModalStyle = useAnimatedStyle(() => {
+//     return {
+//       opacity: modalAnimation.value,
+//       transform: [{ scale: modalAnimation.value }],
+//     };
+//   });
+
+
+//   useEffect(() => {
+//     if (showModal) {
+//       modalAnimation.value = withSpring(1);
+//     } else {
+//       modalAnimation.value = withSpring(0);
+//     }
+//   }, [showModal]);
+//   return (
+//     <LinearGradient
+//       colors={['#4CAF50', '#2E7D32']}
+//       style={styles.container}
+//     >
+//       <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.content}>
+//         <BlurView intensity={100} style={styles.blurContainer}>
+//           <Text style={styles.title}>Select any other services you do.</Text>
+//           {/* <View style={styles.viewToggle}>
+//             <TouchableOpacity
+//               style={[styles.toggleButton, viewMode === 'grid' && styles.activeToggleButton]}
+//               onPress={() => setViewMode('grid')}
+//             >
+//               <Feather name="grid" size={20} color={viewMode === 'grid' ? '#fff' : '#4CAF50'} />
+//               <Text style={[styles.toggleText, viewMode === 'grid' && styles.activeToggleText]}>Grid</Text>
+//             </TouchableOpacity>
+//             <TouchableOpacity
+//               style={[styles.toggleButton, viewMode === 'list' && styles.activeToggleButton]}
+//               onPress={() => setViewMode('list')}
+//             >
+//               <Feather name="list" size={20} color={viewMode === 'list' ? '#fff' : '#4CAF50'} />
+//               <Text style={[styles.toggleText, viewMode === 'list' && styles.activeToggleText]}>List</Text>
+//             </TouchableOpacity>
+//           </View> */}
+//           <ScrollView style={styles.scrollView}>
+//             <FormCreateArtisanCategories
+//               selectedCategories={selectedCategories}
+//               setSelectedCategories={setSelectedCategories}
+//               email={email}
+//               setEmail={setEmail}
+//               phone={phone}
+//               setPhone={setPhone}
+//               showModal={showModal}
+//               setShowModal={setShowModal}
+//               Done={done}
+//               setDone={setDone}
+//               handleSignup={handleSignup}
+//               setEnableTextMessage={setEnableTextMessage}
+//               enableTextMessage={enableTextMessage}
+//               Loading={loading}
+//               categories={dummyCategories}
+//               SelectedTypeOfView={viewMode}
+//             />
+//             <Modal
+
+//               visible={showModal} transparent >
+//               <Animated.View style={[styles.modalContainer, animatedModalStyle]}>
+//                 <View style={styles.modalContent}>
+//                   <Logo />
+//                   <Text style={styles.modalTitle}>New customers are waiting.</Text>
+//                   <Text style={styles.modalSubtitle}>There are 30,000 leads on A HOUSE GURU a day.</Text>
+
+//                   <TextInput
+//                     style={styles.input}
+//                     placeholder="Email"
+//                     value={email}
+//                     onChangeText={setEmail}
+//                     keyboardType="email-address"
+//                   />
+//                   <TextInput
+//                     style={styles.input}
+//                     placeholder="Phone"
+//                     value={phone}
+//                     onChangeText={setPhone}
+//                     keyboardType="phone-pad"
+//                   />
+
+//                   {/* <PhoneInput
+//                             defaultValue={phone}
+//                             defaultCode="US"
+//                             layout="first"
+//                             onChangeText={(text) => {
+//                                 setPhone(text);
+//                             }}
+//                             withDarkTheme
+//                             withShadow
+//                             autoFocus
+//                         /> */}
+
+//                   <View
+//                     className='flex-row items-center justify-between my-2'
+//                   >
+//                     {/* <PhoneInputComponent /> */}
+//                   </View>
+
+//                   <Text style={styles.disclaimer}>
+//                     We'll text you with a verification code. Carrier rates may apply.
+//                   </Text>
+
+//                   <TouchableOpacity
+//                     style={styles.checkbox}
+//                     onPress={() => setEnableTextMessage(!enableTextMessage)}
+//                   >
+//                     <Ionicons
+//                       name={enableTextMessage ? 'checkbox-outline' : 'square-outline'}
+//                       size={24}
+//                       color="#007AFF"
+//                     />
+//                     <Text style={styles.checkboxText}>Enable text messages</Text>
+//                   </TouchableOpacity>
+
+//                   <TouchableOpacity
+//                     style={styles.continueButton}
+//                     onPress={async () => {
+//                       await handleSignup();
+//                       // setShowModal(false);
+//                     }}
+//                   >
+//                     <Text style={styles.continueButtonText}>
+//                       {false ? "Loading..." : "Continue"}
+//                     </Text>
+//                   </TouchableOpacity>
+
+//                   <Text style={styles.termsText}>
+//                     By clicking Continue, you agree to the Terms of Use and Privacy Policy.
+//                   </Text>
+
+//                   <TouchableOpacity
+//                     style={styles.closeButton}
+//                     onPress={() => setShowModal(false)}
+//                   >
+//                     <Ionicons name="close" size={24} color="black" />
+//                   </TouchableOpacity>
+//                 </View>
+//               </Animated.View>
+//             </Modal>
+//           </ScrollView>
+
+
+//           <Animated.View style={[styles.buttonContainer, animatedButtonStyle]}>
+//             <TouchableOpacity
+//               style={styles.button}
+//               onPress={() => {
+//                 // handleSignup();
+//                 setShowModal(true);
+//               }}
+//               onPressIn={handlePressIn}
+//               onPressOut={handlePressOut}
+//             >
+//               <LinearGradient
+//                 colors={['#4CAF50', '#45a049']}
+//                 start={{ x: 0, y: 0 }}
+//                 end={{ x: 1, y: 1 }}
+//                 style={styles.buttonGradient}
+//               >
+//                 <Text style={styles.buttonText}>{loading ? 'Loading...' : 'Next'}</Text>
+//               </LinearGradient>
+//             </TouchableOpacity>
+//           </Animated.View>
+//           <Animated.View style={[styles.buttonContainer, animatedButtonStyle]}>
+//             <TouchableOpacity
+//               style={styles.button}
+//               onPress={() => navigation.navigate('CreateAccountForArtisant')}
+//               onPressIn={handlePressIn}
+//               onPressOut={handlePressOut}
+//             >
+//               <LinearGradient
+//                 colors={['#4CAF50', '#45a049']}
+//                 start={{ x: 0, y: 0 }}
+//                 end={{ x: 1, y: 1 }}
+//                 style={styles.buttonGradient}
+//               >
+//                 <Text style={styles.buttonText}>{loading ? 'Loading...' : 'Back'}</Text>
+//               </LinearGradient>
+//             </TouchableOpacity>
+//           </Animated.View>
+//         </BlurView>
+//       </Animated.View>
+//     </LinearGradient>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//   },
+//   content: {
+//     width: width * 0.9,
+//     maxWidth: 400,
+//     height: height * 0.9,
+//   },
+//   blurContainer: {
+//     flex: 1,
+//     borderRadius: 20,
+//     overflow: 'hidden',
+//     padding: 20,
+//   },
+//   title: {
+//     fontSize: 24,
+//     fontWeight: 'bold',
+//     marginBottom: 20,
+//     color: '#fff',
+//     textAlign: 'center',
+//     textShadowColor: 'rgba(0, 0, 0, 0.1)',
+//     textShadowOffset: { width: 1, height: 1 },
+//     textShadowRadius: 2,
+//   },
+//   viewToggle: {
+//     flexDirection: 'row',
+//     justifyContent: 'center',
+//     marginBottom: 20,
+//   },
+//   toggleButton: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     backgroundColor: 'rgba(255, 255, 255, 0.9)',
+//     paddingVertical: 8,
+//     paddingHorizontal: 16,
+//     borderRadius: 20,
+//     marginHorizontal: 5,
+//   },
+//   activeToggleButton: {
+//     backgroundColor: '#4CAF50',
+//   },
+//   toggleText: {
+//     marginLeft: 5,
+//     color: '#4CAF50',
+//     fontWeight: 'bold',
+//   },
+//   activeToggleText: {
+//     color: '#fff',
+//   },
+//   scrollView: {
+//     flex: 1,
+//     marginBottom: 20,
+//   },
+//   buttonContainer: {
+//     overflow: 'hidden',
+//     borderRadius: 10,
+//     marginTop: 10,
+//   },
+//   button: {
+//     width: '100%',
+//     height: 50,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   buttonGradient: {
+//     width: '100%',
+//     height: '100%',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   buttonText: {
+//     color: 'white',
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//   },
+//   modalContainer: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+//   },
+//   modalContent: {
+//     backgroundColor: 'white',
+//     padding: 24,
+//     borderRadius: 16,
+//     width: '80%',
+//   },
+//   modalTitle: {
+//     fontSize: 24,
+//     fontWeight: 'bold',
+//     marginTop: 16,
+//     textAlign: 'center',
+//   },
+//   modalSubtitle: {
+//     fontSize: 16,
+//     color: '#666',
+//     marginTop: 8,
+//     textAlign: 'center',
+//   },
+//   input: {
+//     borderWidth: 1,
+//     borderColor: '#ccc',
+//     borderRadius: 8,
+//     padding: 12,
+//     marginTop: 16,
+//   },
+//   disclaimer: {
+//     fontSize: 12,
+//     color: '#666',
+//     marginTop: 8,
+//   },
+//   checkbox: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     marginTop: 16,
+//   },
+//   checkboxText: {
+//     marginLeft: 8,
+//     fontSize: 16,
+//   },
+//   continueButton: {
+//     backgroundColor: '#007AFF',
+//     padding: 16,
+//     borderRadius: 8,
+//     marginTop: 24,
+//     alignItems: 'center',
+//   },
+//   continueButtonText: {
+//     color: 'white',
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//   },
+//   termsText: {
+//     fontSize: 12,
+//     color: '#666',
+//     marginTop: 16,
+//     textAlign: 'center',
+//   },
+//   closeButton: {
+//     position: 'absolute',
+//     top: 8,
+//     right: 8,
+//   },
+//   logo: {
+//     width: 30,
+//     height: 30,
+//   },
+// });
+
+// export default CreateAccountForArtisantNextPage;
+
+
+
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions, Modal, TextInput, Image, Alert } from 'react-native';
-import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions, Modal, TextInput, Image, Alert, Animated as RNAnimated } from 'react-native';
+import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSpring, withTiming, Easing } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Feather, Ionicons } from '@expo/vector-icons';
@@ -1750,12 +2238,14 @@ import PhoneInputComponent from '@/components/PhoneInputComponent';
 import { useRoute } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { getToken } from '@/helpers/getToken';
+import { useFirebaseLogin } from '@itzsunny/firebase-login';
+import { firebaseConfig, Newauth } from 'firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width, height } = Dimensions.get('window');
 
 const Logo = () => (
   <Image source={require('@/assets/handyman.png')} style={styles.logo} />
 );
-
 
 // Dummy data for categories
 const dummyCategories = [
@@ -1767,23 +2257,51 @@ const dummyCategories = [
 ];
 
 const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
-  const [selectedCategories, setSelectedCategories]: any = useState<[]>([]);
+  const [selectedCategories, setSelectedCategories]: any = useState([]);
   const [viewMode, setViewMode] = useState('grid');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('azzeddine.elhanouni@uit.ac.ma');
+  const [phone, setPhone] = useState('14045907154');
   const [showModal, setShowModal] = useState(false);
   const [done, setDone] = useState(false);
-  const [enableTextMessage, setEnableTextMessage]: any = useState(false);
+  const [enableTextMessage, setEnableTextMessage] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null); // New state for error messages
   const buttonScale = useSharedValue(1);
   const route = useRoute();
+  const { recaptcha, recaptchaBanner, sendOtp, verifyOtp } = useFirebaseLogin({ auth: Newauth, firebaseConfig: firebaseConfig });
+
 
   const { categoryId, zipCode } = route.params as { categoryId: string, zipCode: string };
+  const [country, setCountry] = useState({ name: 'USA', code: '+1', flag: '🇺🇸' });
+
+
+
+
+  const validatePhoneNumber = (phone: any) => {
+    // Simple regex patterns for USA and Morocco
+    const usaRegex = /^\+1\d{10}$/; // +1 followed by 10 digits
+    const marocRegex = /^\+212\d{9}$/; // +212 followed by 9 digits
+
+    if (country.code === '+1') {
+      return usaRegex.test(phone);
+    } else if (country.code === '+212') {
+      return marocRegex.test(phone);
+    }
+    return false;
+  };
+
+  const toggleCountry = () => {
+    if (country.code === '+1') {
+      setCountry({ name: 'Morocco', code: '+212', flag: '🇲🇦' });
+    } else {
+      setCountry({ name: 'USA', code: '+1', flag: '🇺🇸' });
+    }
+  };
 
 
   const handleSignup = async () => {
-    // setLoading(true);
-
+    // Reset error message before new attempt
+    setErrorMessage(null);
 
     console.log('Email:', email);
     console.log('Phone:', phone);
@@ -1794,45 +2312,48 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
     console.log('====================================');
     console.log('categoryId:', categoryId);
 
-
-
-    // const categories = JSON.parse(selectedCategories)
-    const categories: any = selectedCategories.find((category: any) => category?.id == categoryId)?.subcategories?.map((e: any) => e?.id)
-
-
-
-
-    const token = await getToken();
-    const headers = new Headers({
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
-    });
+    const categories = selectedCategories.find((category: any) => category?.id === categoryId)?.subcategories?.map((e: any) => e?.id) || [];
 
     try {
       setLoading(true);
+      const token = await getToken();
+      const headers = new Headers({
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      });
+
+
+
+      const fullPhoneNumber = `+${phone}`;
+
+      if (!validatePhoneNumber(fullPhoneNumber)) {
+        setLoading(false);
+        Alert.alert('Invalid Phone Number', 'Please enter a valid phone number.');
+        return;
+      }
+
       const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
         method: 'POST',
         headers,
         body: JSON.stringify({
           query: `
-           
-    mutation signUpAsPro($inputSignUp: inputSignUp) {
-      signUpAsPro(inputSignUp: $inputSignUp) {
-        user {
-          id
-          firstName
-          lastName
-          email
-          password
-          provider
-          role
-          categories{
-            id
-          }
-        }
-        token
-      }
-    }
+            mutation signUpAsProInMobile($inputSignUp: inputSignUp) {
+              signUpAsProInMobile(inputSignUp: $inputSignUp) {
+                user {
+                  id
+                  firstName
+                  lastName
+                  email
+                  password
+                  provider
+                  role
+                  categories {
+                    id
+                  }
+                }
+                token
+              }
+            }
           `,
           variables: {
             inputSignUp: {
@@ -1848,25 +2369,81 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
         }),
       });
 
-      const data = await response.json();
-      console.log('data:', data.errors[0].message);
+      const data: any = await response.json();
+      console.log('data:', data);
 
+      if (data.errors && data.errors.length > 0) {
+        // Set the error message from backend
+        setErrorMessage(data.errors[0].message);
+        setLoading(false);
+        return;
+      }
+
+
+      await AsyncStorage.setItem('@token', data?.data?.signUpAsProInMobile?.token);
+      await AsyncStorage.setItem('@user', JSON.stringify(data?.data?.signUpAsProInMobile?.user));
+
+
+
+
+
+      let id = await sendOtp(fullPhoneNumber);
+      console.log('id', id);
+
+      if (id) {
+
+        const newtoken = data?.data?.signUpAsProInMobile?.token;
+
+        const headers = new Headers({
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${newtoken}`,
+        });
+
+        const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            query: `
+    mutation updateVerificationOtpStep($input: inputUpdateVerificationOtpStep) {
+        updateVerificationOtpStep(input: $input) 
+    }
+  `,
+            variables: {
+              input: {
+                confirmationResultInMobile: id,
+                phone: fullPhoneNumber,
+              }
+            }
+
+          }),
+        });
+
+        const result = await response.json();
+        console.log('result:', result);
+
+        Alert.alert('OTP Sent', 'Please check your phone for the verification code.');
+        setLoading(false);
+
+        navigation.navigate('VerificationAccountArtisantScreen');
+      }
+
+
+      // Handle successful signup (e.g., navigate to next screen)
+      // You might want to navigate or perform other actions here
       setLoading(false);
+
     } catch (error: any) {
       setLoading(false);
       console.log('====================================');
       console.log('error:', error.message);
       console.log('====================================');
-      Alert.alert("Error", error.message);
+      setErrorMessage(error.message);
     }
-
   };
 
-  const animatedButtonStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: buttonScale.value }],
-    };
-  });
+  const animatedButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScale.value }],
+  }));
 
   const handlePressIn = () => {
     buttonScale.value = withSpring(0.95);
@@ -1875,29 +2452,31 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
   const handlePressOut = () => {
     buttonScale.value = withSpring(1);
   };
+
   const modalAnimation = useSharedValue(0);
 
-
-  const animatedModalStyle = useAnimatedStyle(() => {
-    return {
-      opacity: modalAnimation.value,
-      transform: [{ scale: modalAnimation.value }],
-    };
-  });
-
+  const animatedModalStyle = useAnimatedStyle(() => ({
+    opacity: modalAnimation.value,
+    transform: [{ scale: modalAnimation.value }],
+  }));
 
   useEffect(() => {
     if (showModal) {
       modalAnimation.value = withSpring(1);
     } else {
       modalAnimation.value = withSpring(0);
+      setErrorMessage(null); // Clear error message when modal is closed
     }
   }, [showModal]);
+
   return (
     <LinearGradient
       colors={['#4CAF50', '#2E7D32']}
       style={styles.container}
     >
+      {
+        recaptcha
+      }
       <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.content}>
         <BlurView intensity={100} style={styles.blurContainer}>
           <Text style={styles.title}>Select any other services you do.</Text>
@@ -1937,13 +2516,31 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
               SelectedTypeOfView={viewMode}
             />
             <Modal
-
-              visible={showModal} transparent >
+              visible={showModal}
+              transparent
+              animationType="none"
+              onRequestClose={() => setShowModal(false)}
+            >
               <Animated.View style={[styles.modalContainer, animatedModalStyle]}>
                 <View style={styles.modalContent}>
                   <Logo />
                   <Text style={styles.modalTitle}>New customers are waiting.</Text>
                   <Text style={styles.modalSubtitle}>There are 30,000 leads on A HOUSE GURU a day.</Text>
+
+                  {/* Error Message */}
+                  {errorMessage && (
+                    <Animated.View
+                      entering={FadeIn.duration(300)}
+                      exiting={FadeOut.duration(300)}
+                      style={styles.errorContainer}
+                    >
+                      <Ionicons name="alert-circle" size={20} color="#D32F2F" />
+                      <Text style={styles.errorText}>{errorMessage}</Text>
+                      <TouchableOpacity onPress={() => setErrorMessage(null)}>
+                        <Ionicons name="close-circle" size={20} color="#D32F2F" style={styles.errorCloseIcon} />
+                      </TouchableOpacity>
+                    </Animated.View>
+                  )}
 
                   <TextInput
                     style={styles.input}
@@ -1952,14 +2549,28 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
                     onChangeText={setEmail}
                     keyboardType="email-address"
                   />
-                  <TextInput
+                  {/* <TextInput
                     style={styles.input}
                     placeholder="Phone"
                     value={phone}
                     onChangeText={setPhone}
                     keyboardType="phone-pad"
-                  />
+                  /> */}
 
+                  <View style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}>
+                    <TextInput
+                      style={{ ...styles.input, flex: 1 }}
+                      value={phone}
+                      onChangeText={setPhone}
+                      placeholder="e.g 15044754720"
+                      keyboardType="phone-pad"
+                      maxLength={11}
+                    />
+                  </View>
                   {/* <PhoneInput
                             defaultValue={phone}
                             defaultCode="US"
@@ -1972,9 +2583,7 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
                             autoFocus
                         /> */}
 
-                  <View
-                    className='flex-row items-center justify-between my-2'
-                  >
+                  <View className='flex-row items-center justify-between my-2'>
                     {/* <PhoneInputComponent /> */}
                   </View>
 
@@ -1996,13 +2605,10 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
 
                   <TouchableOpacity
                     style={styles.continueButton}
-                    onPress={async () => {
-                      await handleSignup();
-                      // setShowModal(false);
-                    }}
+                    onPress={handleSignup}
                   >
                     <Text style={styles.continueButtonText}>
-                      {false ? "Loading..." : "Continue"}
+                      {loading ? "Loading..." : "Continue"}
                     </Text>
                   </TouchableOpacity>
 
@@ -2020,7 +2626,6 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
               </Animated.View>
             </Modal>
           </ScrollView>
-
 
           <Animated.View style={[styles.buttonContainer, animatedButtonStyle]}>
             <TouchableOpacity
@@ -2075,6 +2680,20 @@ const styles = StyleSheet.create({
     width: width * 0.9,
     maxWidth: 400,
     height: height * 0.9,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    marginBottom: 24,
+    alignItems: 'center',
+  },
+  countrySelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   blurContainer: {
     flex: 1,
@@ -2147,13 +2766,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    // backgroundColor: 'rgba(0, 0, 0, 0.5)', // Removed for animated opacity
   },
   modalContent: {
     backgroundColor: 'white',
     padding: 24,
     borderRadius: 16,
     width: '80%',
+    position: 'relative',
   },
   modalTitle: {
     fontSize: 24,
@@ -2214,6 +2834,23 @@ const styles = StyleSheet.create({
   logo: {
     width: 30,
     height: 30,
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFCDD2',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  errorText: {
+    flex: 1,
+    color: '#D32F2F',
+    marginLeft: 8,
+    fontSize: 14,
+  },
+  errorCloseIcon: {
+    marginLeft: 8,
   },
 });
 
