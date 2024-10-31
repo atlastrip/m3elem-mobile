@@ -167,9 +167,9 @@ export default function Order({ route, navigation }: any) {
 
         const token = await getToken();
         // setUser(user);
-        console.log('====================================');
-        console.log('token', token);
-        console.log('====================================');
+        // console.log('====================================');
+        // console.log('token', token);
+        // console.log('====================================');
         if (!token) {
             return;
         }

@@ -86,7 +86,6 @@
 //         const user: any = await getUser();
 //         setUser(user);
 //         console.log('====================================');
-//         console.log('token', token);
 //         console.log('====================================');
 //         if (!token) {
 //             return;
@@ -103,8 +102,8 @@
 //                     headers,
 //                     body: JSON.stringify({
 //                         query: `
-//                         query getLeadsThatMatchUserProfessionals {
-//                             getLeadsThatMatchUserProfessionals {
+//                         query getLeadsThatMatchUserCategories {
+//                             getLeadsThatMatchUserCategories {
 //                                     id
 //                                     title
 //                                     description
@@ -143,7 +142,7 @@
 //             );
 
 //             const json = await res.json();
-//             setLeads(json.data.getLeadsThatMatchUserProfessionals || []);
+//             setLeads(json.data.getLeadsThatMatchUserCategories || []);
 
 //             setLoading(false);
 //         } catch (err: any) {
@@ -169,7 +168,6 @@
 //         const user: any = await getUser();
 //         setUser(user);
 //         console.log('====================================');
-//         console.log('token', token);
 //         console.log('====================================');
 //         if (!token) {
 //             return;
@@ -594,10 +592,16 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
                     headers,
                     body: JSON.stringify({
                         query: `
-                        query getLeadsThatMatchUserProfessionals {
-                            getLeadsThatMatchUserProfessionals {
+                        query getLeadsThatMatchUserCategories {
+                            getLeadsThatMatchUserCategories {
                                 id
                                 title
+                                zipCode
+                                categoryId{
+                                    id
+                                    name
+                                    unLockedAmount
+                                }
                                 description
                                 status
                                 images
@@ -612,6 +616,11 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
                                     lastName
                                     phone
                                     imageProfile
+                                    adress
+                                    email
+                                    
+
+
                                 }
                                 artisantId {
                                     id
@@ -656,7 +665,7 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
             );
 
             const json = await res.json();
-            let fetchedLeads = json.data.getLeadsThatMatchUserProfessionals || [];
+            let fetchedLeads = json.data.getLeadsThatMatchUserCategories || [];
 
 
             // Apply filters
@@ -699,7 +708,7 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
     }, [isFocused, filter]);
 
 
-    const HandleUnlock = async (id: any) => {
+    const HandleUnlock = async (id: any, categoryId: any) => {
         const token = await getToken();
         const user: any = await getUser();
         setUser(user);
@@ -727,6 +736,7 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
                     variables: {
                         input: {
                             id: id,
+                            categoryId: categoryId
                         },
                     },
                 }),
@@ -759,10 +769,7 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
         }
     };
 
-    console.log('====================================');
-    console.log('leads broooooooooo', leads);
-    console.log('====================================');
-
+  
     return (
         <ScrollView style={styles.container}>
             <Modal
@@ -860,7 +867,7 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
                                     <MaterialCommunityIcons name="close" color="red" size={28} />
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    onPress={() => { HandleUnlock(order?.id); }}
+                                    onPress={() => { HandleUnlock(order?.id, order?.categoryId?.id); }}
                                     className='w-1/3 mt-1 items-center border-r-2 py-2 border-gray-100'>
                                     <MaterialCommunityIcons name="check" color="green" size={28} />
                                 </TouchableOpacity>

@@ -76,9 +76,9 @@ const SwiperComponent = ({ navigation }: any) => {
                 throw new Error(json.errors[0].message);  // This will be caught by the catch block
             }
 
-            console.log('====================================');
-            console.log('json', json);
-            console.log('====================================');
+            // console.log('====================================');
+            // console.log('json', json);
+            // console.log('====================================');
             // go back to the previous screen
             navigation.goBack();
         } catch (error: any) {
@@ -99,9 +99,9 @@ const SwiperComponent = ({ navigation }: any) => {
         const token = await getToken();
         const user: any = await getUser();
         // setUser(user);
-        console.log('====================================');
-        console.log('token', token);
-        console.log('====================================');
+        // console.log('====================================');
+        // console.log('token', token);
+        // console.log('====================================');
         if (!token) {
             return;
         }

@@ -70,7 +70,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
             );
 
             const json = await res.json();
-            console.log('json broo', json);
+            // console.log('json broo', json);
 
             await getInfo();
 
@@ -128,7 +128,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
         const token = await getToken();
         const user: any = await getUser();
         console.log('====================================');
-        console.log('token', token);
+        // console.log('token', token);
         console.log('====================================');
         if (!token) {
             return;
@@ -158,7 +158,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
             );
 
             const json = await res.json();
-            console.log('json', json?.data?.user?.profileCompleted);
+            // console.log('json', json?.data?.user?.profileCompleted);
 
             setIsCompleted(json?.data?.user?.profileCompleted)
 

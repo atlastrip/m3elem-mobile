@@ -93,9 +93,9 @@ const NotificationsPage = () => {
             );
 
             const json = await res.json();
-            console.log('====================================');
-            console.log('json', json);
-            console.log('====================================');
+            // console.log('====================================');
+            // console.log('json', json);
+            // console.log('====================================');
             await getInfo();
 
         } catch (err) {
@@ -135,7 +135,7 @@ const NotificationsPage = () => {
 
             const json = await res.json();
             //         setIsEnabled((prev: any) => ({ ...prev, [name]: !prev?.[name] }));
-            console.log('json?.data?.user', json?.data?.user);
+            // console.log('json?.data?.user', json?.data?.user);
 
             setIsEnabled((prev: any) => ({
                 ...prev,

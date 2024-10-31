@@ -90,6 +90,7 @@ import CreateAccountForArtisant from "@/pages/Auth/CreateAccountForArtisant";
 import GestionDeCompteArtisant from "@/pages/Auth/GestionDeCompteArtisant";
 import CreateAccountForArtisantNextPage from "@/pages/Auth/CreateAccountForArtisantNextPage";
 import VerificationAccountArtisantScreen from "@/pages/VerificationAccountArtisantScreen";
+import ChatForArtisant from "@/pages/ChatForArtisant";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -772,6 +773,13 @@ function RootNavigator() {
                       <Stack.Screen
                         name="Chat"
                         component={ChatScreen}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
+                       <Stack.Screen
+                        name="ChatForArtisant"
+                        component={ChatForArtisant}
                         options={{
                           headerShown: false,
                         }}

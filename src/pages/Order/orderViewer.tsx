@@ -241,7 +241,7 @@ const OrderView = ({ route, navigation }: any) => {
                             </MapView>
                         </View>
                     ) : (
-                        <Text>Location Details: {order?.location}</Text>
+                        <Text>Location Details: {order?.location} </Text>
                     )}
 
                     {(user?.id && order?.review == null) &&

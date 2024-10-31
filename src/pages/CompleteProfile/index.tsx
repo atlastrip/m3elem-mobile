@@ -278,7 +278,7 @@ const CompleteProfile = ({ navigation }: any) => {
 
             const json = await res.json();
 
-            console.log('json', json);
+            // console.log('json', json);
             navigation.navigate("Home");
             // await fetchProfileCompletedData(); // Refresh profile data
 

@@ -77,7 +77,7 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
         const user: any = await getUser();
         setUser(user);
         console.log('====================================');
-        console.log('token', token);
+        // console.log('token', token);
         console.log('====================================');
         if (!token) {
             return;
@@ -161,7 +161,7 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
             );
 
             const json = await res.json();
-            console.log('json', json);
+            // console.log('json', json);
             
             setLeads(json.data.leads || []);
 
@@ -189,7 +189,7 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
         const user: any = await getUser();
         setUser(user);
         console.log('====================================');
-        console.log('token', token);
+        // console.log('token', token);
         console.log('====================================');
         if (!token) {
             return;
@@ -225,9 +225,9 @@ const UserOrderListing = ({ navigation, setShowQr, setOrder }: any) => {
             );
 
             const json = await res.json();
-            console.log('====================================');
-            console.log('json', json);
-            console.log('====================================');
+            // console.log('====================================');
+            // console.log('json', json);
+            // console.log('====================================');
             await getLeads();
         } catch (error: any) {
             return Alert.alert(error.message)

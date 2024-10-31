@@ -8,9 +8,8 @@ const IsCompleteProfile = ({ profileCompletedData, navigation }: any) => {
 
     const handleCompleteProfile = async () => {
         // Logic to complete profile
-        console.log("Complete profile clicked");
+        // console.log("Complete profile clicked");
         const token = await getToken();
-        console.log('token', token);
         
 
         // go to CompleteProfile

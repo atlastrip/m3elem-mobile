@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from 'constants/theme';
 import { getToken, getUser } from '@/helpers/getToken';
 import Constants from 'expo-constants';
-const ChatScreen = ({ route, navigation }: any) => {
+const ChatForArtisant = ({ route, navigation }: any) => {
     const { conversationId, userId, userName, order } = route.params;
     const [messages, setMessages] = useState([]);
     const [error, setError] = useState(null);
@@ -313,7 +313,7 @@ const ChatScreen = ({ route, navigation }: any) => {
     );
 };
 
-export default ChatScreen;
+export default ChatForArtisant;
 
 
 const styles = StyleSheet.create({
