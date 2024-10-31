@@ -412,6 +412,7 @@ import { getToken, getUser } from '@/helpers/getToken';
 import Constants from 'expo-constants';
 import { useIsFocused } from '@react-navigation/native';
 import QRCode from 'react-native-qrcode-svg';
+import OrderListCard from '../OrderListCard';
 
 
 
@@ -769,7 +770,60 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
         }
     };
 
-  
+
+    const [locations, setLocations]: any = useState([]);
+    const [errorLocation, setErrorLocation] = useState<string | null>(null);
+
+    // Function to fetch location based on zip code
+    const fetchLocation = async (zip: string): Promise<string> => {
+        try {
+            const response = await fetch(`https://api.zippopotam.us/us/${zip}`);
+            if (!response.ok) {
+                throw new Error("Invalid zip code");
+            }
+            const data = await response.json();
+            const city = data.places[0]["place name"];
+            const state = data.places[0]["state abbreviation"];
+            return `${city}, ${state}`;
+        } catch (err: any) {
+            // Optionally log the error or handle it differently
+            return "Unknown location";
+        }
+    };
+
+    // Function to handle leads and fetch locations
+    const handleLeads = async (leads: any) => {
+        try {
+            // Map over leads to create an array of promises
+            const locationPromises = leads?.map(async (lead: any) => {
+                const location = await fetchLocation(lead?.zipCode);
+                return { id: lead.id, location };
+            });
+
+            // Wait for all location fetches to complete
+            const newLocations = await Promise.all(locationPromises);
+
+            // Update state with the new locations array
+            setLocations(newLocations);
+            setErrorLocation(null); // Clear any previous errors
+        } catch (error: any) {
+            // Handle any unexpected errors
+            setErrorLocation(error.message || "Error fetching locations");
+        }
+    };
+
+    // useEffect to trigger when leads change
+    useEffect(() => {
+        if (leads && leads.length > 0) {
+            handleLeads(leads);
+        } else {
+            // Optionally handle the case when leads are empty
+            setLocations([]);
+        }
+    }, [leads]);
+
+
+
     return (
         <ScrollView style={styles.container}>
             <Modal
@@ -800,86 +854,11 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
                     <Button title="Apply Filter" onPress={() => setShowFilterModal(false)} />
                 </View>
             </Modal>
-            {leads?.map((order: any) => (
-                <View key={order?.id} style={styles.orderCard}>
-                    <TouchableOpacity>
-                        <View
-                            className='flex-row justify-between items-center'
-                        >
-                            <Text style={styles.orderId}>{order?.title}</Text>
-                            <View style={styles.professions}>
-                                {order?.professionals?.map((prof: any) => (
-                                    <Text key={prof.id} style={styles.profession}>{prof?.text}</Text>
-                                ))}
-                            </View>
-                        </View>
-                        <Text>{order?.description}</Text>
-                        <Text style={styles.label}>Images:</Text>
-                        <ScrollView horizontal>
-                            {order?.images.map((image: any, index: any) => (
-                                <Image key={index} source={{ uri: image }} style={styles.image} />
-                            ))}
-                        </ScrollView>
+            {
+                loading ? <Text>Loading...</Text> :
+                    <OrderListCard leads={leads} locations={locations} user={user} navigation={navigation} setShowQr={setShowQr} setOrder={setOrder} HandleUnlock={HandleUnlock} />
 
-
-
-                        <Text style={styles.label}>Location</Text>
-
-                        {
-                            order?.artisantUnlockedLead.map((e: any) => e.id)?.includes(JSON.parse(user)?.id) ?
-                                <LocationView order={order} />
-                                :
-                                <Text style={styles.label}>
-                                    {
-                                        isNearCity(
-                                            order?.location ? order?.location : null,
-                                            moroccanCities
-                                        )
-                                    }
-                                </Text>
-                        }
-                    </TouchableOpacity>
-
-                    {
-                        order?.artisantUnlockedLead.map((e: any) => e.id)?.includes(JSON.parse(user)?.id)
-                            ? <>
-                                <TouchableOpacity
-                                    onPress={() => {
-
-
-                                        navigation.navigate('OrderView', { order, user })
-                                    }}
-                                    className='w-[100%] mt-1 items-center py-2 '
-                                >
-                                    <MaterialCommunityIcons name="eye" color="purple" size={28} />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        setOrder(order);
-                                        setShowQr(true);
-                                    }}
-                                    className="items-center mb-4">
-                                    <QRCode value={JSON.stringify({ id: order?.id, reviewer: "", description: "" })} size={40} />
-                                </TouchableOpacity>
-                            </>
-                            : <View className='border-t-2 flex-row border-gray-100'>
-                                <TouchableOpacity className='w-1/3 mt-1 items-center border-r-2 py-2 border-gray-100'>
-                                    <MaterialCommunityIcons name="close" color="red" size={28} />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => { HandleUnlock(order?.id, order?.categoryId?.id); }}
-                                    className='w-1/3 mt-1 items-center border-r-2 py-2 border-gray-100'>
-                                    <MaterialCommunityIcons name="check" color="green" size={28} />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => navigation.navigate('OrderView', { order, user })}
-                                    className='w-1/3 mt-1 items-center py-2 '>
-                                    <MaterialCommunityIcons name="eye" color="purple" size={28} />
-                                </TouchableOpacity>
-                            </View>
-                    }
-                </View>
-            ))}
+            }
         </ScrollView>
     );
 };
@@ -984,4 +963,5 @@ const styles = StyleSheet.create({
 });
 
 export default OrderListing;
+
 

@@ -537,6 +537,7 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
     const [SelectedProfession, setSelectedProfession] = useState(null);
     const [rating, setRating] = useState(3);
     const [showConfetti, setShowConfetti] = useState(false);
+    const [loadingUnlock, setLoadingUnlock] = useState(false);
 
     const unlockAnimation = useSharedValue(0);
     const unlockAnimatedStyle = useAnimatedStyle(() => {
@@ -617,7 +618,12 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
         headers.append("Content-Type", "application/json");
         headers.append("Authorization", `Bearer ${token}`);
 
+        console.log('====================================');
+        console.log('order?.categoryId', order?.categoryId);
+        console.log('====================================');
+        setLoadingUnlock(true);
         try {
+
             const res = await fetch(
                 Constants.expoConfig?.extra?.apiUrl,
                 {
@@ -657,7 +663,7 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
                         variables: {
                             input: {
                                 id: id,
-                                categoryId: order?.categoryId,
+                                categoryId: order?.categoryId?.id,
                             }
                         }
                     }),
@@ -675,7 +681,9 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
                 throw new Error(lead.errors[0].message);
             }
             setIsUnlocked((lead.data.unlockLead?.artisantUnlockedLead || [])?.map((e: any) => e?.id)?.includes(JSON.parse(newUser)?.id));
+            setLoadingUnlock(false);
         } catch (error: any) {
+            setLoadingUnlock(false);
             return Alert.alert(error.message)
         }
     }
@@ -710,6 +718,17 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
 
 
     }, [])
+
+
+
+
+    if (loadingUnlock) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>Loading...</Text>
+            </View>
+        )
+    }
 
 
     return (
@@ -821,11 +840,13 @@ const OrderViewerArtisan = ({ route, navigation }: any) => {
                                             <Text style={styles.unlockedText}>You have unlocked this lead</Text>
                                         ) : (
                                             <ButtonPrimary
+                                                Loading={false} setLoading={() => { }}
                                                 className='mt-3 w-1/2'
                                                 onPress={handleAlert} text="Unlock now" />
                                         )
                                     ) : (
                                         <ButtonPrimary
+                                            Loading={false} setLoading={() => { }}
                                             className='mt-3 w-1/2'
                                             onPress={handleAlert} text="Unlock now" />
                                     )}
