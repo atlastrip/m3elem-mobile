@@ -1218,11 +1218,13 @@ import BusinessForm from "@/components/BusinessForm";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { storage } from "firebase";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import WhereYourWork from "@/components/WhereYourWork";
 
 const TABS = [
   { key: 'profile', title: 'Profile' },
   { key: 'budget', title: 'Budget' },
   { key: 'categories', title: 'Categories' },
+  { key: 'whereuwork', title: 'Where You Work' },
   { key: 'documents', title: 'Get Verified' },
   { key: 'business', title: 'Business' },
   { key: 'address', title: 'Address' },
@@ -1897,6 +1899,11 @@ export default function GestionDeCompteArtisant() {
     </View>
   );
 
+  const renderWhereuwork = () => (
+    <View style={{ flex: 1 }}>
+      <WhereYourWork />
+    </View>
+  );
   const renderContent = () => {
     switch (currentTab) {
       case 'profile':
@@ -1913,6 +1920,8 @@ export default function GestionDeCompteArtisant() {
         return renderAddress();
       case 'requirements':
         return renderSearchRequirementChecker();
+      case 'whereuwork':
+        return renderWhereuwork();
       default:
         return null;
     }
@@ -1955,10 +1964,19 @@ export default function GestionDeCompteArtisant() {
           </View>
 
           {/* Tab Content */}
-          <View style={styles.contentContainer}>
+          {/* <View style={styles.contentContainer}>
             <ScrollView>
               {renderContent()}
             </ScrollView>
+          </View> */}
+          <View style={styles.contentContainer}>
+            {currentTab === 'whereuwork' ? (
+              renderContent()
+            ) : (
+              <ScrollView>
+                {renderContent()}
+              </ScrollView>
+            )}
           </View>
 
           {/* Update Button */}
@@ -1981,26 +1999,26 @@ export default function GestionDeCompteArtisant() {
               <Text style={styles.updateButtonText}>Update Categories</Text>
             </TouchableOpacity>
           )}
-            
-            {['business'].includes(currentTab) && (
-              <TouchableOpacity
-                style={styles.updateButton}
-                onPress={handleUpdateBusiness}
-                disabled={uploading}
-              >
-                <Text style={styles.updateButtonText}>Update Business</Text>
-              </TouchableOpacity>
-            )}
-              
-              {['address'].includes(currentTab) && (
-                <TouchableOpacity
-                  style={styles.updateButton}
-                  onPress={handleUpdateAddress}
-                  disabled={uploading}
-                >
-                  <Text style={styles.updateButtonText}>Update Address</Text>
-                </TouchableOpacity>
-              )}
+
+          {['business'].includes(currentTab) && (
+            <TouchableOpacity
+              style={styles.updateButton}
+              onPress={handleUpdateBusiness}
+              disabled={uploading}
+            >
+              <Text style={styles.updateButtonText}>Update Business</Text>
+            </TouchableOpacity>
+          )}
+
+          {['address'].includes(currentTab) && (
+            <TouchableOpacity
+              style={styles.updateButton}
+              onPress={handleUpdateAddress}
+              disabled={uploading}
+            >
+              <Text style={styles.updateButtonText}>Update Address</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
