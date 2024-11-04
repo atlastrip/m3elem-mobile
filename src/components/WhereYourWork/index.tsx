@@ -358,7 +358,7 @@ const WhereYourWork = () => {
       <WebView
         style={styles.container}
         source={{
-          uri: `https://www.m3alempro.com/en/zipcodes/zip-code-finder?token=${newToken}`,
+          uri: `https://www.m3alempro.com/en/zipcodes/zip-code-finder?token=${newToken}?webView=true`,
         }}
         onNavigationStateChange={(navState: any) => {
           const url = navState.url;

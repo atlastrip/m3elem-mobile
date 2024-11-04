@@ -859,7 +859,7 @@ const RenderZipCodesFromBackendUI: React.FC<any> = ({
 const styles = StyleSheet.create({
     container: {
         padding: 6,
-        backgroundColor: '#F5F5F5',
+        backgroundColor: 'white',
     },
     header: {
         marginBottom: 16,

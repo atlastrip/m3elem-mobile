@@ -851,10 +851,15 @@ const DisplayServiceProviders = ({ data, navigation, selectedCategories, title }
 
     const handleContact = useCallback(
         async (contactType: any) => {
+            console.log('====================================');
+            console.log('contactType', contactType);
+            console.log('====================================');
             if (contactType === "call") {
                 makePhoneCall(data?.userByPK.phone);
             } else if (contactType === "chat") {
                 const res = await handleAddOrder(contactType);
+                console.log('res', res);
+                
                 if (res?.data?.addDirectLead?.id) {
                     const conversationId: any = await createOrRetrieveConversation(
                         res?.data?.addDirectLead?.id,
