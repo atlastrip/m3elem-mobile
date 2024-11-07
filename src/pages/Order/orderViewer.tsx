@@ -169,15 +169,31 @@ const OrderView = ({ route, navigation }: any) => {
     const handleCreateConversationUser = async (artisan: any) => {
         setLoading(true)
         // console.log('order?.id, artisantInfo?.id, order?.owner?.id user', order?.id, artisan?.id, order?.owner?.id);
+        const User: any = await AsyncStorage.getItem('@user');
+
 
         const conversationId = await createOrRetrieveConversation(order?.id, artisan?.id, order?.owner?.id);
         setLoading(false)
-        navigation.navigate('Chat', {
-            conversationId, userId: order?.owner?.id, userName: order?.owner?.firstName, order: {
-                ...order,
-                artisantId: artisan
-            }
-        });
+
+        if (JSON.parse(User).role === 'user') {
+            navigation.navigate('Chat', {
+                conversationId, userId: artisan?.id, userName: order?.owner?.id, order: {
+                    ...order,
+                    artisantId: artisan
+                }
+
+            });
+
+        }
+        else {
+            navigation.navigate('Chat', {
+                conversationId, userId: order?.owner?.id, userName: artisan?.id, order: {
+                    ...order,
+                    artisantId: artisan
+                }
+
+            });
+        }
 
     };
     // console.log('order wast orderviweer', order);
