@@ -192,6 +192,8 @@ const OrderView = ({ route, navigation }: any) => {
                     artisantId: artisan
                 }
 
+                
+
             });
         }
 
