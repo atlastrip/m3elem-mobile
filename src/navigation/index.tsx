@@ -677,6 +677,13 @@ function RootNavigator() {
                           headerShown: false,
                         }}
                       />
+                        <Stack.Screen
+                        name="ChatForArtisant"
+                        component={ChatForArtisant}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
                       <Stack.Screen
                         name="InstantResult"
                         component={InstantResult}

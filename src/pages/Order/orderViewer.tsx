@@ -156,7 +156,6 @@ const OrderView = ({ route, navigation }: any) => {
 
     const handleCreateConversation = async () => {
         setLoading(true)
-        console.log('order?.id, artisantInfo?.id, order?.owner?.id', order?.id, artisantInfo?.id, order?.owner?.id);
 
         const conversationId = await createOrRetrieveConversation(order?.id, artisantInfo?.id, order?.owner?.id);
         setLoading(false)
@@ -169,7 +168,7 @@ const OrderView = ({ route, navigation }: any) => {
     };
     const handleCreateConversationUser = async (artisan: any) => {
         setLoading(true)
-        console.log('order?.id, artisantInfo?.id, order?.owner?.id user', order?.id, artisan?.id, order?.owner?.id);
+        // console.log('order?.id, artisantInfo?.id, order?.owner?.id user', order?.id, artisan?.id, order?.owner?.id);
 
         const conversationId = await createOrRetrieveConversation(order?.id, artisan?.id, order?.owner?.id);
         setLoading(false)

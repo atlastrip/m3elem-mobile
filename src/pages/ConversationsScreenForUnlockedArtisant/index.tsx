@@ -7,7 +7,8 @@ const ConversationsScreenForUnlockedArtisant = ({ route, navigation }: any) => {
     const { leads, order } = route.params;
 
     const [role, setRole] = React.useState('');
-
+    
+    
 
     const getRole = async () => {
         const newUser: any = await getUser();
@@ -17,12 +18,9 @@ const ConversationsScreenForUnlockedArtisant = ({ route, navigation }: any) => {
     React.useEffect(() => {
         getRole();
     }, []);
-    console.log('====================================');
-    console.log('order', order);
-    console.log('====================================');
     const renderArtisantItem = ({ item }: any) => {
         const profileImage = item?.imageProfile;
-        console.log('item brooooooooo 1', item);
+        // console.log('item brooooooooo 1', item);
 
         return (
             <TouchableOpacity
@@ -31,9 +29,9 @@ const ConversationsScreenForUnlockedArtisant = ({ route, navigation }: any) => {
                     // Navigate to Chat with the selected artisant
                     try {
 
-                        console.log('====================================');
+                        // console.log('====================================');
                         console.log('role', role);
-                        console.log('====================================');
+                        // console.log('====================================');
                         if (role === 'user') {
                             const conversationId: any = await createOrRetrieveConversation(
                                 order?.id,
@@ -43,8 +41,8 @@ const ConversationsScreenForUnlockedArtisant = ({ route, navigation }: any) => {
 
                             navigation.navigate('Chat', {
                                 conversationId,
-                                userId: order?.owner?.id,
-                                userName: order?.owner?.firstName,
+                                userId: item?.id,
+                                userName: order?.owner?.id,
                                 order: {
                                     ...order, artisantId: item
                                 }
@@ -59,8 +57,9 @@ const ConversationsScreenForUnlockedArtisant = ({ route, navigation }: any) => {
 
                             navigation.navigate('Chat', {
                                 conversationId,
-                                userId: item?.id,
-                                userName: item?.firstName,
+                                // userId: item?.id,
+                                userId: order?.owner?.id,
+                                userName: item?.id,
                                 order: {
                                     ...order, artisantId: item
                                 }
@@ -110,9 +109,9 @@ const ConversationsScreenForUnlockedArtisant = ({ route, navigation }: any) => {
         );
     };
 
-    console.log('====================================');
-    console.log('leads', leads);
-    console.log('====================================');
+    // console.log('====================================');
+    // console.log('leads', leads);
+    // console.log('====================================');
 
     return (
         <View style={styles.container}>

@@ -113,15 +113,15 @@ const DirectConversationsScreenForUser = ({ navigation }: any) => {
                         if (role === 'user') {
                             navigation.navigate('Chat', {
                                 conversationId,
-                                userId: item?.owner?.id,
-                                userName: item?.owner?.firstName,
+                                userId: item?.artisantId?.id,
+                                userName: item?.owner?.id,
                                 order: item
                             });
                         } else {
                             navigation.navigate('Chat', {
                                 conversationId,
-                                userId: item?.artisantId?.id,
-                                userName: item?.artisantId.firstName,
+                                userId: item?.owner?.id,
+                                userName: item?.artisantId.id,
                                 order: item
                             });
                         }

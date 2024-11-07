@@ -93,7 +93,7 @@ const ChatForArtisant = ({ route, navigation }: any) => {
         try {
             const conversationRef = doc(firestore, 'conversations', conversationId);
             const messagesRef = collection(conversationRef, 'messages');
-            console.log('order?.owner?.pushToken', order?.owner?.pushToken);
+            // console.log('order?.owner?.pushToken', order?.owner?.pushToken);
 
             // @ts-ignore
             await Promise.all(newMessages.map(message => {
