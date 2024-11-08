@@ -2244,7 +2244,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width, height } = Dimensions.get('window');
 
 const Logo = () => (
-  <Image source={require('@/assets/handyman.png')} style={styles.logo} />
+  <Image source={require('@/assets/AHOUSEGURU LOGO.png')} style={styles.logo} />
 );
 
 // Dummy data for categories
@@ -2478,7 +2478,7 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
         recaptcha
       }
       <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.content}>
-        <BlurView intensity={100} style={styles.blurContainer}>
+        <View  style={styles.blurContainer}>
           <Text style={styles.title}>Select any other services you do.</Text>
           {/* <View style={styles.viewToggle}>
             <TouchableOpacity
@@ -2517,7 +2517,7 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
             />
             <Modal
               visible={showModal}
-              transparent
+              
               animationType="none"
               onRequestClose={() => setShowModal(false)}
             >
@@ -2664,7 +2664,7 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
               </LinearGradient>
             </TouchableOpacity>
           </Animated.View>
-        </BlurView>
+        </View>
       </Animated.View>
     </LinearGradient>
   );
@@ -2700,14 +2700,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
     padding: 20,
+    backgroundColor : "white"
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#fff',
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },

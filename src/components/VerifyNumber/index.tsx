@@ -375,6 +375,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { firebaseConfig, Newauth } from '../../firebase/index'; // Adjust the path as needed
 import { useFirebaseLogin } from "@itzsunny/firebase-login";
 import Constants from 'expo-constants';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { WINDOW_HEIGHT } from '@gorhom/bottom-sheet';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedG = Animated.createAnimatedComponent(G);
@@ -614,7 +616,7 @@ const VerificationScreens = ({ navigation }: any) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <KeyboardAwareScrollView style={styles.container}>
 
             {
                 recaptcha
@@ -655,7 +657,7 @@ const VerificationScreens = ({ navigation }: any) => {
                     </View>
                 </ScrollView>
             </LinearGradientExpo>
-        </SafeAreaView>
+        </KeyboardAwareScrollView>
     );
 };
 
@@ -664,6 +666,7 @@ export default VerificationScreens;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        height : WINDOW_HEIGHT
     },
     gradient: {
         flex: 1,

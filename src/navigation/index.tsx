@@ -91,6 +91,7 @@ import GestionDeCompteArtisant from "@/pages/Auth/GestionDeCompteArtisant";
 import CreateAccountForArtisantNextPage from "@/pages/Auth/CreateAccountForArtisantNextPage";
 import VerificationAccountArtisantScreen from "@/pages/VerificationAccountArtisantScreen";
 import ChatForArtisant from "@/pages/ChatForArtisant";
+import ProProfile from "@/pages/ProProfile";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -162,6 +163,7 @@ export type IPages =
   | "GestionDeCompteArtisant"
   | "CreateAccountForArtisantNextPage"
   | "VerificationAccountArtisantScreen"
+  | "ProProfile"
 
 
   ;
@@ -687,6 +689,13 @@ function RootNavigator() {
                       <Stack.Screen
                         name="InstantResult"
                         component={InstantResult}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
+                      <Stack.Screen
+                        name="ProProfile"
+                        component={ProProfile}
                         options={{
                           headerShown: false,
                         }}

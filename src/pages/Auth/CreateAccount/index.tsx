@@ -1713,6 +1713,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { getToken } from '@/helpers/getToken';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { WINDOW_HEIGHT } from '@gorhom/bottom-sheet';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const { width } = Dimensions.get('window');
 
@@ -1823,16 +1825,15 @@ export default function EnchantedRegistrationForm({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <LinearGradient
-        colors={['#4CAF50', '#2E7D32']}
-        style={styles.container}
-      >
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    <LinearGradient
+    colors={['#4CAF50', '#2E7D32']}
+    style={styles.container}
+  >
+    <KeyboardAwareScrollView style={styles.safeArea}>
+        <View
+          style={{ flex: 1 , margin : "auto" , height : WINDOW_HEIGHT}}
         >
-          <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.scrollContent}>
             <Animated.Text
               entering={FadeInDown.delay(200).duration(1000)}
               style={styles.title}
@@ -1931,19 +1932,7 @@ export default function EnchantedRegistrationForm({ navigation }: any) {
                 </Text>
               )}
 
-              <TouchableOpacity
-                style={styles.checkboxContainer}
-                onPress={() => setEnableTextMessages(!enableTextMessages)}
-              >
-                <View style={[styles.checkbox, enableTextMessages && styles.checkboxChecked]}>
-                  {enableTextMessages && <Ionicons name="checkmark" size={18} color="#fff" />}
-                </View>
-                <Text style={styles.checkboxLabel}>Enable text messages</Text>
-              </TouchableOpacity>
-
-              <Text style={styles.termsText}>
-                By checking this box, you authorize A HOUSE GURU to send you automated text messages. Opt out anytime. Terms apply.
-              </Text>
+              
 
               <TouchableOpacity
                 style={styles.button}
@@ -1972,23 +1961,24 @@ export default function EnchantedRegistrationForm({ navigation }: any) {
                 <Text style={styles.loginLink}>Already have an account? Log in</Text>
               </TouchableOpacity>
             </Animated.View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+          </View>
+        </View>
+    </KeyboardAwareScrollView>
       </LinearGradient>
-    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    height : WINDOW_HEIGHT
   },
   container: {
     flex: 1,
+    height : WINDOW_HEIGHT
   },
   scrollContent: {
-    flexGrow: 1,
+    flex: 1,
     justifyContent: 'center',
     padding: 20,
   },

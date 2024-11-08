@@ -86,7 +86,6 @@ export default function ImageGallery({ images }: { images: ImageType[] }) {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
   },
   imageGrid: {
     flexDirection: 'row',

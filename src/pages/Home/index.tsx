@@ -204,8 +204,8 @@ export default function HomeScreen({ navigation }: any) {
   const [order, setOrder] = React.useState(null);
   const [hasPermission, setHasPermission] = React.useState(null);
   const [scanned, setScanned] = React.useState(false);
-  const [searchCategory, setSearchCategory] = React.useState('Countertops');
-  const [searchZipCode, setSearchZipCode] = React.useState('90009');
+  const [searchCategory, setSearchCategory] = React.useState('Solar pannels');
+  const [searchZipCode, setSearchZipCode] = React.useState('92660');
 
   React.useEffect(() => {
     (async () => {
@@ -273,7 +273,7 @@ export default function HomeScreen({ navigation }: any) {
         <View className='absolute bottom-3 px-3 w-full'>
 
           <Text className='text-5xl font-bold text-white ' >
-            Service day
+          A HOUSE GURU
           </Text>
           <View
             className='flex-row items-center justify-between'

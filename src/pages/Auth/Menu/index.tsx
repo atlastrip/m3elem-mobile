@@ -148,13 +148,13 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
     //     }),
     // },
     {
-      name: "ServiceDay Blog",
+      name: "A HOUSE GURU Blog",
       icon: <MaterialIcons name="model-training" color="white" size={20} />,
       colorIcon: "green",
       onPress: () =>
         navigation.navigate("WebView", {
-          PageName: "ServiceDay Blog",
-          Url: "https://www.serviceday.ma",
+          PageName: "A HOUSE GURU Blog",
+          Url: "https://blog.ahouseguru.com",
         }),
     },
   ];

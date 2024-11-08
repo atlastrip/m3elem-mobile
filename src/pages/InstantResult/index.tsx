@@ -758,7 +758,7 @@
 //     const selectedCategoriesRef = useRef([]);
 //     const [currentQuestion, setCurrentQuestion] = useState<number>(0);
 
-   
+
 
 //     const fetchData = useCallback(async (categoryData: any, ignoreHistory: boolean) => {
 //         try {
@@ -1012,17 +1012,17 @@
 //         if (selectedCategories.length > 0 && !open) {
 //           const currentCategory = category.trim().toLowerCase();
 //             console.log('currentCategory', currentCategory);
-            
+
 //           (async () => {
 //             // Retrieve filters from AsyncStorage
 //             const filtersData = await AsyncStorage.getItem('filtersStore');
 //             let filtersStore = filtersData ? JSON.parse(filtersData) : {};
 //             const storedFilters = filtersStore[currentCategory] || [];
-    
+
 //             if (storedFilters.length > 0) {
 //               setFilters(storedFilters);
 //               setOpenQuiz(true);
-    
+
 //               if (storedFilters.length === 0) {
 //                 handleGetArtisants();
 //               }
@@ -1031,17 +1031,17 @@
 //               let allFilters: any = [];
 //               setFilters([]);
 //               setArtisants([]);
-    
+
 //               Newcategories?.forEach((category: any) => {
 //                 // @ts-ignore
 //                 if (selectedCategories.includes(category?.id)) {
 //                   allFilters = allFilters.concat(category?.filters);
 //                 }
 //               });
-    
+
 //               setFilters(allFilters);
 //               setOpenQuiz(true);
-    
+
 //               if (allFilters.length === 0) {
 //                 handleGetArtisants();
 //               }
@@ -1235,6 +1235,8 @@ import { Results } from '@/components/Results';
 import ViewFilters from '@/components/ViewFilters';
 import { getToken } from '@/helpers/getToken';
 import Constants from 'expo-constants';
+import { COLORS } from 'constants/theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const CategorySelectionPopup = ({
     categories,
@@ -1308,7 +1310,7 @@ const CategorySelectionPopup = ({
 
                     {/* Close button */}
                     <View style={{ marginTop: 10 }}>
-                        <Button title="Close" onPress={onClose} />
+                        <Button title="Close" color={COLORS.primary} onPress={onClose} />
                     </View>
                 </View>
             </View>
@@ -1644,26 +1646,36 @@ const InstantResult = ({ route, navigation }: any) => {
             getCategoryAndZipCode();
         }
     }, []); // Empty dependency array ensures this runs once on component mount
-
+    const insets = useSafeAreaInsets()
     return (
         <View style={styles.container}>
-            <View style={styles.searchContainer}>
+            <View
+                className='flex-col gap-3 mb-3'
+                style={[{ paddingTop: insets.top }]}>
                 <TextInput
                     value={category}
                     onChangeText={setCategory}
                     placeholder="What are you looking for?"
+                    placeholderTextColor="gray"
                     style={styles.searchInput}
+                    className='p-2 text-xl'
                 />
-                <TextInput
-                    value={zipCode}
-                    onChangeText={setZipCode}
-                    placeholder="Zipcode"
-                    keyboardType="numeric"
-                    style={styles.zipInput}
-                />
-                <TouchableOpacity onPress={handleSearch} style={styles.searchButton}>
-                    <Text style={styles.searchButtonText}>{loading ? 'Searching...' : 'SEARCH'}</Text>
-                </TouchableOpacity>
+                <View className='flex-row '>
+                    <TextInput
+                        value={zipCode}
+                        onChangeText={setZipCode}
+                        placeholderTextColor="gray"
+                        placeholder="Zipcode"
+                        keyboardType="numeric"
+
+                        style={styles.zipInput}
+                        className='p-2 text-xl flex-1 mr-3'
+
+                    />
+                    <TouchableOpacity onPress={handleSearch} style={styles.searchButton} className='justify-center items-center'>
+                        <Text style={styles.searchButtonText}>{loading ? 'Searching...' : 'SEARCH'}</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
 
             {filters?.length > 0 && (
@@ -1676,7 +1688,7 @@ const InstantResult = ({ route, navigation }: any) => {
             )}
 
             {loadingArtisants ? (
-                <ActivityIndicator size="large" color="#0000ff" />
+                <ActivityIndicator size="large" color={COLORS.primary} />
             ) : (
                 <Results
                     navigation={navigation}
@@ -1716,6 +1728,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         backgroundColor: '#f0f2f5',
+
     },
     searchContainer: {
         flexDirection: 'row',
@@ -1723,31 +1736,27 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     searchInput: {
-        flex: 1,
-        padding: 10,
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 8,
         backgroundColor: '#fff',
-        marginRight: 10,
     },
     zipInput: {
-        width: 100,
-        padding: 10,
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 8,
         backgroundColor: '#fff',
-        marginRight: 10,
     },
     searchButton: {
-        backgroundColor: '#4F46E5',
+        backgroundColor: COLORS.primary,
         paddingVertical: 10,
         paddingHorizontal: 15,
         borderRadius: 8,
+        textAlign: "center",
     },
     searchButtonText: {
         color: 'white',
+        textAlign: "center",
         fontWeight: 'bold',
     },
     modalOverlay: {
@@ -1771,8 +1780,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 10,
-        backgroundColor: '#e3f2fd',
-        borderColor: '#1976d2',
+        backgroundColor: COLORS.primary + 20,
+        borderColor: COLORS.primary,
         borderWidth: 2,
         borderRadius: 8,
         marginBottom: 10,
@@ -1799,7 +1808,7 @@ const styles = StyleSheet.create({
         textTransform: 'capitalize',
     },
     continueButton: {
-        backgroundColor: '#1976d2',
+        backgroundColor: COLORS.primary,
         padding: 12,
         borderRadius: 8,
         alignItems: 'center',
