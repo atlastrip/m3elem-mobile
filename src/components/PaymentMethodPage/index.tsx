@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Switch, Alert, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-// import { Info } from 'lucide-react-native'; // Assuming you're using a compatible icon library
 import Constants from 'expo-constants';
 
 import tw from 'twrnc';

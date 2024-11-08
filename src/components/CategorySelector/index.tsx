@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { Checkbox } from 'react-native-paper';
 import tw from 'twrnc';
-// import { Info } from 'lucide-react-native'; // Use appropriate icon library for React Native
 import Constants from 'expo-constants';
 import { getToken } from '@/helpers/getToken';
 
