@@ -31,7 +31,7 @@ export default function Portfolio() {
             paddingTop: insets.top + 10
         }}>
             <View className='flex-row justify-between items-center mb-3 px-3'>
-                <Text style={styles.name}>ServiceDay</Text>
+                <Text style={styles.name}>A HOUSE GURU</Text>
                 <Avatar.Image size={60} source={{ uri: 'https://www.dealkhir.com/_next/image?url=%2Fimages%2Fempty.jpg&w=1920&q=75' }} />
             </View>
             <View className='px-3 mt-3 flex-row'>

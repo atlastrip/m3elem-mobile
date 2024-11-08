@@ -824,8 +824,8 @@ export default function MagicalLoginScreen({ navigation }:any) {
         </Animated.View>
 
         <Animated.Image
-          source={require('@/assets/handyman-removebg-preview.png')}
-          style={[styles.image, { transform: [{ scale: 1.2 }] }]}
+          source={require('@/assets/AHOUSEGURU LOGO.png')}
+          style={[styles.image, { transform: [{ scale: .8 }] }]}
           resizeMode="contain"
           entering={FadeInDown.delay(400).duration(1000)}
           className={"bg-transparent"}
@@ -896,7 +896,7 @@ export default function MagicalLoginScreen({ navigation }:any) {
             style={styles.signupContainer}
             entering={FadeInUp.delay(1200).duration(1000)}
           >
-            <Text style={styles.signupText}>New to ServiceDay?</Text>
+            <Text style={styles.signupText}>New to A HOUSE GURU?</Text>
             <TouchableOpacity onPress={() => navigation.navigate('CreateAccount')}>
               <Text style={styles.signupLink}>Sign up here</Text>
             </TouchableOpacity>

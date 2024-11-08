@@ -1,6 +1,7 @@
 import { getToken } from '@/helpers/getToken';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const IsCompleteProfile = ({ profileCompletedData, navigation }: any) => {
 
@@ -16,12 +17,13 @@ const IsCompleteProfile = ({ profileCompletedData, navigation }: any) => {
         navigation.navigate("CompleteProfile", { navigation });
 
     };
+    const insets = useSafeAreaInsets()
 
     return (
         <>
             {/* Conditional rendering instead of Collapse */}
             {!profileCompletedData && (
-                <View style={styles.container}>
+                <View style={[styles.container , {paddingTop : insets.top}]}>
                     <View style={styles.innerContainer}>
                         <View style={styles.textContainer}>
                             <Text style={styles.title}>Complete Your Profile</Text>

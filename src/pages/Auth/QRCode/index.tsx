@@ -91,7 +91,7 @@ const QRCode = ({ navigation }: { navigation: Navigate }) => {
             }}
             className="text-white text-center font-bold text-lg px-10"
           >
-            Votre Qr-code ServiceDay
+            Votre Qr-code A HOUSE GURU
           </Text>
           
           <View className="flex-row justify-center mt-10">

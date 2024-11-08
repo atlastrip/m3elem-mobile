@@ -412,7 +412,7 @@ const { width, height } = Dimensions.get('window');
 
 const screens = [
   {
-    title: "ServiceDay find Reliable Handymen.",
+    title: "A HOUSE GURU find Reliable Handymen.",
     description: "Connecting with skilled, vetted handymen in Casablanca is quick and easy with our app. From plumbing and electrical work to carpentry and general maintenance, we've got you covered.",
     image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/vec-1-Hy5Ue5Ue9Ue9Ue9Ue9Ue9Ue9Ue9Ue9.avif"
   },

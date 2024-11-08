@@ -104,7 +104,7 @@ const AddProduct = ({ navigation }: { navigation: Navigate }) => {
         className="p-2 flex-row justify-center items-center bg-white/5"
       >
         <View className="p-3">
-          <Text className="text-lg font-bold text-black">ServiceDay</Text>
+          <Text className="text-lg font-bold text-black">A HOUSE GURU</Text>
         </View>
       </View>
       <View style={styles.container}>

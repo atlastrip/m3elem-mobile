@@ -130,7 +130,6 @@ const CMIPayment = ({
       method: "POST",
       headers: myHeaders,
       body: Json,
-      redirect: "follow",
     };
     fetch(
       "https://graph.facebook.com/v16.0/240582138407948/events?access_token=EAAQakZAQpv1UBAJGefPzjOVfL9m6cZCp59cuQ4LGOaH4Hj04ITQI0Hz6QGTFv2kK0zLQFOT2mnquOJ8dROOQXoxhGpga7EMgectIteajdxYsffaZA5TodWzhSVAuwK6xj7lZBFzhtZCAaHYnzWpwuFhsMBaCUrGcdHI72UhBzm0sjp1kDqGQmBZC75PXnr5fEZD",
