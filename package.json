@@ -81,6 +81,7 @@
     "i18n-js": "^4.2.0",
     "jetifier": "^2.0.0",
     "lottie-react-native": "6.7.0",
+    "lucide-react-native": "^0.455.0",
     "nativewind": "^2.0.11",
     "react": "18.2.0",
     "react-dom": "18.2.0",
