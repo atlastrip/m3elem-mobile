@@ -765,6 +765,12 @@ const DisplayServiceProviders = ({ data, navigation, selectedCategories, title }
                 (category: any) => category?.id === selectedCategories[0]
             );
 
+            console.log('data?.userByPK?.categories', data?.userByPK?.categories);
+            console.log('category', category);
+            console.log('====================================');
+            console.log('selectedCategories[0]', selectedCategories);
+            console.log('title', title);
+            console.log('====================================');
             try {
                 const res = await fetch(Constants.expoConfig?.extra?.apiUrl, {
                     method: "POST",
@@ -858,8 +864,13 @@ const DisplayServiceProviders = ({ data, navigation, selectedCategories, title }
                 makePhoneCall(data?.userByPK.phone);
             } else if (contactType === "chat") {
                 const res = await handleAddOrder(contactType);
-                console.log('res', res);
-                
+                // console.log('res', res);
+
+
+                // console.log('res?.data?.addDirectLead?.artisantId?.id', res?.data?.addDirectLead?.artisantId?.id);
+                // console.log('userId?.id', userId);
+                // return
+
                 if (res?.data?.addDirectLead?.id) {
                     const conversationId: any = await createOrRetrieveConversation(
                         res?.data?.addDirectLead?.id,
@@ -871,8 +882,8 @@ const DisplayServiceProviders = ({ data, navigation, selectedCategories, title }
                     setModalVisible(false);
                     navigation.navigate("Chat", {
                         conversationId,
-                        userId: userId?.id,
-                        userName: userId?.firstName,
+                        userId: res?.data?.addDirectLead?.artisantId?.id,
+                        userName: userId?.id,
                         order: {
                             ...res?.data?.addDirectLead,
                             owner: userId,

@@ -110,6 +110,7 @@ const DirectConversationsScreenForUser = ({ navigation }: any) => {
                             item?.owner?.id
                         );
 
+                        
                         if (role === 'user') {
                             navigation.navigate('Chat', {
                                 conversationId,

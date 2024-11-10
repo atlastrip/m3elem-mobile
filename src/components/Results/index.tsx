@@ -71,12 +71,15 @@ const AverageRatingDisplay = React.memo(({ reviews }: any) => {
     );
 });
 
-const ArtisanCard = React.memo(({ artisan, title, navigation }: any) => {
+const ArtisanCard = React.memo(({ artisan, title, selectedCategories, navigation }: any) => {
     const handleChatPress = useCallback(() => {
+
+
         navigation.navigate('ServiceProviderProfile', {
             id: artisan.id,
-            selectedCategories: title,
+            selectedCategories: selectedCategories,
             role: 'artisant',
+            title: title,
         });
     }, [navigation, artisan.id, title]);
 
@@ -170,10 +173,10 @@ const ArtisanCard = React.memo(({ artisan, title, navigation }: any) => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.viewButton}
-                        onPress={()=>navigation.navigate("ProProfile" ,{
-                            id : artisan.id,
-                            category : title,
-                            zipcode : 90009
+                        onPress={() => navigation.navigate("ProProfile", {
+                            id: artisan.id,
+                            category: title,
+                            zipcode: 90009
                         })}
                     >
                         <MaterialIcons name="remove-red-eye" size={20} color={COLORS.primary} />
@@ -332,9 +335,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         flexDirection: 'row',
         alignItems: 'center',
-        flex : 1
+        flex: 1
     },
-    viewButton : {
+    viewButton: {
         borderColor: COLORS.primary,
         borderWidth: 1,
         borderRadius: 4,
