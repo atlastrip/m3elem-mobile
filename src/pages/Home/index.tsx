@@ -205,7 +205,7 @@ export default function HomeScreen({ navigation }: any) {
   const [hasPermission, setHasPermission] = React.useState(null);
   const [scanned, setScanned] = React.useState(false);
   const [searchCategory, setSearchCategory] = React.useState('Solar pannels');
-  const [searchZipCode, setSearchZipCode] = React.useState('92660');
+  const [searchZipCode, setSearchZipCode] = React.useState('10001');
 
   React.useEffect(() => {
     (async () => {

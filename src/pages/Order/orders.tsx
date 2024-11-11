@@ -885,9 +885,7 @@ const Orders = ({ navigation }: any) => {
                     navigation={navigation}
                     searchQuery={debouncedQuery}
                 />
-                <View style={{ 
-                    marginBottom: 40,
-                 }} />
+                
             </View>
 
             <Modal

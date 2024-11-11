@@ -1,8 +1,7 @@
 import { COLORS } from 'constants/theme';
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Image, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Button, Image, Linking, Platform, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Constants from 'expo-constants';
-import * as Sharing from 'expo-sharing';
 
 import { MaterialIcons, FontAwesome, Feather } from '@expo/vector-icons';
 import dayjs from 'dayjs';
@@ -11,7 +10,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Alert } from 'react-native';
 import { Card } from 'react-native-paper';
 import ImageGallery from '@/components/ImageGallery';
-
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 // Utility functions
 const getUserCategory = (createdAt: any) => {
     const today = dayjs();
@@ -290,6 +290,7 @@ const ArtisanCard = React.memo(({ artisan, title, navigation }: any) => {
 });
 
 
+
 const ShareLink = ({ url = "" }) => {
     const shareLink = async () => {
         if (Platform.OS === 'web') {
@@ -298,15 +299,43 @@ const ShareLink = ({ url = "" }) => {
         }
 
         try {
-            await Sharing.shareAsync(url);
-            console.log('Link shared successfully!');
-        } catch (error) {
+            // Use Share API from react-native to share the URL directly
+            const result = await Share.share({
+                message: `Check out this user: ${url}`,
+            });
+
+            if (result.action === Share.sharedAction) {
+                console.log('Link shared successfully!');
+            } else if (result.action === Share.dismissedAction) {
+                console.log('Link sharing dismissed');
+            }
+        } catch (error:any) {
             console.error('Error sharing link:', error);
+            Alert.alert('Error sharing the link:', error.message);
         }
     };
 
     return <Button onPress={shareLink} title="Share" />;
 };
+
+
+// const ShareLink = ({ url = "" }) => {
+//     const shareLink = async () => {
+//         if (Platform.OS === 'web') {
+//             Alert.alert('Sharing is not supported on web');
+//             return;
+//         }
+
+//         try {
+//             await Sharing.shareAsync(url);
+//             console.log('Link shared successfully!');
+//         } catch (error) {
+//             console.error('Error sharing link:', error);
+//         }
+//     };
+
+//     return <Button onPress={shareLink} title="Share" />;
+// };
 
 const ProProfile = ({ navigation, route }: any) => {
     const { id, category, zipcode } = route.params;

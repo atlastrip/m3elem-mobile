@@ -17,9 +17,8 @@ const ChatScreen = ({ route, navigation }: any) => {
     const [error, setError] = useState(null);
     const [role, setRole] = useState('');
 
-    console.log('====================================');
     console.log('userId', userId);
-    console.log('====================================');
+    console.log('userName', userName);
 
 
     const getRole = async () => {
