@@ -1,3 +1,5 @@
+import { FlatList } from 'react-native';
+
 // import React, { useState, useEffect } from "react";
 // import {
 //     View,
@@ -736,6 +738,7 @@ import { getToken } from "@/helpers/getToken";
 import { storage } from "../../firebase/index";
 import { ProgressBar, Card } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons"; // Importing Ionicons from Expo
+import { WINDOW_HEIGHT } from "@gorhom/bottom-sheet";
 
 const UploadDocs = () => {
     const [files, setFiles] = useState([]);
@@ -802,7 +805,7 @@ const UploadDocs = () => {
 
             const data = await response.json();
             console.log('data', data);
-            
+
             setUploadedFiles(data?.data?.user?.documents || []);
         } catch (error) {
             console.error("Error fetching user data:", error);
@@ -872,7 +875,7 @@ const UploadDocs = () => {
                                     console.log(`Upload is ${progress}% done`);
 
                                     // Update upload progress state
-                                    setUploadProgress((prevProgress:any) => ({
+                                    setUploadProgress((prevProgress: any) => ({
                                         ...prevProgress,
                                         [file.name]: progress,
                                     }));
@@ -1006,92 +1009,86 @@ const UploadDocs = () => {
     };
 
     return (
-        <ScrollView style={tw`flex-1 bg-white`}>
-            <View style={tw`p-6`}>
-                <Text style={tw`text-3xl font-bold text-gray-800 mb-6`}>Upload Documents</Text>
 
-                {/* File Selection Button */}
-                <TouchableOpacity
-                    onPress={handleFileSelection}
-                    style={tw`flex-row items-center justify-center bg-blue-600 px-5 py-3 rounded-lg mb-4`}
-                >
-                    <Ionicons name="cloud-upload-outline" size={24} color="#fff" />
-                    <Text style={tw`text-white text-lg ml-2`}>Select Files</Text>
-                </TouchableOpacity>
+        <ScrollView className="bg-white" contentContainerStyle={{ paddingBottom: 20 }}>
+            <View className="p-6">
+                <Text className="text-3xl font-bold text-gray-800 mb-6">Upload Documents 3</Text>
 
-                {/* Display Selected Files */}
-                {files.length > 0 && (
-                    <View style={tw`mb-4`}>
-                        <Text style={tw`text-xl font-semibold text-gray-700 mb-2`}>Selected Files</Text>
-                        {files.map((file: any, index) => (
-                            <View key={index} style={tw`flex-row items-center justify-between p-3 bg-gray-100 rounded-md mb-2`}>
-                                <View style={tw`flex-row items-center`}>
-                                    <Ionicons name="document-outline" size={20} color="#6B7280" />
-                                    <Text style={tw`ml-2 text-gray-800`}>{file.name}</Text>
-                                </View>
-                                <TouchableOpacity onPress={() => {
-                                    setFiles(files.filter((_, i) => i !== index));
-                                }}>
-                                    <Ionicons name="trash-outline" size={20} color="#EF4444" />
-                                </TouchableOpacity>
-                            </View>
-                        ))}
-                    </View>
-                )}
-
-                {/* Upload Button */}
-                <TouchableOpacity
-                    onPress={uploadFilesToBackend}
-                    style={tw`flex-row items-center justify-center bg-green-600 px-5 py-3 rounded-lg mb-6`}
-                    disabled={loadingUpload}
-                >
-                    {loadingUpload ? (
-                        <ActivityIndicator size="small" color="#fff" />
-                    ) : (
-                        <>
-                            <Ionicons name="cloud-upload-outline" size={24} color="#fff" />
-                            <Text style={tw`text-white text-lg ml-2`}>Upload Files</Text>
-                        </>
-                    )}
-                </TouchableOpacity>
-
-                {/* Progress Bars for each file */}
-                {Object.keys(uploadProgress).length > 0 && (
-                    <View style={tw`mb-6`}>
-                        <Text style={tw`text-xl font-semibold text-gray-700 mb-2`}>Upload Progress</Text>
-                        {files.map((file: any, index: any) => (
-                            uploadProgress[file.name] !== undefined && (
-                                <View key={index} style={tw`mb-4`}>
-                                    <Text style={tw`text-gray-800 mb-1`}>{file.name}</Text>
-                                    {renderProgressBar(file.name)}
-                                </View>
-                            )
-                        ))}
-                    </View>
-                )}
-
-                {/* Uploaded Files Section */}
-                <View style={tw`mb-6`}>
-                    <Text style={tw`text-2xl font-semibold text-gray-800 mb-4`}>Uploaded Files</Text>
-                    {loading ? (
-                        <ActivityIndicator size="large" color="#4B5563" />
-                    ) : uploadedFiles.length > 0 ? (
-                        uploadedFiles.map((file, index) => renderUploadedFile(file, index))
-                    ) : (
-                        <Text style={tw`text-gray-600`}>No files uploaded yet.</Text>
-                    )}
-                </View>
-
-                {/* Info Section */}
-                <View style={tw`bg-gray-50 p-4 rounded-lg`}>
-                    <Text style={tw`text-xl font-semibold text-gray-800`}>Info</Text>
-                    <Text style={tw`mt-3 text-gray-600`}>
+                <View className="bg-gray-50 p-4 rounded-lg mb-3">
+                    <Text className="text-xl font-semibold text-gray-800">Info</Text>
+                    <Text className="mt-3 text-gray-600">
                         Upload important documents like diplomas to get verified and unlock more leads.
                         Verified professionals are trusted more by customers!
                     </Text>
                 </View>
+
+                {/* File Selection Button */}
+                {files.length === 0 ? (
+                    <TouchableOpacity
+                        onPress={handleFileSelection}
+                        className="flex-row items-center justify-center bg-blue-600 px-5 py-3 rounded-lg mb-4"
+                    >
+                        <Ionicons name="cloud-upload-outline" size={24} color="#fff" />
+                        <Text className="text-white text-lg ml-2">Select Files</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
+                        onPress={uploadFilesToBackend}
+                        className="flex-row items-center justify-center bg-green-600 px-5 py-3 rounded-lg mb-6"
+                        disabled={loadingUpload}
+                    >
+                        {loadingUpload ? (
+                            <ActivityIndicator size="small" color="#fff" />
+                        ) : (
+                            <>
+                                <Ionicons name="cloud-upload-outline" size={24} color="#fff" />
+                                <Text className="text-white text-lg ml-2">Upload Files</Text>
+                            </>
+                        )}
+                    </TouchableOpacity>
+                )}
+
+                {/* Display Selected Files */}
+                <FlatList
+                    data={files}
+                    scrollEnabled={false}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item, index }: any) => (
+                        <View className="flex-row items-center justify-between p-3 bg-gray-100 rounded-md mb-2">
+                            <View className="flex-row items-center truncate max-w-[70%]">
+                                <Ionicons name="document-outline" size={20} color="#6B7280" />
+                                <Text className="ml-2 text-gray-800">{item.name}</Text>
+                            </View>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setFiles(files.filter((_, i) => i !== index));
+                                }}
+                            >
+                                <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                    ListEmptyComponent={<Text className="text-gray-600">No files selected yet.</Text>}
+                />
+
+                {/* Uploaded Files Section */}
+                <View className="mb-6">
+                    <Text className="text-2xl font-semibold text-gray-800 mb-4">Uploaded Files</Text>
+                    {loading ? (
+                        <ActivityIndicator size="large" color="#4B5563" />
+                    ) : (
+                        <FlatList
+                            scrollEnabled={false}
+                            data={uploadedFiles}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={({ item, index }) => renderUploadedFile(item, index)}
+                            ListEmptyComponent={<Text className="text-gray-600">No files uploaded yet.</Text>}
+                        />
+                    )}
+                </View>
             </View>
         </ScrollView>
+
     );
 };
 

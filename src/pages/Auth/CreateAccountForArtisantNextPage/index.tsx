@@ -2241,10 +2241,14 @@ import { getToken } from '@/helpers/getToken';
 import { useFirebaseLogin } from '@itzsunny/firebase-login';
 import { firebaseConfig, Newauth } from 'firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { COLORS } from 'constants/theme';
 const { width, height } = Dimensions.get('window');
 
-const Logo = () => (
-  <Image source={require('@/assets/AHOUSEGURU LOGO.png')} style={styles.logo} />
+export const Logo = ({ style = styles.logo }) => (
+  <Image
+    resizeMode='contain'
+
+    source={require('@/assets/AHOUSEGURU LOGO.png')} style={style} />
 );
 
 // Dummy data for categories
@@ -2280,8 +2284,8 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
   const validatePhoneNumber = (phone: any) => {
     // Simple regex patterns for USA and Morocco
     const usaRegex = /^\+1\d{10}$/; // +1 followed by 10 digits
-    const marocRegex = /^\+212\d{9}$/; // +212 followed by 9 digits
-
+    const marocRegex = /^\+212\d{11}$/; // +212 followed by 9 digits
+    return true
     if (country.code === '+1') {
       return usaRegex.test(phone);
     } else if (country.code === '+212') {
@@ -2478,7 +2482,7 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
         recaptcha
       }
       <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.content}>
-        <View  style={styles.blurContainer}>
+        <View style={styles.blurContainer}>
           <Text style={styles.title}>Select any other services you do.</Text>
           {/* <View style={styles.viewToggle}>
             <TouchableOpacity
@@ -2517,7 +2521,7 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
             />
             <Modal
               visible={showModal}
-              
+
               animationType="none"
               onRequestClose={() => setShowModal(false)}
             >
@@ -2568,7 +2572,7 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
                       onChangeText={setPhone}
                       placeholder="e.g 15044754720"
                       keyboardType="phone-pad"
-                      maxLength={11}
+                      maxLength={12}
                     />
                   </View>
                   {/* <PhoneInput
@@ -2654,14 +2658,17 @@ const CreateAccountForArtisantNextPage = ({ navigation }: any) => {
               onPressIn={handlePressIn}
               onPressOut={handlePressOut}
             >
-              <LinearGradient
-                colors={['#4CAF50', '#45a049']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+              <View
                 style={styles.buttonGradient}
               >
-                <Text style={styles.buttonText}>{loading ? 'Loading...' : 'Back'}</Text>
-              </LinearGradient>
+                <Text style={
+                  {
+                    color: COLORS.primary,
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                  }
+                }>{loading ? 'Loading...' : 'Back'}</Text>
+              </View>
             </TouchableOpacity>
           </Animated.View>
         </View>
@@ -2700,7 +2707,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
     padding: 20,
-    backgroundColor : "white"
+    backgroundColor: "white"
   },
   title: {
     fontSize: 24,
@@ -2808,7 +2815,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   continueButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: COLORS.primary,
     padding: 16,
     borderRadius: 8,
     marginTop: 24,

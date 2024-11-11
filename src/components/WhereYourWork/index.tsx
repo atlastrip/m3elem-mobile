@@ -358,7 +358,7 @@ const WhereYourWork = () => {
       <WebView
         style={styles.container}
         source={{
-          uri: `https://www.m3alempro.com/en/zipcodes/zip-code-finder?token=${newToken}?webView=true`,
+          uri: `https://www.m3alempro.com/en/zipcodes/zip-code-finder?token=${newToken}&webView=true&zipcode=${userData?.user?.zipCodeHome}&miles=${userData?.user?.miles}`,
         }}
         onNavigationStateChange={(navState: any) => {
           const url = navState.url;
@@ -380,7 +380,7 @@ const WhereYourWork = () => {
         renderLoading={() => (
           <View style={styles.center}>
             <ActivityIndicator size="large" color="#0000ff" />
-            <Text>Loading WebView...</Text>
+            <Text>Preparing...</Text>
           </View>
         )}
 

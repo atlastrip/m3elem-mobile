@@ -85,8 +85,8 @@
     "extra": {
       "apiUrl": "https://backend.m3alempro.com/m3elem",
       "promptUrl": "https://backend.m3alempro.com",
-      "country": "ma",
-      "currency": "mad",
+      "country": "usa",
+      "currency": "$",
       "eas": {
         "projectId": "e6bfa8ea-7c06-4163-a38f-f99df894b43b"
       }
