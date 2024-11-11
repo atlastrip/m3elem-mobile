@@ -864,7 +864,7 @@ const DisplayServiceProviders = ({ data, navigation, selectedCategories, title }
                 makePhoneCall(data?.userByPK.phone);
             } else if (contactType === "chat") {
                 const res = await handleAddOrder(contactType);
-                // console.log('res', res);
+                console.log('res', res);
 
 
                 // console.log('res?.data?.addDirectLead?.artisantId?.id', res?.data?.addDirectLead?.artisantId?.id);
