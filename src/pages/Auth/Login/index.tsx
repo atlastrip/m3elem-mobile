@@ -825,7 +825,7 @@ export default function MagicalLoginScreen({ navigation }:any) {
 
         <Animated.Image
           source={require('@/assets/AHOUSEGURU LOGO.png')}
-          style={[styles.image, { transform: [{ scale: .8 }] }]}
+          style={[styles.image]}
           resizeMode="contain"
           entering={FadeInDown.delay(400).duration(1000)}
           className={"bg-transparent"}
@@ -937,10 +937,11 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   image: {
-    width: width * 0.8,
-    height: width * 0.8,
+    width: width * 0.4,
+    height: width * 0.4,
     alignSelf: 'center',
     marginBottom: 20,
+    marginTop: 50,
   },
   title: {
     fontSize: 32,

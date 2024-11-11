@@ -1218,6 +1218,7 @@ import BusinessForm from "@/components/BusinessForm";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { storage } from "firebase";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const TABS = [
   { key: 'profile', title: 'Profile' },
@@ -1690,7 +1691,7 @@ export default function UserSettings() {
 
 
   const renderAddress = () => (
-    <View style={styles.scene}>
+    <View >
       <AddressAutocomplete
         NewzipCode={zipCode}
         setNewZipCode={setZipCode}
@@ -1727,10 +1728,11 @@ export default function UserSettings() {
         return null;
     }
   };
+  const insets = useSafeAreaInsets()
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1 , paddingTop : insets.top + 20 , backgroundColor : "white"}}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

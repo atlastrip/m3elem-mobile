@@ -15,6 +15,10 @@ import {
     Keyboard,
 } from 'react-native';
 import tw from 'twrnc';
+// import Icons from "@vector"
+import { Feather } from "@expo/vector-icons";
+import { Motion } from '@legendapp/motion';
+
 
 // Debounce hook to limit API calls
 const useDebounce = (value: string, delay: number): string => {
@@ -211,54 +215,67 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
                     />
                     {loading && <ActivityIndicator style={tw`ml-2`} size="small" color="blue" />}
                 </View>
+                {modalVisible && (
+                    <Motion.View
+                        initial={{
+                            opacity: 0,
+                            y: -80,
+                        }}
+                        animate={{
+                            opacity: 1,
+                            y: 0
+                        }}
+                        exit={{
+                            opacity: 0,
+                            y: -80
+                        }}
+                        className='rounded-md border border-gray-300 mt-2' >
+
+                        <FlatList
+                            scrollEnabled={false}
+                            data={suggestions}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    onPress={() => handleSuggestionClick(item)}
+                                    className='p-3 border-b flex-row justify-between border-gray-200 items-center'
+                                >
+                                    <Text className='text-gray-800'>
+
+                                        <Text className='text-gray-800 underline'>
+                                            {item.streetLine},
+                                        </Text>
+                                        <Text className='text-slate-900 font-bold '>
+                                            {" "}{item.city},
+                                        </Text>
+                                        <Text className='text-green-900 font-bold '>
+                                            {" "}{item.state},
+                                        </Text>
+                                        <Text className='text-blue-900 font-bold '>
+                                            {" "}{item.zipcode}
+                                        </Text>
+                                    </Text>
+                                    <Feather name='chevron-right' className='text-gray-400' />
+                                </TouchableOpacity>
+                            )}
+                            ListEmptyComponent={
+                                <Text style={tw`text-center text-gray-500 p-4`}>
+                                    No address found.
+                                </Text>
+                            }
+                        />
+                    </Motion.View>
+                )}
+
                 {error && <Text style={tw`text-red-500 mt-1`}>{error}</Text>}
 
-                {/* Modal for Suggestions */}
-                <Modal
-                    visible={modalVisible}
-                    transparent
-                    animationType="slide"
-                    onRequestClose={() => setModalVisible(false)}
-                >
-                    <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-                        <View style={styles.modalOverlay}>
-                            <TouchableWithoutFeedback>
-                                <View style={styles.modalContent}>
-                                    <View style={tw`flex-row justify-between items-center mb-4`}>
-                                        <Text style={tw`text-lg font-semibold`}>Select Address</Text>
-                                        <TouchableOpacity onPress={() => setModalVisible(false)}>
-                                            <Text style={tw`text-blue-500 text-lg`}>Close</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                    <FlatList
-                                        data={suggestions}
-                                        keyExtractor={(item, index) => index.toString()}
-                                        renderItem={({ item }) => (
-                                            <TouchableOpacity
-                                                onPress={() => handleSuggestionClick(item)}
-                                                style={tw`p-3 border-b border-gray-200`}
-                                            >
-                                                <Text style={tw`text-gray-800`}>
-                                                    {`${item.streetLine}, ${item.city}, ${item.state}, ${item.zipcode}`}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        )}
-                                        ListEmptyComponent={
-                                            <Text style={tw`text-center text-gray-500 p-4`}>
-                                                No address found.
-                                            </Text>
-                                        }
-                                    />
-                                </View>
-                            </TouchableWithoutFeedback>
-                        </View>
-                    </TouchableWithoutFeedback>
-                </Modal>
 
                 {/* ZIP Code Input */}
-                <Text style={tw`text-sm text-gray-700 mt-4 mb-1`}>ZIP Code</Text>
+                <Text style={tw`text-sm text-gray-700 mt-4 mb-1`}>
+                    ZIP Code
+                </Text>
                 <TextInput
-                    style={tw`border border-gray-300 p-3 rounded-md`}
+                    style={tw`border border-gray-300 p-3 rounded-md `}
                     placeholder="ZIP Code"
                     value={zipCode}
                     onChangeText={handleFieldChange(setZipCode)}

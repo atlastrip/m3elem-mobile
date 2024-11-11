@@ -8,7 +8,7 @@ import { COLORS, SHADOWS } from 'constants/theme';
 import { Motion } from '@legendapp/motion';
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '@gorhom/bottom-sheet';
 import Constants from 'expo-constants';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import { Camera } from 'expo-camera';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getToken, getUser } from '@/helpers/getToken';
 import { useIsFocused } from '@react-navigation/native';
@@ -179,23 +179,6 @@ const ArtisanHomePage = ({ navigation }: any) => {
 
         getInfo()
     }, [IsFocused])
-
-
-    useEffect(() => {
-        (async () => {
-            const { status }: any = await BarCodeScanner.requestPermissionsAsync();
-            setHasPermission(status === 'granted');
-        })();
-    }, []);
-
-    const handleBarCodeScanned = ({ type, data }: any) => {
-        setScanned(true);
-        setShowQr(false);
-        const scannedData = JSON.parse(data);
-        console.log(scannedData);
-
-        navigation.navigate('OrderViewUser', { order: scannedData.order, user: scannedData.user });
-    };
 
     // if (hasPermission === null) {
     //     return <Text>Requesting for camera permission</Text>;
@@ -386,45 +369,10 @@ const ArtisanHomePage = ({ navigation }: any) => {
 
 
                         </View>
-                        <TouchableOpacity
-                            onPress={() => setShowQr(true)}
-                            className="flex-1 ml-2">
-                            <LinearGradient
-                                colors={['#f44336', '#e57373']}
-                                start={[0, 0]}
-                                end={[1, 1]}
-                                className="p-4 rounded-2xl flex justify-between"
-                            >
-                                <MaterialCommunityIcons name="account-outline" size={38} color="white" />
-                                <Text className="text-white mt-8 font-bold text-xl">QrCode Scanner</Text>
-                            </LinearGradient>
-                        </TouchableOpacity>
+                        
                     </View>
                 </View>
-                {showQr && (
-                    <Modal
-                        visible={showQr}
-                        transparent={true}
-                        onRequestClose={() => setShowQr(false)}
-                        animationType="slide"
-
-                    >
-                        <View
-                            className='flex-1 justify-center items-center  p-4 flex-row '
-                        >
-                            <BarCodeScanner
-                                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                                style={{
-                                    flex: 1,
-                                    height: WINDOW_HEIGHT - 100,
-                                }}
-                            />
-                            {scanned && (
-                                <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />
-                            )}
-                        </View>
-                    </Modal>
-                )}
+                
 
             </View>
         </ScrollView>

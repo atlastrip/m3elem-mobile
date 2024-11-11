@@ -196,18 +196,21 @@ const VerificationAccountArtisantScreen: React.FC = ({ navigation }: any) => {
                     }>Verify Your Account</Text>
                     <TextInput
                         style={tw`w-full px-4 py-3 mb-4 border border-gray-300 rounded-full text-gray-700`}
+                        placeholderTextColor="gray"
                         placeholder="First Name"
                         value={formData.firstName}
                         onChangeText={(text) => handleChange('firstName', text)}
                     />
                     <TextInput
                         style={tw`w-full px-4 py-3 mb-4 border border-gray-300 rounded-full text-gray-700`}
+                        placeholderTextColor="gray"
                         placeholder="Last Name"
                         value={formData.lastName}
                         onChangeText={(text) => handleChange('lastName', text)}
                     />
                     <TextInput
                         style={tw`w-full px-4 py-3 mb-4 border border-gray-300 rounded-full text-gray-700`}
+                        placeholderTextColor="gray"
                         placeholder="Password"
                         secureTextEntry
                         value={formData.password}
@@ -215,6 +218,7 @@ const VerificationAccountArtisantScreen: React.FC = ({ navigation }: any) => {
                     />
                     <TextInput
                         style={tw`w-full px-4 py-3 mb-4 border border-gray-300 rounded-full text-gray-700`}
+                        placeholderTextColor="gray"
                         placeholder="Confirm Password"
                         secureTextEntry
                         value={formData.confirmPassword}
@@ -222,6 +226,7 @@ const VerificationAccountArtisantScreen: React.FC = ({ navigation }: any) => {
                     />
                     <TextInput
                         style={tw`w-full px-4 py-3 mb-4 border border-gray-300 rounded-full text-gray-700`}
+                        placeholderTextColor="gray"
                         placeholder="Verification Token (OTP)"
                         value={formData.token}
                         onChangeText={(text) => handleChange('token', text)}

@@ -102,11 +102,14 @@ const CategoriesCreateSelector: React.FC<CategorySelectorProps> = ({ setSelected
                                 <Text style={tw`text-xl pr-2`}>{isOpen ? '−' : '+'}</Text>
                             </TouchableOpacity>
                         )}
+                        <View className='bg-gray-100 rounded mr-1'>
+
                         <Checkbox
                             status={isChecked ? 'checked' : 'unchecked'}
                             onPress={() => handleCategoryChange(category, !isChecked)}
                             color="#4CAF50"
-                        />
+                            />
+                            </View>
                         <Text>{category.name}</Text>
                     </View>
 

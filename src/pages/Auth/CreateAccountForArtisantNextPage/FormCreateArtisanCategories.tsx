@@ -1896,12 +1896,12 @@ export default function FormCreateArtisanCategories({
                     <View style={styles.categoriesContainer}>
                         <View style={styles.categoriesHeader}>
                             <Text style={styles.categoriesTitle}>Select 1 or many services</Text>
-                            <TouchableOpacity
+                            {/* <TouchableOpacity
                                 onPress={() => setSelectedTypeOfView(v => v === 'grid' ? 'list' : 'grid')}
                                 style={styles.viewToggle}
                             >
                                 <Ionicons name={selectedTypeOfView === 'list' ? 'list' : 'grid'} size={24} color="black" />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </View>
                         {categories.map((category: any) => (
                             <RecursiveCategory
@@ -1917,9 +1917,9 @@ export default function FormCreateArtisanCategories({
                 <View style={styles.zipCodeContainer}>
                     <Text style={styles.zipCodeText}>Your Zip Code: {zipCode}</Text>
                 </View>
-                <TouchableOpacity style={styles.nextButton} onPress={handleNextClick}>
+                {/* <TouchableOpacity style={styles.nextButton} onPress={handleNextClick}>
                     <Text style={styles.nextButtonText}>Next</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
             {/* <Animated.View style={[styles.modalContainer, animatedModalStyle]}>
                 <Modal

@@ -407,20 +407,23 @@ import { COLORS } from 'constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isLogin } from 'store/User';
 import { useDispatch } from 'react-redux';
+import { Logo } from '../CreateAccountForArtisantNextPage';
+import { WINDOW_WIDTH } from '@gorhom/bottom-sheet';
+import { WavyBackground } from '@/components/WavyBackground/indes';
 
 const { width, height } = Dimensions.get('window');
 
 const screens = [
   {
-    title: "A HOUSE GURU find Reliable Handymen.",
-    description: "Connecting with skilled, vetted handymen in Casablanca is quick and easy with our app. From plumbing and electrical work to carpentry and general maintenance, we've got you covered.",
+    title: "Find the best professionals for every home project.",
+    description: "From plumbing to electrical work, connect with qualified professionals ready to tackle your home improvement needs.",
     image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/vec-1-Hy5Ue5Ue9Ue9Ue9Ue9Ue9Ue9Ue9Ue9.avif"
   },
-  {
-    title: "Our experts",
-    description: "Connect with Skilled Handymen for All Your Home Needs",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/illus-Hy5Ue5Ue9Ue9Ue9Ue9Ue9Ue9Ue9Ue9.webp"
-  }
+  // {
+  //   title: "Our experts",
+  //   description: "Connect with Skilled Handymen for All Your Home Needs",
+  //   image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/illus-Hy5Ue5Ue9Ue9Ue9Ue9Ue9Ue9Ue9Ue9.webp"
+  // }
 ];
 
 export default function EnhancedMagicalOnboarding({ navigation }: any) {
@@ -477,16 +480,28 @@ export default function EnhancedMagicalOnboarding({ navigation }: any) {
   }));
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Image
+    <View style={styles.container}>
+      <WavyBackground
+      backgroundFill="white"
+      colors={["#4FA966" , "#d1ffdd" , "#e7f6ff"]}
+      >
+
+      {/* <Image
         source={{ uri: "https://m3elem.vercel.app/_next/static/media/background.6c3571e0.jpg" }}
         style={StyleSheet.absoluteFillObject}
         blurRadius={3}
-      />
+      /> */}
       <LinearGradient
-        colors={['rgba(0,0,0,0.7)', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.7)']}
+        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.9)']}
         style={StyleSheet.absoluteFillObject}
       />
+      <View className='flex-row justify-center mt-10' >
+        <Logo style={{
+          width : WINDOW_WIDTH * .4,
+          height : WINDOW_WIDTH * .4,
+        }} />
+      </View>
+
 
       <Animated.View style={[styles.content, slideAnimation]}>
         {screens.map((screen, index) => (
@@ -554,7 +569,9 @@ export default function EnhancedMagicalOnboarding({ navigation }: any) {
           <Text style={[styles.buttonText, styles.outlineButtonText]}>Guest Mode</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+      </WavyBackground>
+
+    </View>
   );
 }
 
@@ -576,8 +593,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: "white",
     marginBottom: 10,
+    marginTop:60,
     textAlign: 'center',
   },
   description: {

@@ -48,6 +48,7 @@ const FilterModal = ({ filterVisible, setFilterVisible, filter, setFilter }: any
                             transition={{ delay: 0.1 }}
                         >
                             <TextInput
+                                placeholderTextColor="gray"
                                 placeholder="Title"
                                 style={styles.modalInput}
                                 value={filter.title}
@@ -62,6 +63,7 @@ const FilterModal = ({ filterVisible, setFilterVisible, filter, setFilter }: any
                             transition={{ delay: 0.2 }}
                         >
                             <TextInput
+                                placeholderTextColor="gray"
                                 placeholder="Profession"
                                 style={styles.modalInput}
                                 value={filter.profession}
@@ -76,6 +78,7 @@ const FilterModal = ({ filterVisible, setFilterVisible, filter, setFilter }: any
                             transition={{ delay: 0.3 }}
                         >
                             <TextInput
+                                placeholderTextColor="gray"
                                 placeholder="Location"
                                 style={styles.modalInput}
                                 value={filter.location}
