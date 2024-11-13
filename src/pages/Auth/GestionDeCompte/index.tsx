@@ -1576,11 +1576,9 @@ export default function UserSettings() {
                 // Prepare the GraphQL mutation
                 const graphqlQuery = {
                   query: `
-                   mutation updateJustArtisantImageProfile($input: inputUpdateArtisantImageProfile) {
-  updateJustArtisantImageProfile(input: $input)
-}
-
-
+                          mutation updateJustArtisantImageProfile($input: inputUpdateArtisantImageProfile) {
+                        updateJustArtisantImageProfile(input: $input)
+                      }
                   `,
                   variables: {
                     input: {
@@ -1635,7 +1633,7 @@ export default function UserSettings() {
     }
   };
 
- 
+
 
 
   const handleUpdateAddress = async () => {
@@ -1732,7 +1730,7 @@ export default function UserSettings() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 , paddingTop : insets.top + 20 , backgroundColor : "white"}}
+      style={{ flex: 1, paddingTop: insets.top + 20, backgroundColor: "white" }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -1751,14 +1749,12 @@ export default function UserSettings() {
                     styles.tabItem,
                     currentTab === tab.key && styles.activeTabItem,
                   ]}
-                  onPress={() => setCurrentTab(tab.key)}
-                >
+                  onPress={() => setCurrentTab(tab.key)} >
                   <Text
                     style={[
                       styles.tabTitle,
                       currentTab === tab.key && styles.activeTabTitle,
-                    ]}
-                  >
+                    ]}>
                     {tab.title}
                   </Text>
                 </TouchableOpacity>

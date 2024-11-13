@@ -170,9 +170,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
         }
     }
 
-
-
-
+    
 
     useEffect(() => {
         getProfileCompleted()

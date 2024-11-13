@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Alert, Switch, Text, TouchableOpacity, View } from 'react-native'
+import * as Device from 'expo-device';
 import {
     Ionicons,
     MaterialCommunityIcons,
@@ -11,8 +12,10 @@ import { COLORS } from 'constants/theme';
 import { getToken, getUser } from '@/helpers/getToken';
 import { useIsFocused } from '@react-navigation/native';
 import Constants from 'expo-constants';
+import SetNotificationWithInfoDevice from '@/components/SetNotificationWithInfoDevice';
 
 const NotificationsPage = () => {
+    
 
     const isFocused = useIsFocused();
     const [isEnabled, setIsEnabled] = useState<any>({});
@@ -155,16 +158,21 @@ const NotificationsPage = () => {
         }
     }, [isFocused]);
 
+    const getNotificationsHere = async ()=>{
+
+    }
+
 
 
     return (
         <View className="">
+
             <View className="my-2">
                 <Text className='font-bold text-xl text-center'>Manage notifications</Text>
             </View>
+            <SetNotificationWithInfoDevice />
 
             <View className="px-3">
-
                 {Menu2?.map((menu, idx) => (
                     <View key={idx}
                         style={{ backgroundColor: '#00000010' }}
