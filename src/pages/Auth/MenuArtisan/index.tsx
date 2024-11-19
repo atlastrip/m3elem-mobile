@@ -155,7 +155,8 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       name: "Manage my account",
       icon: <SimpleLineIcons name="user" color="white" size={20} />,
       colorIcon: "#39c559",
-      onPress: () => navigation.navigate("GestionDeCompte"),
+      
+      onPress: () => navigation.navigate("GestionDeCompteArtisant"),
     },
     {
       name: "Notifications",
@@ -316,8 +317,6 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
                 className="rounded-lg ">
                 <TouchableOpacity
                   onPress={() => navigation.navigate("GestionDeCompteArtisant")}
-                  // onPress: () => navigation.navigate(""),
-
                   className="flex-row p-3 justify-between"
                 >
                   <View className="flex-row">
@@ -351,7 +350,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
                       <Text className="text-black text-xl font-bold">
                         {User?.firstName + " " + User?.lastName
 
-                          || "Utilisateur"}{" "}
+                          || "User"}{" "}
                         {/* {User?.user?.last_name || "ServiceDay"} */}
                       </Text>
                       <Text className="text-black mt-2">View profile</Text>

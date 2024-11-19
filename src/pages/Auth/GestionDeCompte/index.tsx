@@ -1695,7 +1695,7 @@ export default function UserSettings() {
         setNewZipCode={setZipCode}
         NewselectedSuggestion={selectedSuggestion}
         setNewSelectedSuggestion={setSelectedSuggestion}
-      />
+        />
     </View>
   );
 

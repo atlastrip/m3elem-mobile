@@ -76,7 +76,7 @@ const SearchRequirementChecker = ({
 
       {/* Render Statuses */}
       {renderStatus(categories.length > 0, 'Categories selected')}
-      {renderStatus(userAmount >= minRequiredAmount, `Enough amount available ${paymentMethodChoosed === 'PayAsYouGo' ? '' : `${userAmount}/${minRequiredAmount}`}`)}
+      {renderStatus(userAmount >= minRequiredAmount, `Enough amount available ${paymentMethodChoosed === 'PayAsYouGo' ? '' : `$${userAmount}`}`)}
       {renderStatus(acceptedByBO === "Accepted", 'Accepted by the Business Office (BO)')}
       {renderStatus(weeklySpent <= weeklyLimit, `Weekly spend within limit (${weeklySpent}/${weeklyLimit})`)}
       {renderStatus(zipCodes?.length > 0, 'Zip codes selected')}

@@ -112,6 +112,9 @@ const RenderProfile = ({
   </TouchableWithoutFeedback>
 );
 
+import { useFocusEffect } from '@react-navigation/native';
+
+
 export default function GestionDeCompteArtisant() {
   const [currentTab, setCurrentTab] = useState('profile');
   const [selectedCategories, setSelectedCategories]: any = useState([]);
@@ -290,7 +293,11 @@ export default function GestionDeCompteArtisant() {
   }, []);
 
 
-
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserInfo();
+    }, [fetchUserInfo])
+  );
 
   const UpdateCategories = async () => {
     const token = await getToken();
@@ -594,6 +601,7 @@ export default function GestionDeCompteArtisant() {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`,
     });
+    console.log({selectedSuggestion})
 
     try {
       const response = await fetch(Constants.expoConfig?.extra?.apiUrl, {
@@ -607,7 +615,7 @@ export default function GestionDeCompteArtisant() {
           `,
           variables: {
             input: {
-              zipCodeHome: zipCode,
+              zipCodeHome: selectedSuggestion?.zipcode,
               adress: selectedSuggestion ? JSON.stringify(selectedSuggestion) : null,
             },
           },
@@ -706,6 +714,10 @@ export default function GestionDeCompteArtisant() {
 
   const renderAddress = () => (
     <View style={styles.scene}>
+      <Text>
+
+      
+      </Text>
       <AddressAutocomplete
         NewzipCode={zipCode}
         setNewZipCode={setZipCode}
@@ -896,15 +908,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderColor: "#f3f4f6",
-    elevation: 3,
   },
   activeTabItem: {
     borderColor: '#4CAF50',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
   },
   tabTitle: {
     fontSize: 16,
@@ -983,10 +989,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginHorizontal: 16,
     marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
     elevation: 4,
   },
   updateButtonText: {

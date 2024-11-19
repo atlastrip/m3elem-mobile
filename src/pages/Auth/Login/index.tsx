@@ -877,10 +877,9 @@ export default function MagicalLoginScreen({ navigation }:any) {
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-          <AnimatedTouchableOpacity
+          <TouchableOpacity
             onPress={handleLogin}
             disabled={loading}
-            entering={FadeInUp.delay(1000).duration(1000)}
           >
             <LinearGradient
               colors={[COLORS.primary, COLORS.secondary]}
@@ -890,7 +889,7 @@ export default function MagicalLoginScreen({ navigation }:any) {
             >
               <Text style={styles.loginButtonText}>{loading ? 'Logging in...' : 'Log in'}</Text>
             </LinearGradient>
-          </AnimatedTouchableOpacity>
+          </TouchableOpacity>
 
           <Animated.View
             style={styles.signupContainer}
