@@ -2180,9 +2180,9 @@ const UserUnlockedOrders = ({ navigation, searchQuery = '' }: any) => {
 
     const filteredOrders = React.useMemo(() => {
         return unlockedOrders.filter((order: Lead) =>
-            order.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.status.toLowerCase().includes(searchQuery.toLowerCase())
+            order?.title?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+            order?.description?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+            order?.status?.toLowerCase().includes(searchQuery?.toLowerCase())
         );
     }, [unlockedOrders, searchQuery]);
 

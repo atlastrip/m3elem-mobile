@@ -672,24 +672,24 @@ const OrderListing = ({ navigation, setShowQr, setOrder, setShowFilterModal, sho
             // Apply filters
             if (filter.title) {
                 fetchedLeads = fetchedLeads.filter((lead: any) =>
-                    lead.title.toLowerCase().includes(filter.title.toLowerCase())
+                    lead?.title?.toLowerCase().includes(filter?.title?.toLowerCase())
                 );
             }
             if (filter.search) {
                 fetchedLeads = fetchedLeads.filter((lead: any) =>
-                    lead.title.toLowerCase().includes(filter.search.toLowerCase())
+                    lead?.title?.toLowerCase().includes(filter?.search?.toLowerCase())
                 );
             }
-            if (filter.profession) {
+            // if (filter.profession) {
+            //     fetchedLeads = fetchedLeads.filter((lead: any) =>
+            //         lead.professionals.some((prof: any) =>
+            //             prof.text.toLowerCase().includes(filter.profession.toLowerCase())
+            //         )
+            //     );
+            // }
+            if (filter?.location) {
                 fetchedLeads = fetchedLeads.filter((lead: any) =>
-                    lead.professionals.some((prof: any) =>
-                        prof.text.toLowerCase().includes(filter.profession.toLowerCase())
-                    )
-                );
-            }
-            if (filter.location) {
-                fetchedLeads = fetchedLeads.filter((lead: any) =>
-                    lead.location.toLowerCase().includes(filter.location.toLowerCase())
+                    lead?.location?.toLowerCase().includes(filter?.location?.toLowerCase())
                 );
             }
 

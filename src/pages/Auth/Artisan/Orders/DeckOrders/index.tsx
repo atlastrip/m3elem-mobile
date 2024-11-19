@@ -64,7 +64,10 @@ export default function EnchantedSwiperComponent({ navigation }: { navigation: a
     const handleUnlock = async (id: string) => {
         const token = await getToken();
         if (!token) return;
-
+        // console.log('====================================');
+        // console.log('currentLead', currentLead);
+        // console.log('====================================');
+        // return
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
         headers.append("Authorization", `Bearer ${token}`);
@@ -78,13 +81,19 @@ export default function EnchantedSwiperComponent({ navigation }: { navigation: a
                 headers,
                 body: JSON.stringify({
                     query: `
-            mutation unlockLead($input: LeadUnlockInput) {
-              unlockLead(input: $input) {
-                id
-              }
-            }
+                mutation unlockLead($input: LeadUnlockInput) {
+                    unlockLead(input: $input) {
+                        id
+                    }
+                }
           `,
-                    variables: { input: { id } }
+                    variables: {
+                        input: {
+                            id,
+                            categoryId: currentLead.categoryId.id,
+
+                        }
+                    }
                 }),
             });
 
