@@ -11,6 +11,7 @@ import {
     Alert,
 } from 'react-native';
 import { Ionicons, Feather, FontAwesome5 } from '@expo/vector-icons';
+import USAsvg from '../UsaSvg';
 
 const LandingPage = ({ selectedService, setSelectedService,
     zipCode, setZipCode, goToFilter
@@ -137,6 +138,10 @@ const LandingPage = ({ selectedService, setSelectedService,
         // setZipCode('');
     };
 
+    const handleStatePress = (stateId: any) => {
+        Alert.alert("State Pressed", `You pressed state: ${stateId}`);
+    };
+
     return (
         <ScrollView style={styles.container}>
             {/* Categories Navigation */}
@@ -259,7 +264,7 @@ const LandingPage = ({ selectedService, setSelectedService,
                         <Text style={styles.trustedByDescription}>
                             {trustedByText.description}
                         </Text>
-                        <View style={styles.trustedByButtons}>
+                        {/* <View style={styles.trustedByButtons}>
                             <TouchableOpacity
                                 style={styles.createAccountButton}
                                 onPress={() =>
@@ -275,16 +280,18 @@ const LandingPage = ({ selectedService, setSelectedService,
                                     Join as PRO <Ionicons name="arrow-forward" size={16} color="#000" />
                                 </Text>
                             </TouchableOpacity>
-                        </View>
+                        </View> */}
                     </View>
                     <View style={styles.trustedByImage}>
-                        <Image
+                        {/* <Image
                             source={{
                                 uri: 'https://upload.wikimedia.org/wikipedia/commons/a/a4/USA_flag_60th.svg',
                             }}
                             style={styles.usaImage}
                             resizeMode="contain"
-                        />
+                        /> */}
+
+                        <USAsvg width={100} height={60} onStatePress={handleStatePress} />
                     </View>
                 </View>
             </View>
