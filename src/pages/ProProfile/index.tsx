@@ -309,13 +309,20 @@ const ShareLink = ({ url = "" }) => {
             } else if (result.action === Share.dismissedAction) {
                 console.log('Link sharing dismissed');
             }
-        } catch (error:any) {
+        } catch (error: any) {
             console.error('Error sharing link:', error);
             Alert.alert('Error sharing the link:', error.message);
         }
     };
 
-    return <Button onPress={shareLink} title="Share" />;
+    return <TouchableOpacity className='border border-gray-200 p-1 mt-1 px-2 rounded-md' onPress={shareLink} >
+        <Text className='text-lg text-blue-500'>
+
+        <FontAwesome name="share" size={14} color="blue" />
+            {" "}Share
+        </Text>
+    </TouchableOpacity>
+        ;
 };
 
 

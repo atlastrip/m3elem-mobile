@@ -414,17 +414,17 @@ const BusinessForm: React.FC<any> = ({
     const handleSuggestionClick = (suggestion: any) => {
         setFormState((prevState: any) => ({
             ...prevState,
-            street: suggestion.streetLine,
-            city: suggestion.city,
-            state: suggestion.state,
-            zipCode: suggestion.zipcode,
+            street: suggestion?.streetLine,
+            city: suggestion?.city,
+            state: suggestion?.state,
+            zipCode: suggestion?.zipcode,
         }));
         setNewFormState((prevState: any) => ({
             ...prevState,
-            street: suggestion.streetLine,
-            city: suggestion.city,
-            state: suggestion.state,
-            zipCode: suggestion.zipcode,
+            street: suggestion?.streetLine,
+            city: suggestion?.city,
+            state: suggestion?.state,
+            zipCode: suggestion?.zipcode,
         }));
         setSelectedSuggestion(suggestion);
         setSuggestions([]);

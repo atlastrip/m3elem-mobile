@@ -241,13 +241,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
 
     return (
         <ScrollView style={{ flex: 1 }}>
-            {country == 'ma' && (
-
-                <Image source={require('./Orders/images/paint-morocco.jpg')} className='opacity-10' style={{ width: WINDOW_WIDTH, height: WINDOW_HEIGHT, position: "absolute", top: 0, left: 0 }} />
-            )}
-            {country == 'usa' && (
-                <Image source={require('./Orders/images/flag-usa.jpg')} className='opacity-10' style={{ width: WINDOW_WIDTH, height: WINDOW_HEIGHT, position: "absolute", top: 0, left: 0 }} />
-            )}
+            
 
             <IsCompleteProfile
                 profileCompletedData={isCompleted}
@@ -278,30 +272,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
                         />
                     </Motion.View>
                 </View>
-                <ScrollView
-                    snapToInterval={WINDOW_WIDTH * 0.7 + 16}
-                    snapToAlignment="center"
-                    decelerationRate="fast"
-                    horizontal className="mb-4">
-                    <View
-                        style={{ width: WINDOW_WIDTH * .7 }}
-                        className="bg-purple-100 p-4 ml-4 rounded-lg border-2 border-purple-600 flex-1 mr-2">
-                        <Text className="text-purple-600 text-5xl font-bold">10</Text>
-                        <Text className="text-gray-500 text-xl">New Leads</Text>
-                    </View>
-                    <View
-                        style={{ width: WINDOW_WIDTH * .7 }}
-                        className="bg-green-100 p-4 rounded-lg  border-2 border-green-600 flex-1 mx-2">
-                        <Text className="text-green-600 text-5xl font-bold">1200</Text>
-                        <Text className="text-gray-500  text-xl">Turnover</Text>
-                    </View>
-                    <View
-                        style={{ width: WINDOW_WIDTH * .7 }}
-                        className="bg-red-100 p-4 mr-4 rounded-lg flex-1  border-2 border-red-600 ml-2">
-                        <Text className="text-red-600 text-5xl font-bold">4</Text>
-                        <Text className="text-gray-500 text-xl">(40%) Accepted leads</Text>
-                    </View>
-                </ScrollView>
+
 
                 {/* Shortcuts */}
                 <View className='p-3'>
