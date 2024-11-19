@@ -15,7 +15,7 @@ import Constants from 'expo-constants';
 import SetNotificationWithInfoDevice from '@/components/SetNotificationWithInfoDevice';
 
 const NotificationsPage = () => {
-    
+
 
     const isFocused = useIsFocused();
     const [isEnabled, setIsEnabled] = useState<any>({});
@@ -88,7 +88,7 @@ const NotificationsPage = () => {
                         variables: {
                             input: {
                                 ...methods,
-                                
+
                             }
                         }
                     }),
