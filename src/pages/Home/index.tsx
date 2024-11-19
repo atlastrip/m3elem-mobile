@@ -16,6 +16,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { WINDOW_HEIGHT } from '@gorhom/bottom-sheet';
 import { IsCompleteProfile } from '@/components/IsCompleteProfile';
+import LandingPage from '@/components/LandingPage';
 
 export interface Audio {
   id: string
@@ -273,7 +274,7 @@ export default function HomeScreen({ navigation }: any) {
         <View className='absolute bottom-3 px-3 w-full'>
 
           <Text className='text-5xl font-bold text-white ' >
-          A HOUSE GURU
+            A HOUSE GURU
           </Text>
           <View
             className='flex-row items-center justify-between'
@@ -300,7 +301,7 @@ export default function HomeScreen({ navigation }: any) {
           </TouchableOpacity>
         </View>
       </View>
-      <View className='flex items-center justify-between flex-row px-3' >
+      {/* <View className='flex items-center justify-between flex-row px-3' >
         <Text className='font-bold text-lg' >
           Artisans and technicians
         </Text>
@@ -310,8 +311,8 @@ export default function HomeScreen({ navigation }: any) {
           </Text>
         </TouchableOpacity>
 
-      </View>
-      <View className='flex-row'>
+      </View> */}
+      {/* <View className='flex-row'>
 
         <View className=' pt-0 pb-7 flex-row flex-wrap gap-3 items-center justify-center w-fit ' >
           {services?.sort((a, b) => a?.name.toLowerCase().localeCompare(b.name.toLowerCase()))?.map((e: any, i) => (
@@ -335,9 +336,9 @@ export default function HomeScreen({ navigation }: any) {
             </TouchableOpacity>
           ))}
         </View>
-      </View>
+      </View> */}
 
-      <View className="px-3">
+      {/* <View className="px-3">
         <Text className='font-bold text-lg' >
           Order again
         </Text>
@@ -360,8 +361,8 @@ export default function HomeScreen({ navigation }: any) {
 
         </TouchableOpacity>
 
-      </View>
-      <View className="px-3 mt-6">
+      </View> */}
+      {/* <View className="px-3 mt-6">
         <Text className='font-bold text-lg' >
           Reviews
         </Text>
@@ -393,8 +394,8 @@ export default function HomeScreen({ navigation }: any) {
             <View className='w-3 h-3 rounded-full bg-white' />
           </View>
         </View>
-      </View>
-
+      </View> */}
+      {/* 
       <View
         className='px-1 mt-6'
       >
@@ -413,7 +414,8 @@ export default function HomeScreen({ navigation }: any) {
         </TouchableOpacity>
 
 
-      </View>
+      </View> */}
+      <LandingPage />
 
       {showQr && (
         <Modal
