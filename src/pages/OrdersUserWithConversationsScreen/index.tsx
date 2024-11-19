@@ -193,7 +193,7 @@ const OrdersUserWithConversationsScreen = ({ navigation }: any) => {
                     ) : (
                         <View style={styles.defaultProfileImage}>
                             <Text style={styles.defaultProfileText}>
-                                {name.charAt(0)}
+                                {name?.charAt(0)}
                             </Text>
                         </View>
                     )}

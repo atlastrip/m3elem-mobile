@@ -98,7 +98,9 @@ const DirectConversationsScreenForUser = ({ navigation }: any) => {
         const name = item?.title;
         console.log('====================================');
         console.log('item yooooooooo', item);
+        console.log('item name', item.name);
         console.log('====================================');
+       
         return (
             <TouchableOpacity
                 style={styles.conversationItem}
@@ -140,7 +142,7 @@ const DirectConversationsScreenForUser = ({ navigation }: any) => {
                     ) : (
                         <View style={styles.defaultProfileImage}>
                             <Text style={styles.defaultProfileText}>
-                                {name.charAt(0)}
+                                {name?.charAt(0) || 'U'}
                             </Text>
                         </View>
                     )}
