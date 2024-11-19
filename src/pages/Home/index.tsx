@@ -205,8 +205,8 @@ export default function HomeScreen({ navigation }: any) {
   const [order, setOrder] = React.useState(null);
   const [hasPermission, setHasPermission] = React.useState(null);
   const [scanned, setScanned] = React.useState(false);
-  const [searchCategory, setSearchCategory] = React.useState('Solar pannels');
-  const [searchZipCode, setSearchZipCode] = React.useState('10001');
+  const [searchCategory, setSearchCategory] = React.useState('');
+  const [searchZipCode, setSearchZipCode] = React.useState('');
 
   React.useEffect(() => {
     (async () => {
@@ -230,6 +230,8 @@ export default function HomeScreen({ navigation }: any) {
 
 
   const goToFilter = () => {
+    console.log('searchCategory', searchCategory);
+    console.log('searchZipCode', searchZipCode);
     navigation.navigate('InstantResult', {
       searchCategory: searchCategory,
       searchZipCode: searchZipCode
@@ -289,6 +291,7 @@ export default function HomeScreen({ navigation }: any) {
             <TextInput
               placeholderTextColor="black"
               className="text-black placeholder:text-black border border-black/25 bg-white  rounded-lg text-xl p-3 mb-3 w-[30%]"
+              keyboardType='number-pad'
               placeholder="Zip Code"
               value={searchZipCode}
               onChangeText={setSearchZipCode}
@@ -415,7 +418,13 @@ export default function HomeScreen({ navigation }: any) {
 
 
       </View> */}
-      <LandingPage />
+      <LandingPage
+        selectedService={searchCategory}
+        setSelectedService={setSearchCategory}
+        zipCode={searchZipCode}
+        setZipCode={setSearchZipCode}
+        goToFilter={goToFilter}
+      />
 
       {showQr && (
         <Modal

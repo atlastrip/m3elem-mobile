@@ -1476,6 +1476,10 @@ const InstantResult = ({ route, navigation }: any) => {
         try {
             setLoadingArtisants(true);
             const filterArray = convertObjectToArray(selectedFilters);
+            console.log('filterArray', filterArray);
+            console.log('selectedCategories[0]', selectedCategories[0]);
+            console.log('zipCode', zipCode);
+
             const res = await fetch(Constants.expoConfig?.extra?.apiUrl as string, {
                 method: 'POST',
                 headers,
@@ -1546,10 +1550,12 @@ const InstantResult = ({ route, navigation }: any) => {
             });
 
             const response = await res.json();
+            console.log('response', response?.data?.getArtisansByFilters?.artisans);
+            
             setLoadingArtisants(false);
-            setArtisants(response.data?.getArtisansByFilters?.artisans);
-        } catch (error) {
-            console.log(error);
+            setArtisants(response?.data?.getArtisansByFilters?.artisans);
+        } catch (error: any) {
+            console.log('errrrro', error.message);
             setLoadingArtisants(false);
         }
     };
@@ -1558,11 +1564,14 @@ const InstantResult = ({ route, navigation }: any) => {
         let allFilters: any = [];
         setFilters([]);
         setArtisants([]);
-
+        console.log('data', data);
+        console.log('selectedCategories', selectedCategories);
+        
         data?.forEach((category: any) => {
+            console.log('category', category);
             // @ts-ignore
             if (selectedCategories.includes(category?.id)) {
-                allFilters = allFilters.concat(category?.filters);
+                allFilters = allFilters?.concat(category?.filters);
             }
         });
 
@@ -1570,8 +1579,11 @@ const InstantResult = ({ route, navigation }: any) => {
 
         // Store filters in AsyncStorage
         try {
-            const filtersStoreData = await AsyncStorage.getItem('filtersStore');
-            const filtersStore = filtersStoreData ? JSON.parse(filtersStoreData) : {};
+            const filtersStoreData: any = await AsyncStorage.getItem('filtersStore') || {};
+            console.log('filtersStoreData', filtersStoreData);
+
+            const filtersStore = Object.keys(filtersStoreData).length > 0 ? JSON.parse(filtersStoreData) : {};
+            console.log('filtersStore', filtersStore);
 
             const currentCategory = category.trim().toLowerCase();
             const currentZipCode = zipCode.trim();

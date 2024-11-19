@@ -146,9 +146,29 @@ const ArtisanCard = React.memo(({ artisan, title, selectedCategories, navigation
                 <View style={styles.addressContainer}>
                     <MaterialIcons name="location-on" size={16} color="gray" />
                     <Text style={styles.addressText}>
-                        {artisan?.adress
+                        {/* {artisan?.adress
                             ? `${JSON.parse(artisan?.adress)?.streetLine}, ${JSON.parse(artisan?.adress)?.city}, ${JSON.parse(artisan?.adress)?.state} ${JSON.parse(artisan?.adress)?.zipcode}`
-                            : 'No address provided'}
+                            : 'No address provided'} */}
+                        {
+                            artisan?.adress
+                                ? (() => {
+                                    try {
+                                        const address = JSON.parse(artisan?.adress);
+                                        // const streetLine = address?.streetLine || '';
+                                        const city = address?.city || "";
+                                        const state = address?.state || "";
+                                        // const zipcode = address?.zipcode || '';
+
+                                        return (
+                                            `${city}, ${state}`.trim() ||
+                                            "No address provided"
+                                        );
+                                    } catch (error) {
+                                        return "No address provided";
+                                    }
+                                })()
+                                : "No address provided"
+                        }
                     </Text>
                 </View>
 
