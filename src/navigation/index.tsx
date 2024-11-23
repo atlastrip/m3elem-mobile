@@ -92,6 +92,7 @@ import CreateAccountForArtisantNextPage from "@/pages/Auth/CreateAccountForArtis
 import VerificationAccountArtisantScreen from "@/pages/VerificationAccountArtisantScreen";
 import ChatForArtisant from "@/pages/ChatForArtisant";
 import ProProfile from "@/pages/ProProfile";
+import SelectPlan from "@/pages/Auth/Artisan/SelectPlan";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -164,6 +165,7 @@ export type IPages =
   | "CreateAccountForArtisantNextPage"
   | "VerificationAccountArtisantScreen"
   | "ProProfile"
+  | "SelectPlan"
 
 
   ;
@@ -260,6 +262,13 @@ const GroupParametreArtisan = () => {
       <Stack.Screen
         name="Transactions"
         component={Transactions}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="SelectPlan"
+        component={SelectPlan}
         options={{
           headerShown: false,
         }}
@@ -679,7 +688,7 @@ function RootNavigator() {
                           headerShown: false,
                         }}
                       />
-                        <Stack.Screen
+                      <Stack.Screen
                         name="ChatForArtisant"
                         component={ChatForArtisant}
                         options={{
@@ -772,6 +781,13 @@ function RootNavigator() {
                         }}
                       />
                       <Stack.Screen
+                        name="SelectPlan"
+                        component={SelectPlan}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
+                      <Stack.Screen
                         name="MyLeads"
                         component={MyLeads}
                         options={{
@@ -793,7 +809,7 @@ function RootNavigator() {
                           headerShown: false,
                         }}
                       />
-                       <Stack.Screen
+                      <Stack.Screen
                         name="ChatForArtisant"
                         component={ChatForArtisant}
                         options={{
