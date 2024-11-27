@@ -93,6 +93,7 @@ import VerificationAccountArtisantScreen from "@/pages/VerificationAccountArtisa
 import ChatForArtisant from "@/pages/ChatForArtisant";
 import ProProfile from "@/pages/ProProfile";
 import SelectPlan from "@/pages/Auth/Artisan/SelectPlan";
+import NewOrderComponent from "@/pages/NewOrderForUser";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -166,6 +167,7 @@ export type IPages =
   | "VerificationAccountArtisantScreen"
   | "ProProfile"
   | "SelectPlan"
+  | "NewOrderComponent"
 
 
   ;
@@ -712,6 +714,13 @@ function RootNavigator() {
                       <Stack.Screen
                         name="ServiceProviderProfile"
                         component={ServiceProviderProfile}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
+                      <Stack.Screen
+                        name="NewOrderComponent"
+                        component={NewOrderComponent}
                         options={{
                           headerShown: false,
                         }}

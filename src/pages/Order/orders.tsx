@@ -759,249 +759,1251 @@
 
 
 
-import React from 'react';
+// import React from 'react';
+// import {
+//     Dimensions,
+//     Modal,
+//     RefreshControl,
+//     StyleSheet,
+//     Text,
+//     TextInput,
+//     Animated,
+//     View,
+//     TouchableOpacity,
+//     Keyboard,
+//     Image,
+// } from 'react-native';
+// import { ScrollView } from 'react-native';
+// import { useSafeAreaInsets } from 'react-native-safe-area-context';
+// import window from "../../constants/Layout";
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+// import QRCode from 'react-native-qrcode-svg';
+// import { ButtonPrimary } from '@/components/index';
+// import { LinearGradient } from 'expo-linear-gradient';
+// import Svg, { Circle } from 'react-native-svg';
+// import { AntDesign } from '@expo/vector-icons';
+// import { useEffect, useRef, useState } from 'react';
+// import UserUnlockedOrders from '@/components/UserOrderLising';
+
+// const Orders = ({ navigation }: any) => {
+//     const insets = useSafeAreaInsets();
+//     const [showQr, setShowQr] = useState(false);
+//     const [order, setOrder] = useState<any>(null);
+//     const [user, setUser] = useState<any>(null);
+//     const { width } = Dimensions.get('window');
+//     const scrollY = useRef(new Animated.Value(0)).current;
+//     const [searchQuery, setSearchQuery] = useState<string>('');
+//     const [debouncedQuery, setDebouncedQuery] = useState<string>('');
+
+//     const getInfo = async () => {
+//         const User = await AsyncStorage.getItem('@user');
+//         setUser(JSON.parse(User || '{}'));
+//     };
+
+//     useEffect(() => {
+//         getInfo();
+//     }, []);
+
+//     const headerHeight = scrollY.interpolate({
+//         inputRange: [0, 100],
+//         outputRange: [(window.height - 50) / 3, 100],
+//         extrapolate: 'clamp',
+//     });
+
+//     const headerOpacity = scrollY.interpolate({
+//         inputRange: [0, 100],
+//         outputRange: [1, 0.6],
+//         extrapolate: 'clamp',
+//     });
+
+//     // Debounce search input to optimize performance
+//     const debounceTimeout: any = useRef<number | null>(null);
+
+//     const handleSearchChange = (text: string) => {
+//         setSearchQuery(text);
+//         if (debounceTimeout.current) {
+//             clearTimeout(debounceTimeout.current);
+//         }
+//         debounceTimeout.current = setTimeout(() => {
+//             setDebouncedQuery(text);
+//         }, 300);
+//     };
+
+//     useEffect(() => {
+//         return () => {
+//             if (debounceTimeout.current) {
+//                 clearTimeout(debounceTimeout.current);
+//             }
+//         };
+//     }, []);
+
+//     return (
+//         <View style={{ flex: 1, backgroundColor: '#f0f0f0' }}>
+//             <Animated.View
+//                 style={{
+//                     height: headerHeight,
+//                 }}
+//             >
+//                 <LinearGradient
+//                     colors={['#6a11cb', '#2575fc']}
+//                     style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+//                 >
+//                     <Animated.Image
+//                         style={{
+//                             width: '100%',
+//                             height: '100%',
+//                             opacity: headerOpacity,
+//                             position: 'absolute',
+//                         }}
+//                         source={require('./images/abstraction.avif')}
+//                         resizeMode="cover"
+//                     />
+//                     <Text style={styles.headerTitle}>My Orders</Text>
+//                 </LinearGradient>
+//             </Animated.View>
+
+//             <View style={styles.contentContainer}>
+//                 <View style={styles.searchContainer}>
+//                     <AntDesign name="search1" size={20} color="#999" style={styles.searchIcon} />
+//                     <TextInput
+//                         style={styles.searchInput}
+//                         placeholderTextColor="#999"
+//                         placeholder="Search orders..."
+//                         value={searchQuery}
+//                         onChangeText={handleSearchChange}
+//                         returnKeyType="search"
+//                         onSubmitEditing={Keyboard.dismiss}
+//                     />
+//                     {searchQuery.length > 0 && (
+//                         <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearIcon}>
+//                             <AntDesign name="closecircle" size={20} color="#999" />
+//                         </TouchableOpacity>
+//                     )}
+//                 </View>
+
+//                 <UserUnlockedOrders
+//                     navigation={navigation}
+//                     searchQuery={debouncedQuery}
+//                 />
+
+//             </View>
+
+//             <Modal
+//                 visible={showQr}
+//                 transparent={true}
+//                 onRequestClose={() => setShowQr(false)}
+//                 animationType="fade"
+//             >
+//                 <View style={styles.modalContainer}>
+//                     <View style={styles.modalContent}>
+//                         <View style={styles.modalHeader}>
+//                             <View style={styles.modalHeaderLine} />
+//                             <Text style={styles.modalTitle}>{user?.firstName + ' ' + user?.lastName}</Text>
+//                         </View>
+//                         <View style={styles.qrContainer}>
+//                             <QRCode
+//                                 value={JSON.stringify({ order, user })}
+//                                 size={width > 300 ? width * 0.6 : 200}
+//                                 color="#6a11cb"
+//                             />
+//                         </View>
+//                         <ButtonPrimary
+//                             text="Close"
+//                             onPress={() => setShowQr(false)}
+//                             Loading={false}
+//                             setLoading={() => { }}
+//                         />
+//                     </View>
+//                 </View>
+//             </Modal>
+//         </View>
+//     );
+// };
+
+// const styles = StyleSheet.create({
+//     headerTitle: {
+//         fontSize: 24,
+//         fontWeight: '700',
+//         color: '#fff',
+//         textShadowColor: 'rgba(0, 0, 0, 0.3)',
+//         textShadowOffset: { width: 0, height: 1 },
+//         textShadowRadius: 2,
+//     },
+//     contentContainer: {
+//         backgroundColor: '#f0f0f0',
+//         borderTopLeftRadius: 30,
+//         borderTopRightRadius: 30,
+//         marginTop: -30,
+//         paddingTop: 20,
+//     },
+//     searchContainer: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         backgroundColor: 'white',
+//         borderRadius: 25,
+//         paddingHorizontal: 15,
+//         marginHorizontal: 20,
+//         marginBottom: 20,
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.1,
+//         shadowRadius: 4,
+//         elevation: 3,
+//     },
+//     searchIcon: {
+//         marginRight: 10,
+//     },
+//     clearIcon: {
+//         marginLeft: 'auto',
+//     },
+//     searchInput: {
+//         flex: 1,
+//         fontSize: 16,
+//         paddingVertical: 12,
+//     },
+//     modalContainer: {
+//         flex: 1,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         backgroundColor: 'rgba(0, 0, 0, 0.5)',
+//     },
+//     modalContent: {
+//         width: '80%',
+//         backgroundColor: 'white',
+//         borderRadius: 20,
+//         padding: 20,
+//         alignItems: 'center',
+//         elevation: 5,
+//     },
+//     modalHeader: {
+//         width: '100%',
+//         alignItems: 'center',
+//         marginBottom: 20,
+//     },
+//     modalHeaderLine: {
+//         width: 40,
+//         height: 4,
+//         backgroundColor: '#ccc',
+//         borderRadius: 2,
+//         marginBottom: 15,
+//     },
+//     modalTitle: {
+//         fontSize: 20,
+//         fontWeight: 'bold',
+//         color: '#333',
+//     },
+//     qrContainer: {
+//         marginBottom: 20,
+//         padding: 10,
+//         backgroundColor: 'white',
+//         borderRadius: 10,
+//         shadowColor: '#000',
+//         shadowOffset: { width: 0, height: 2 },
+//         shadowOpacity: 0.1,
+//         shadowRadius: 4,
+//         elevation: 3,
+//     },
+// });
+
+// export default Orders;
+
+
+// import React, { useEffect, useRef, useState, useCallback } from 'react';
+// import {
+//     Dimensions,
+//     Modal,
+//     StyleSheet,
+//     Text,
+//     TextInput,
+//     Animated,
+//     View,
+//     TouchableOpacity,
+//     Keyboard,
+//     Image,
+//     Platform,
+//     StatusBar,
+//     RefreshControl,
+//     ActivityIndicator,
+//     FlatList,
+// } from 'react-native';
+// import { useSafeAreaInsets } from 'react-native-safe-area-context';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+// import QRCode from 'react-native-qrcode-svg';
+// import { ButtonPrimary } from '@/components/index';
+// import { LinearGradient } from 'expo-linear-gradient';
+// import { AntDesign, Ionicons } from '@expo/vector-icons';
+// import UserUnlockedOrders from '@/components/UserOrderLising';
+// import { useFocusEffect } from '@react-navigation/native';
+// import * as Haptics from 'expo-haptics';
+// import { BlurView } from 'expo-blur';
+
+// const { width, height } = Dimensions.get('window');
+
+// const Orders = ({ navigation }: any) => {
+//     const insets = useSafeAreaInsets();
+//     const [showQr, setShowQr] = useState(false);
+//     const [order, setOrder] = useState<any>(null);
+//     const [user, setUser] = useState<any>(null);
+//     const scrollY = useRef(new Animated.Value(0)).current;
+//     const [searchQuery, setSearchQuery] = useState<string>('');
+//     const [debouncedQuery, setDebouncedQuery] = useState<string>('');
+//     const [refreshing, setRefreshing] = useState(false);
+//     const [loading, setLoading] = useState(true);
+//     const [orderStats, setOrderStats] = useState({ total: 0, completed: 0, pending: 0 });
+
+//     const getInfo = useCallback(async () => {
+//         try {
+//             setLoading(true);
+//             const userString = await AsyncStorage.getItem('@user');
+//             if (userString) {
+//                 setUser(JSON.parse(userString));
+//             }
+//             // Simulating API call for order stats
+//             await new Promise(resolve => setTimeout(resolve, 1000));
+//             setOrderStats({ total: 15, completed: 8, pending: 7 });
+//         } catch (error) {
+//             console.error('Error fetching user info:', error);
+//         } finally {
+//             setLoading(false);
+//         }
+//     }, []);
+
+//     useFocusEffect(
+//         useCallback(() => {
+//             getInfo();
+//         }, [getInfo])
+//     );
+
+//     const handleSearchChange = useCallback((text: string) => {
+//         setSearchQuery(text);
+//         const timeoutId = setTimeout(() => {
+//             setDebouncedQuery(text);
+//         }, 300);
+//         return () => clearTimeout(timeoutId);
+//     }, []);
+
+//     const handleRefresh = useCallback(async () => {
+//         setRefreshing(true);
+//         await getInfo();
+//         setRefreshing(false);
+//     }, [getInfo]);
+
+//     const renderHeader = useCallback(() => {
+//         const headerHeight = scrollY.interpolate({
+//             inputRange: [0, 100],
+//             outputRange: [(height - 50) / 3, 100],
+//             extrapolate: 'clamp',
+//         });
+
+//         const headerOpacity = scrollY.interpolate({
+//             inputRange: [0, 100],
+//             outputRange: [1, 0.6],
+//             extrapolate: 'clamp',
+//         });
+
+//         return (
+//             <Animated.View style={[styles.header, { height: headerHeight }]}>
+//                 <LinearGradient
+//                     colors={['#6a11cb', '#2575fc']}
+//                     style={StyleSheet.absoluteFill}
+//                 >
+//                     <Animated.Image
+//                         style={[
+//                             StyleSheet.absoluteFill,
+//                             { opacity: headerOpacity },
+//                         ]}
+//                         source={require('./images/abstraction.avif')}
+//                         resizeMode="cover"
+//                     />
+//                 </LinearGradient>
+//                 <Animated.Text style={[styles.headerTitle, { opacity: headerOpacity }]}>
+//                     My Orders
+//                 </Animated.Text>
+//                 <Animated.View style={[styles.statsContainer, { opacity: headerOpacity }]}>
+//                     <View style={styles.statItem}>
+//                         <Text style={styles.statValue}>{orderStats.total}</Text>
+//                         <Text style={styles.statLabel}>Total</Text>
+//                     </View>
+//                     <View style={styles.statItem}>
+//                         <Text style={styles.statValue}>{orderStats.completed}</Text>
+//                         <Text style={styles.statLabel}>Completed</Text>
+//                     </View>
+//                     <View style={styles.statItem}>
+//                         <Text style={styles.statValue}>{orderStats.pending}</Text>
+//                         <Text style={styles.statLabel}>Pending</Text>
+//                     </View>
+//                 </Animated.View>
+//             </Animated.View>
+//         );
+//     }, [scrollY, orderStats]);
+
+//     const renderSearchBar = useCallback(() => (
+//         <View style={styles.searchContainer}>
+//             <AntDesign name="search1" size={20} color="#999" style={styles.searchIcon} />
+//             <TextInput
+//                 style={styles.searchInput}
+//                 placeholderTextColor="#999"
+//                 placeholder="Search orders..."
+//                 value={searchQuery}
+//                 onChangeText={handleSearchChange}
+//                 returnKeyType="search"
+//                 onSubmitEditing={Keyboard.dismiss}
+//             />
+//             {searchQuery.length > 0 && (
+//                 <TouchableOpacity 
+//                     onPress={() => {
+//                         setSearchQuery('');
+//                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+//                     }} 
+//                     style={styles.clearIcon}
+//                 >
+//                     <AntDesign name="closecircle" size={20} color="#999" />
+//                 </TouchableOpacity>
+//             )}
+//         </View>
+//     ), [searchQuery, handleSearchChange]);
+
+//     const renderQRModal = useCallback(() => (
+//         <Modal
+//             visible={showQr}
+//             transparent={true}
+//             onRequestClose={() => setShowQr(false)}
+//             animationType="fade"
+//         >
+//             <BlurView intensity={100} style={StyleSheet.absoluteFill}>
+//                 <View style={styles.modalContainer}>
+//                     <View style={styles.modalContent}>
+//                         <View style={styles.modalHeader}>
+//                             <View style={styles.modalHeaderLine} />
+//                             <Text style={styles.modalTitle}>{user?.firstName} {user?.lastName}</Text>
+//                         </View>
+//                         <View style={styles.qrContainer}>
+//                             <QRCode
+//                                 value={JSON.stringify({ order, user })}
+//                                 size={width > 300 ? width * 0.6 : 200}
+//                                 color="#6a11cb"
+//                             />
+//                         </View>
+//                         <ButtonPrimary
+//                             text="Close"
+//                             onPress={() => {
+//                                 setShowQr(false);
+//                                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+//                             }}
+//                             Loading={false}
+//                             setLoading={() => {}}
+//                         />
+//                     </View>
+//                 </View>
+//             </BlurView>
+//         </Modal>
+//     ), [showQr, order, user]);
+
+//     const renderListHeader = useCallback(() => (
+//         <>
+//             {renderHeader()}
+//             {renderSearchBar()}
+//         </>
+//     ), [renderHeader, renderSearchBar]);
+
+//     const renderListFooter = useCallback(() => (
+//         <View style={styles.listFooter} />
+//     ), []);
+
+//     if (loading) {
+//         return (
+//             <View style={styles.loadingContainer}>
+//                 <ActivityIndicator size="large" color="#6a11cb" />
+//             </View>
+//         );
+//     }
+
+//     return (
+//         <View style={styles.container}>
+//             <StatusBar barStyle="light-content" />
+//             <FlatList
+//                 data={[{ key: 'orders' }]}
+//                 renderItem={() => (
+//                     <UserUnlockedOrders
+//                         navigation={navigation}
+//                         searchQuery={debouncedQuery}
+//                         onRefresh={handleRefresh}
+//                         refreshing={refreshing}
+//                     />
+//                 )}
+//                 ListHeaderComponent={renderListHeader}
+//                 ListFooterComponent={renderListFooter}
+//                 onScroll={Animated.event(
+//                     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+//                     { useNativeDriver: false }
+//                 )}
+//                 scrollEventThrottle={16}
+//                 contentContainerStyle={styles.scrollViewContent}
+//                 showsVerticalScrollIndicator={false}
+//                 refreshControl={
+//                     <RefreshControl
+//                         refreshing={refreshing}
+//                         onRefresh={handleRefresh}
+//                         tintColor="#6a11cb"
+//                         colors={['#6a11cb', '#2575fc']}
+//                     />
+//                 }
+//             />
+//             {renderQRModal()}
+//             <TouchableOpacity
+//                 style={styles.fabContainer}
+//                 onPress={() => {
+//                     setShowQr(true);
+//                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+//                 }}
+//             >
+//                 <Ionicons name="qr-code" size={24} color="#fff" />
+//             </TouchableOpacity>
+//         </View>
+//     );
+// };
+
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         backgroundColor: '#f0f0f0',
+//     },
+//     loadingContainer: {
+//         flex: 1,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         backgroundColor: '#f0f0f0',
+//     },
+//     header: {
+//         justifyContent: 'flex-end',
+//         paddingBottom: 20,
+//     },
+//     headerTitle: {
+//         fontSize: 28,
+//         fontWeight: '700',
+//         color: '#fff',
+//         textAlign: 'center',
+//         textShadowColor: 'rgba(0, 0, 0, 0.3)',
+//         textShadowOffset: { width: 0, height: 1 },
+//         textShadowRadius: 2,
+//     },
+//     statsContainer: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-around',
+//         marginTop: 10,
+//     },
+//     statItem: {
+//         alignItems: 'center',
+//     },
+//     statValue: {
+//         fontSize: 24,
+//         fontWeight: '700',
+//         color: '#fff',
+//     },
+//     statLabel: {
+//         fontSize: 14,
+//         color: '#fff',
+//         opacity: 0.8,
+//     },
+//     scrollViewContent: {
+//         paddingBottom: 20,
+//     },
+//     searchContainer: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         backgroundColor: 'white',
+//         borderRadius: 25,
+//         paddingHorizontal: 15,
+//         marginHorizontal: 20,
+//         marginVertical: 20,
+//         ...Platform.select({
+//             ios: {
+//                 shadowColor: '#000',
+//                 shadowOffset: { width: 0, height: 2 },
+//                 shadowOpacity: 0.1,
+//                 shadowRadius: 4,
+//             },
+//             android: {
+//                 elevation: 3,
+//             },
+//         }),
+//     },
+//     searchIcon: {
+//         marginRight: 10,
+//     },
+//     clearIcon: {
+//         marginLeft: 'auto',
+//     },
+//     searchInput: {
+//         flex: 1,
+//         fontSize: 16,
+//         paddingVertical: 12,
+//     },
+//     modalContainer: {
+//         flex: 1,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//     },
+//     modalContent: {
+//         width: '80%',
+//         backgroundColor: 'white',
+//         borderRadius: 20,
+//         padding: 20,
+//         alignItems: 'center',
+//         ...Platform.select({
+//             ios: {
+//                 shadowColor: '#000',
+//                 shadowOffset: { width: 0, height: 2 },
+//                 shadowOpacity: 0.25,
+//                 shadowRadius: 4,
+//             },
+//             android: {
+//                 elevation: 5,
+//             },
+//         }),
+//     },
+//     modalHeader: {
+//         width: '100%',
+//         alignItems: 'center',
+//         marginBottom: 20,
+//     },
+//     modalHeaderLine: {
+//         width: 40,
+//         height: 4,
+//         backgroundColor: '#ccc',
+//         borderRadius: 2,
+//         marginBottom: 15,
+//     },
+//     modalTitle: {
+//         fontSize: 20,
+//         fontWeight: 'bold',
+//         color: '#333',
+//     },
+//     qrContainer: {
+//         marginBottom: 20,
+//         padding: 10,
+//         backgroundColor: 'white',
+//         borderRadius: 10,
+//         ...Platform.select({
+//             ios: {
+//                 shadowColor: '#000',
+//                 shadowOffset: { width: 0, height: 2 },
+//                 shadowOpacity: 0.1,
+//                 shadowRadius: 4,
+//             },
+//             android: {
+//                 elevation: 3,
+//             },
+//         }),
+//     },
+//     fabContainer: {
+//         position: 'absolute',
+//         bottom: 20,
+//         right: 20,
+//         backgroundColor: '#6a11cb',
+//         width: 56,
+//         height: 56,
+//         borderRadius: 28,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         ...Platform.select({
+//             ios: {
+//                 shadowColor: '#000',
+//                 shadowOffset: { width: 0, height: 2 },
+//                 shadowOpacity: 0.3,
+//                 shadowRadius: 4,
+//             },
+//             android: {
+//                 elevation: 5,
+//             },
+//         }),
+//     },
+//     listFooter: {
+//         height: 80, // Add some space at the bottom for the FAB
+//     },
+// });
+
+// export default Orders;
+
+
+// import React, { useEffect, useRef, useState, useCallback } from 'react';
+// import {
+//     Dimensions,
+//     Modal,
+//     StyleSheet,
+//     Text,
+//     TextInput,
+//     Animated,
+//     View,
+//     TouchableOpacity,
+//     Keyboard,
+//     Image,
+//     Platform,
+//     StatusBar,
+//     RefreshControl,
+//     ActivityIndicator,
+//     FlatList,
+// } from 'react-native';
+// import { useSafeAreaInsets } from 'react-native-safe-area-context';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+// import QRCode from 'react-native-qrcode-svg';
+// import { ButtonPrimary } from '@/components/index';
+// import { LinearGradient } from 'expo-linear-gradient';
+// import { AntDesign, Ionicons } from '@expo/vector-icons';
+// import UserUnlockedOrders from '@/components/UserOrderLising';
+// import { useFocusEffect } from '@react-navigation/native';
+// import * as Haptics from 'expo-haptics';
+// import { BlurView } from 'expo-blur';
+
+// const { width, height } = Dimensions.get('window');
+
+// const COLORS:any = {
+//     primary: "#3a7f41",
+//     secondary: "#321a47",
+//     black: {
+//         dark: "#141721",
+//         med: "#202534",
+//         light: "#34394A",
+//     },
+//     white: "#fff",
+// };
+
+// const SIZES:any = {
+//     base: 8,
+//     font: 14,
+//     radius: 12,
+//     padding: 24,
+// };
+
+// const SHADOWS = {
+//     light: {
+//         shadowColor: COLORS.black.dark,
+//         shadowOffset: {
+//             width: 0,
+//             height: 1,
+//         },
+//         shadowOpacity: 0.22,
+//         shadowRadius: 2.22,
+//         elevation: 3,
+//     },
+//     medium: {
+//         shadowColor: COLORS.black.dark,
+//         shadowOffset: {
+//             width: 0,
+//             height: 3,
+//         },
+//         shadowOpacity: 0.29,
+//         shadowRadius: 4.65,
+//         elevation: 7,
+//     },
+//     dark: {
+//         shadowColor: COLORS.black.dark,
+//         shadowOffset: {
+//             width: 0,
+//             height: 7,
+//         },
+//         shadowOpacity: 0.41,
+//         shadowRadius: 9.11,
+//         elevation: 14,
+//     },
+// };
+
+// const Orders = ({ navigation }:any) => {
+//     const insets = useSafeAreaInsets();
+//     const [showQr, setShowQr] = useState(false);
+//     const [order, setOrder] = useState(null);
+//     const [user, setUser]:any = useState(null);
+//     const scrollY = useRef(new Animated.Value(0)).current;
+//     const [searchQuery, setSearchQuery] = useState('');
+//     const [debouncedQuery, setDebouncedQuery] = useState('');
+//     const [refreshing, setRefreshing] = useState(false);
+//     const [loading, setLoading] = useState(true);
+//     const [orderStats, setOrderStats] = useState({ total: 0, completed: 0, pending: 0 });
+
+//     const getInfo = useCallback(async () => {
+//         try {
+//             setLoading(true);
+//             const userString = await AsyncStorage.getItem('@user');
+//             if (userString) {
+//                 setUser(JSON.parse(userString));
+//             }
+//             // Simulating API call for order stats
+//             await new Promise(resolve => setTimeout(resolve, 1000));
+//             setOrderStats({ total: 15, completed: 8, pending: 7 });
+//         } catch (error) {
+//             console.error('Error fetching user info:', error);
+//         } finally {
+//             setLoading(false);
+//         }
+//     }, []);
+
+//     useFocusEffect(
+//         useCallback(() => {
+//             getInfo();
+//         }, [getInfo])
+//     );
+
+//     const handleSearchChange = useCallback((text:any) => {
+//         setSearchQuery(text);
+//         const timeoutId = setTimeout(() => {
+//             setDebouncedQuery(text);
+//         }, 300);
+//         return () => clearTimeout(timeoutId);
+//     }, []);
+
+//     const handleRefresh = useCallback(async () => {
+//         setRefreshing(true);
+//         await getInfo();
+//         setRefreshing(false);
+//     }, [getInfo]);
+
+//     const renderHeader = useCallback(() => {
+//         const headerHeight = scrollY.interpolate({
+//             inputRange: [0, 100],
+//             outputRange: [height / 3, 100],
+//             extrapolate: 'clamp',
+//         });
+
+//         const headerOpacity = scrollY.interpolate({
+//             inputRange: [0, 100],
+//             outputRange: [1, 0.6],
+//             extrapolate: 'clamp',
+//         });
+
+//         return (
+//             <Animated.View style={[styles.header, { height: headerHeight }]}>
+//                 <LinearGradient
+//                     colors={[COLORS.primary, COLORS.secondary]}
+//                     style={StyleSheet.absoluteFill}
+//                 >
+//                     <Animated.Image
+//                         style={[
+//                             StyleSheet.absoluteFill,
+//                             { opacity: headerOpacity },
+//                         ]}
+//                         source={require('./images/abstraction.avif')}
+//                         resizeMode="cover"
+//                     />
+//                 </LinearGradient>
+//                 <Animated.Text style={[styles.headerTitle, { opacity: headerOpacity }]}>
+//                     My Orders
+//                 </Animated.Text>
+//                 <Animated.View style={[styles.statsContainer, { opacity: headerOpacity }]}>
+//                     <View style={styles.statItem}>
+//                         <Text style={styles.statValue}>{orderStats.total}</Text>
+//                         <Text style={styles.statLabel}>Total</Text>
+//                     </View>
+//                     <View style={styles.statItem}>
+//                         <Text style={styles.statValue}>{orderStats.completed}</Text>
+//                         <Text style={styles.statLabel}>Completed</Text>
+//                     </View>
+//                     <View style={styles.statItem}>
+//                         <Text style={styles.statValue}>{orderStats.pending}</Text>
+//                         <Text style={styles.statLabel}>Pending</Text>
+//                     </View>
+//                 </Animated.View>
+//             </Animated.View>
+//         );
+//     }, [scrollY, orderStats]);
+
+//     const renderSearchBar = useCallback(() => (
+//         <View style={styles.searchContainer}>
+//             <AntDesign name="search1" size={20} color={COLORS.black.light} style={styles.searchIcon} />
+//             <TextInput
+//                 style={styles.searchInput}
+//                 placeholderTextColor={COLORS.black.light}
+//                 placeholder="Search orders..."
+//                 value={searchQuery}
+//                 onChangeText={handleSearchChange}
+//                 returnKeyType="search"
+//                 onSubmitEditing={Keyboard.dismiss}
+//             />
+//             {searchQuery.length > 0 && (
+//                 <TouchableOpacity 
+//                     onPress={() => {
+//                         setSearchQuery('');
+//                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+//                     }} 
+//                     style={styles.clearIcon}
+//                 >
+//                     <AntDesign name="closecircle" size={20} color={COLORS.black.light} />
+//                 </TouchableOpacity>
+//             )}
+//         </View>
+//     ), [searchQuery, handleSearchChange]);
+
+//     const renderQRModal = useCallback(() => (
+//         <Modal
+//             visible={showQr}
+//             transparent={true}
+//             onRequestClose={() => setShowQr(false)}
+//             animationType="fade"
+//         >
+//             <BlurView intensity={100} style={StyleSheet.absoluteFill}>
+//                 <View style={styles.modalContainer}>
+//                     <View style={styles.modalContent}>
+//                         <View style={styles.modalHeader}>
+//                             <View style={styles.modalHeaderLine} />
+//                             <Text style={styles.modalTitle}>{user?.firstName} {user?.lastName}</Text>
+//                         </View>
+//                         <View style={styles.qrContainer}>
+//                             <QRCode
+//                                 value={JSON.stringify({ order, user })}
+//                                 size={width > 300 ? width * 0.6 : 200}
+//                                 color={COLORS.primary}
+//                             />
+//                         </View>
+//                         <ButtonPrimary
+//                             text="Close"
+//                             onPress={() => {
+//                                 setShowQr(false);
+//                                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+//                             }}
+//                             Loading={false}
+//                             setLoading={() => {}}
+//                         />
+//                     </View>
+//                 </View>
+//             </BlurView>
+//         </Modal>
+//     ), [showQr, order, user]);
+
+//     const renderListHeader = useCallback(() => (
+//         <>
+//             {renderHeader()}
+//             {renderSearchBar()}
+//         </>
+//     ), [renderHeader, renderSearchBar]);
+
+//     const renderListFooter = useCallback(() => (
+//         <View style={styles.listFooter} />
+//     ), []);
+
+//     if (loading) {
+//         return (
+//             <View style={styles.loadingContainer}>
+//                 <ActivityIndicator size="large" color={COLORS.primary} />
+//             </View>
+//         );
+//     }
+
+//     return (
+//         <View style={styles.container}>
+//             <StatusBar barStyle="light-content" />
+//             <FlatList
+//                 data={[{ key: 'orders' }]}
+//                 renderItem={() => (
+//                     <UserUnlockedOrders
+//                         navigation={navigation}
+//                         searchQuery={debouncedQuery}
+//                         onRefresh={handleRefresh}
+//                         refreshing={refreshing}
+//                     />
+//                 )}
+//                 ListHeaderComponent={renderListHeader}
+//                 ListFooterComponent={renderListFooter}
+//                 onScroll={Animated.event(
+//                     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+//                     { useNativeDriver: false }
+//                 )}
+//                 scrollEventThrottle={16}
+//                 contentContainerStyle={styles.scrollViewContent}
+//                 showsVerticalScrollIndicator={false}
+//                 refreshControl={
+//                     <RefreshControl
+//                         refreshing={refreshing}
+//                         onRefresh={handleRefresh}
+//                         tintColor={COLORS.primary}
+//                         colors={[COLORS.primary, COLORS.secondary]}
+//                     />
+//                 }
+//             />
+//             {/* {renderQRModal()} */}
+//             {/* <TouchableOpacity
+//                 style={styles.fabContainer}
+//                 onPress={() => {
+//                     setShowQr(true);
+//                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+//                 }}
+//             >
+//                 <Ionicons name="qr-code" size={24} color={COLORS.white} />
+//             </TouchableOpacity> */}
+//         </View>
+//     );
+// };
+
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         backgroundColor: COLORS.white,
+//     },
+//     loadingContainer: {
+//         flex: 1,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         backgroundColor: COLORS.white,
+//     },
+//     header: {
+//         justifyContent: 'flex-end',
+//         paddingBottom: SIZES.padding,
+//     },
+//     headerTitle: {
+//         fontSize: SIZES.h1,
+//         fontWeight: '700',
+//         color: COLORS.white,
+//         textAlign: 'center',
+//         textShadowColor: 'rgba(0, 0, 0, 0.3)',
+//         textShadowOffset: { width: 0, height: 1 },
+//         textShadowRadius: 2,
+//     },
+//     statsContainer: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-around',
+//         marginTop: SIZES.base,
+//     },
+//     statItem: {
+//         alignItems: 'center',
+//     },
+//     statValue: {
+//         fontSize: SIZES.h2,
+//         fontWeight: '700',
+//         color: COLORS.white,
+//     },
+//     statLabel: {
+//         fontSize: SIZES.body4,
+//         color: COLORS.white,
+//         opacity: 0.8,
+//     },
+//     scrollViewContent: {
+//         paddingBottom: SIZES.padding,
+//     },
+//     searchContainer: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         backgroundColor: COLORS.white,
+//         borderRadius: SIZES.radius,
+//         paddingHorizontal: SIZES.base * 2,
+//         marginHorizontal: SIZES.padding,
+//         marginVertical: SIZES.padding,
+//         ...SHADOWS.light,
+//     },
+//     searchIcon: {
+//         marginRight: SIZES.base,
+//     },
+//     clearIcon: {
+//         marginLeft: 'auto',
+//     },
+//     searchInput: {
+//         flex: 1,
+//         fontSize: SIZES.body3,
+//         paddingVertical: SIZES.base * 1.5,
+//         color: COLORS.black.dark,
+//     },
+//     modalContainer: {
+//         flex: 1,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//     },
+//     modalContent: {
+//         width: '80%',
+//         backgroundColor: COLORS.white,
+//         borderRadius: SIZES.radius * 2,
+//         padding: SIZES.padding,
+//         alignItems: 'center',
+//         ...SHADOWS.dark,
+//     },
+//     modalHeader: {
+//         width: '100%',
+//         alignItems: 'center',
+//         marginBottom: SIZES.padding,
+//     },
+//     modalHeaderLine: {
+//         width: 40,
+//         height: 4,
+//         backgroundColor: COLORS.black.light,
+//         borderRadius: 2,
+//         marginBottom: SIZES.base * 2,
+//     },
+//     modalTitle: {
+//         fontSize: SIZES.h2,
+//         fontWeight: 'bold',
+//         color: COLORS.black.dark,
+//     },
+//     qrContainer: {
+//         marginBottom: SIZES.padding,
+//         padding: SIZES.base,
+//         backgroundColor: COLORS.white,
+//         borderRadius: SIZES.radius,
+//         ...SHADOWS.medium,
+//     },
+//     fabContainer: {
+//         position: 'absolute',
+//         bottom: SIZES.padding,
+//         right: SIZES.padding,
+//         backgroundColor: COLORS.primary,
+//         width: 56,
+//         height: 56,
+//         borderRadius: 28,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         ...SHADOWS.medium,
+//     },
+//     listFooter: {
+//         height: 80, // Add some space at the bottom for the FAB
+//     },
+// });
+
+// export default Orders;
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import {
     Dimensions,
-    Modal,
-    RefreshControl,
     StyleSheet,
     Text,
     TextInput,
     Animated,
     View,
-    TouchableOpacity,
-    Keyboard,
-    Image,
+    StatusBar,
+    FlatList,
 } from 'react-native';
-import { ScrollView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import window from "../../constants/Layout";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import QRCode from 'react-native-qrcode-svg';
-import { ButtonPrimary } from '@/components/index';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Circle } from 'react-native-svg';
 import { AntDesign } from '@expo/vector-icons';
-import { useEffect, useRef, useState } from 'react';
 import UserUnlockedOrders from '@/components/UserOrderLising';
 
+const { height } = Dimensions.get('window');
+
+const COLORS: any = {
+    primary: "#3a7f41",
+    secondary: "#321a47",
+    black: {
+        dark: "#141721",
+        med: "#202534",
+        light: "#34394A",
+    },
+    white: "#fff",
+};
+
+const SIZES: any = {
+    base: 8,
+    font: 14,
+    radius: 12,
+    padding: 24,
+    h1: 24,
+    h2: 20,
+    body3: 16,
+    body4: 14,
+};
+
+const SHADOWS = {
+    light: {
+        shadowColor: COLORS.black.dark,
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.22,
+        shadowRadius: 2.22,
+        elevation: 3,
+    },
+    medium: {
+        shadowColor: COLORS.black.dark,
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+        elevation: 7,
+    },
+    dark: {
+        shadowColor: COLORS.black.dark,
+        shadowOffset: {
+            width: 0,
+            height: 7,
+        },
+        shadowOpacity: 0.41,
+        shadowRadius: 9.11,
+        elevation: 14,
+    },
+};
+
 const Orders = ({ navigation }: any) => {
-    const insets = useSafeAreaInsets();
-    const [showQr, setShowQr] = useState(false);
-    const [order, setOrder] = useState<any>(null);
-    const [user, setUser] = useState<any>(null);
-    const { width } = Dimensions.get('window');
-    const scrollY = useRef(new Animated.Value(0)).current;
-    const [searchQuery, setSearchQuery] = useState<string>('');
-    const [debouncedQuery, setDebouncedQuery] = useState<string>('');
-
-    const getInfo = async () => {
-        const User = await AsyncStorage.getItem('@user');
-        setUser(JSON.parse(User || '{}'));
-    };
-
-    useEffect(() => {
-        getInfo();
-    }, []);
-
-    const headerHeight = scrollY.interpolate({
-        inputRange: [0, 100],
-        outputRange: [(window.height - 50) / 3, 100],
-        extrapolate: 'clamp',
-    });
-
-    const headerOpacity = scrollY.interpolate({
-        inputRange: [0, 100],
-        outputRange: [1, 0.6],
-        extrapolate: 'clamp',
-    });
-
-    // Debounce search input to optimize performance
-    const debounceTimeout: any = useRef<number | null>(null);
-
-    const handleSearchChange = (text: string) => {
-        setSearchQuery(text);
-        if (debounceTimeout.current) {
-            clearTimeout(debounceTimeout.current);
-        }
-        debounceTimeout.current = setTimeout(() => {
-            setDebouncedQuery(text);
-        }, 300);
-    };
-
-    useEffect(() => {
-        return () => {
-            if (debounceTimeout.current) {
-                clearTimeout(debounceTimeout.current);
-            }
-        };
-    }, []);
-
     return (
-        <View style={{ flex: 1, backgroundColor: '#f0f0f0' }}>
-            <Animated.View
-                style={{
-                    height: headerHeight,
-                }}
-            >
-                <LinearGradient
-                    colors={['#6a11cb', '#2575fc']}
-                    style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-                >
-                    <Animated.Image
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            opacity: headerOpacity,
-                            position: 'absolute',
-                        }}
-                        source={require('./images/abstraction.avif')}
-                        resizeMode="cover"
-                    />
-                    <Text style={styles.headerTitle}>My Orders</Text>
-                </LinearGradient>
-            </Animated.View>
+        <View style={styles.container}>
+            <StatusBar barStyle="light-content" />
 
-            <View style={styles.contentContainer}>
-                <View style={styles.searchContainer}>
-                    <AntDesign name="search1" size={20} color="#999" style={styles.searchIcon} />
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholderTextColor="#999"
-                        placeholder="Search orders..."
-                        value={searchQuery}
-                        onChangeText={handleSearchChange}
-                        returnKeyType="search"
-                        onSubmitEditing={Keyboard.dismiss}
-                    />
-                    {searchQuery.length > 0 && (
-                        <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearIcon}>
-                            <AntDesign name="closecircle" size={20} color="#999" />
-                        </TouchableOpacity>
-                    )}
-                </View>
-
-                <UserUnlockedOrders
-                    navigation={navigation}
-                    searchQuery={debouncedQuery}
-                />
-                
-            </View>
-
-            <Modal
-                visible={showQr}
-                transparent={true}
-                onRequestClose={() => setShowQr(false)}
-                animationType="fade"
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
-                            <View style={styles.modalHeaderLine} />
-                            <Text style={styles.modalTitle}>{user?.firstName + ' ' + user?.lastName}</Text>
-                        </View>
-                        <View style={styles.qrContainer}>
-                            <QRCode
-                                value={JSON.stringify({ order, user })}
-                                size={width > 300 ? width * 0.6 : 200}
-                                color="#6a11cb"
-                            />
-                        </View>
-                        <ButtonPrimary
-                            text="Close"
-                            onPress={() => setShowQr(false)}
-                            Loading={false}
-                            setLoading={() => { }}
-                        />
-                    </View>
-                </View>
-            </Modal>
+            <UserUnlockedOrders
+                navigation={navigation}
+            />
         </View>
     );
 };
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: COLORS.white,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: COLORS.white,
+    },
+    header: {
+        justifyContent: 'flex-end',
+        paddingBottom: SIZES.padding,
+    },
     headerTitle: {
-        fontSize: 24,
+        fontSize: SIZES.h1,
         fontWeight: '700',
-        color: '#fff',
+        color: COLORS.white,
+        textAlign: 'center',
         textShadowColor: 'rgba(0, 0, 0, 0.3)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 2,
     },
-    contentContainer: {
-        backgroundColor: '#f0f0f0',
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        marginTop: -30,
-        paddingTop: 20,
+    statsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginTop: SIZES.base,
+    },
+    statItem: {
+        alignItems: 'center',
+    },
+    statValue: {
+        fontSize: SIZES.h2,
+        fontWeight: '700',
+        color: COLORS.white,
+    },
+    statLabel: {
+        fontSize: SIZES.body4,
+        color: COLORS.white,
+        opacity: 0.8,
+    },
+    scrollViewContent: {
+        paddingBottom: SIZES.padding,
     },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'white',
-        borderRadius: 25,
-        paddingHorizontal: 15,
-        marginHorizontal: 20,
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        backgroundColor: COLORS.white,
+        borderRadius: SIZES.radius,
+        paddingHorizontal: SIZES.base * 2,
+        marginHorizontal: SIZES.padding,
+        marginVertical: SIZES.padding,
+        ...SHADOWS.light,
     },
     searchIcon: {
-        marginRight: 10,
-    },
-    clearIcon: {
-        marginLeft: 'auto',
+        marginRight: SIZES.base,
     },
     searchInput: {
         flex: 1,
-        fontSize: 16,
-        paddingVertical: 12,
+        fontSize: SIZES.body3,
+        paddingVertical: SIZES.base * 1.5,
+        color: COLORS.black.dark,
     },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContent: {
-        width: '80%',
-        backgroundColor: 'white',
-        borderRadius: 20,
-        padding: 20,
-        alignItems: 'center',
-        elevation: 5,
-    },
-    modalHeader: {
-        width: '100%',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    modalHeaderLine: {
-        width: 40,
-        height: 4,
-        backgroundColor: '#ccc',
-        borderRadius: 2,
-        marginBottom: 15,
-    },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    qrContainer: {
-        marginBottom: 20,
-        padding: 10,
-        backgroundColor: 'white',
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+    listFooter: {
+        height: 80,
     },
 });
 

@@ -127,13 +127,13 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
   ];
 
   const Menu4 = [
-    {
-      name: "My leads",
-      icon: <MaterialIcons name="local-offer" color="white" size={20} />,
-      colorIcon: "coral",
-      onPress: () =>
-        navigation.navigate("MyLeads"),
-    },
+    // {
+    //   name: "My leads",
+    //   icon: <MaterialIcons name="local-offer" color="white" size={20} />,
+    //   colorIcon: "coral",
+    //   onPress: () =>
+    //     navigation.navigate("MyLeads"),
+    // },
     {
       name: "Balance and transactions",
       icon: <MaterialIcons name="money" color="white" size={20} />,
@@ -146,7 +146,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       icon: <MaterialIcons name="chat" color="white" size={20} />,
       colorIcon: "blue",
       onPress: () =>
-        navigation.navigate("ConversationsScreen"),
+        navigation.navigate("MyLeads"),
     },
   ]
 

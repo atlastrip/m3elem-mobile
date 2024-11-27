@@ -72,7 +72,7 @@ const AverageRatingDisplay = React.memo(({ reviews }: any) => {
 });
 
 const ArtisanCard = React.memo(({ artisan, title, selectedCategories, navigation }: any) => {
-    const handleChatPress = useCallback(() => {
+    const handleChatPress = useCallback((chatType: any) => {
 
 
         navigation.navigate('ServiceProviderProfile', {
@@ -80,6 +80,7 @@ const ArtisanCard = React.memo(({ artisan, title, selectedCategories, navigation
             selectedCategories: selectedCategories,
             role: 'artisant',
             title: title,
+            chatType: chatType
         });
     }, [navigation, artisan.id, title]);
 
@@ -176,7 +177,9 @@ const ArtisanCard = React.memo(({ artisan, title, selectedCategories, navigation
                 <View className='flex-row '>
                     <TouchableOpacity
                         style={styles.actionButton}
-                        onPress={handleChatPress}
+                        onPress={() => {
+                            handleChatPress("chat")
+                        }}
                         className='mr-2'
                     >
                         <MaterialIcons name="chat" size={20} color={COLORS.primary} />
@@ -235,12 +238,16 @@ const Results = ({ Artisants, selectedCategories, title, navigation }: any) => {
                 maxToRenderPerBatch={10}
                 windowSize={10}
                 removeClippedSubviews={true}
+                scrollEnabled
                 updateCellsBatchingPeriod={50}
                 getItemLayout={(data, index) => ({
                     length: 200, // Approximate height of each item
                     offset: 200 * index,
                     index,
                 })}
+                ListFooterComponent={<View 
+                    className='mb-20'
+                />}
             />
         </View>
     );
@@ -255,8 +262,9 @@ const styles = StyleSheet.create({
         width: '100%',
         // paddingHorizontal: 16,
         marginTop: 8,
-        marginBottom: 50,
+        // marginBottom: 50,
         justifyContent: 'center',
+        flex: 1
     },
     cardContainer: {
         backgroundColor: 'white',

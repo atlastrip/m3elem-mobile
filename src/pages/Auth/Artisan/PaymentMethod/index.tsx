@@ -1,41 +1,47 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Switch, Alert, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { 
+    Alert, 
+    Switch, 
+    Text, 
+    View, 
+    StyleSheet, 
+    ScrollView, 
+    ActivityIndicator, 
+    SafeAreaView,
+    useWindowDimensions
+} from 'react-native';
 import Constants from 'expo-constants';
-
-import tw from 'twrnc';
+import { MaterialIcons } from "@expo/vector-icons";
 import { getToken } from '@/helpers/getToken';
-import { WINDOW_HEIGHT } from '@gorhom/bottom-sheet';
-
+import { WINDOW_HEIGHT } from '@gorhom/bottom-sheet'; // Ensure this is used appropriately
 
 const PaymentMethodPage = () => {
     const [isEnabled, setIsEnabled]: any = useState({});
     const [loading, setLoading]: any = useState(false);
+    const [loadingItem, setLoadingItem] = useState("");
 
-    // Toggle switch handler
-    const toggleSwitch = async (name: any) => {
-        setIsEnabled((prev: any) => ({ ...prev, [name]: !prev[name] }));
-        await editUser(name, !isEnabled[name]);
-    };
+    const { width } = useWindowDimensions();
+    const isLargeScreen = width >= 640; // Tailwind 'sm' breakpoint is 640px
 
-    // Define menu items for each country
+    // Define payment methods
     const MenuMA = [
-        { name: 'Cash on delivery', field: 'CashOnDeliveryPayment', colorIcon: 'red' },
-        { name: 'Bank transfer', field: 'BankTransferPayment', colorIcon: 'green' },
-        { name: 'Check', field: 'CheckPayment', colorIcon: 'green' },
-        { name: 'Apple Pay', field: 'ApplePay', colorIcon: 'blue' },
-        { name: 'Cash', field: 'CashPayment', colorIcon: 'green' },
-        { name: 'Credit card', field: 'CreditCardPayment', colorIcon: 'yellow' },
-        { name: 'Google Pay', field: 'GooglePay', colorIcon: 'red' },
-        { name: 'Paypal', field: 'PaypalPayment', colorIcon: 'purple' },
-        { name: 'Samsung Pay', field: 'SamsungPay', colorIcon: 'pink' },
-        { name: 'Square cash app', field: 'SquareCashApp', colorIcon: 'orange' },
-        { name: 'Stripe', field: 'StripePayment', colorIcon: 'teal' },
-        { name: 'Venmo', field: 'VenmoPayment', colorIcon: 'brown' },
-        { name: 'Zelle', field: 'ZellePayment', colorIcon: 'blue' },
+        { name: 'Cash on Delivery', field: 'CashOnDeliveryPayment', colorIcon: '#FF4D4D' }, // Red
+        { name: 'Bank Transfer', field: 'BankTransferPayment', colorIcon: '#4CAF50' }, // Green
+        { name: 'Check', field: 'CheckPayment', colorIcon: '#4CAF50' }, // Green
+        { name: 'Apple Pay', field: 'ApplePay', colorIcon: '#000000' }, // Black
+        { name: 'Cash', field: 'CashPayment', colorIcon: '#4CAF50' }, // Green
+        { name: 'Credit Card', field: 'CreditCardPayment', colorIcon: '#FFD700' }, // Gold
+        { name: 'Google Pay', field: 'GooglePay', colorIcon: '#DB4437' }, // Red
+        { name: 'Paypal', field: 'PaypalPayment', colorIcon: '#003087' }, // Blue
+        { name: 'Samsung Pay', field: 'SamsungPay', colorIcon: '#FF6F61' }, // Coral
+        { name: 'Square Cash App', field: 'SquareCashApp', colorIcon: '#FFA500' }, // Orange
+        { name: 'Stripe', field: 'StripePayment', colorIcon: '#008CDD' }, // Teal Blue
+        { name: 'Venmo', field: 'VenmoPayment', colorIcon: '#3D95CE' }, // Blue
+        { name: 'Zelle', field: 'ZellePayment', colorIcon: '#0077B5' }, // Dark Blue
     ];
 
     const MenuUSA = MenuMA; // Adjust if there are country-specific differences
-    const [LoadingItem, setLoadingItem] = useState("");
+
     // Fetch user data and set enabled payment methods
     const fetchUserData = async () => {
         setLoading(true);
@@ -50,25 +56,25 @@ const PaymentMethodPage = () => {
                 headers,
                 body: JSON.stringify({
                     query: `
-            query getUserData {
-                user {
-                    id
-                    CashOnDeliveryPayment
-                    BankTransferPayment
-                    CheckPayment
-                    ApplePay
-                    CashPayment
-                    CreditCardPayment
-                    GooglePay
-                    PaypalPayment
-                    SamsungPay
-                    SquareCashApp
-                    StripePayment
-                    VenmoPayment
-                    ZellePayment
-              }
-            }
-          `,
+                        query getUserData {
+                            user {
+                                id
+                                CashOnDeliveryPayment
+                                BankTransferPayment
+                                CheckPayment
+                                ApplePay
+                                CashPayment
+                                CreditCardPayment
+                                GooglePay
+                                PaypalPayment
+                                SamsungPay
+                                SquareCashApp
+                                StripePayment
+                                VenmoPayment
+                                ZellePayment
+                            }
+                        }
+                    `,
                 }),
             });
 
@@ -120,10 +126,10 @@ const PaymentMethodPage = () => {
                 headers,
                 body: JSON.stringify({
                     query: `
-           mutation updatePaymentMethodChoosed($input: updatePaymentMethodForArtisant) {
-  updatePaymentMethodChoosed(input: $input) 
-}
-          `,
+                        mutation updatePaymentMethodChoosed($input: updatePaymentMethodForArtisant!) {
+                            updatePaymentMethodChoosed(input: $input) 
+                        }
+                    `,
                     variables: { input: methods },
                 }),
             });
@@ -135,35 +141,84 @@ const PaymentMethodPage = () => {
 
             fetchUserData(); // Refetch user data after updating
         } catch (error: any) {
-            Alert.alert("Error", error.message);
+            Alert.alert("Error", error.message || "Failed to update payment method.");
         }
     };
 
+    // Toggle switch handler
+    const toggleSwitch = async (name: any) => {
+        const newValue = !isEnabled[name];
+        setIsEnabled((prev: any) => ({ ...prev, [name]: newValue }));
+        await editUser(name, newValue);
+    };
 
+    // Function to map payment method names to icon names
+    const getIconName = (name: string) => {
+        switch(name.toLowerCase()) {
+            case 'cash on delivery':
+                return 'local-atm';
+            case 'bank transfer':
+                return 'account-balance';
+            case 'check':
+                return 'receipt';
+            case 'apple pay':
+                return 'apple';
+            case 'cash':
+                return 'attach-money';
+            case 'credit card':
+                return 'credit-card';
+            case 'google pay':
+                return 'payment';
+            case 'paypal':
+                return 'account-balance-wallet';
+            case 'samsung pay':
+                return 'phone-android';
+            case 'square cash app':
+                return 'monetization-on';
+            case 'stripe':
+                return 'payment';
+            case 'venmo':
+                return 'account-balance-wallet';
+            case 'zelle':
+                return 'send';
+            default:
+                return 'payment';
+        }
+    };
 
     return (
-        <ScrollView style={tw`w-full`}>
-
-            <View style={tw`p-4 flex-1`}>
-                <View className="my-2">
-                    <Text className='font-bold text-xl text-center'>Manage payment methods</Text>
+        <SafeAreaView style={styles.safeArea}>
+            <ScrollView contentContainerStyle={styles.container}>
+                {/* Header */}
+                <View style={styles.headerContainer}>
+                    <Text style={styles.headerTitle}>Manage Payment Methods</Text>
                 </View>
-                <View style={tw`flex-row`}>
-                    <View style={tw`flex-1`}>
-                        {(MenuUSA).map((menu, idx) => (
-                            <View key={idx} style={tw`bg-gray-100 p-4 rounded-lg mb-4`}>
-                                <View style={tw`flex-row items-center justify-between`}>
-                                    <Text style={tw`text-lg font-bold`}>{menu.name}</Text>
-                                    <View style={{ height: 28 }}>
-                                        {(loading && (LoadingItem === menu.name)) ? (
-                                            <ActivityIndicator size="large" color="#4CAF50" />
+
+                {/* Content */}
+                <View style={styles.contentRow}>
+                    {/* Payment Methods List */}
+                    <View style={styles.paymentMethodsContainer}>
+                        {MenuUSA.map((menu, idx) => (
+                            <View key={idx} style={styles.menuItemWrapper}>
+                                <View style={styles.menuItem}>
+                                    <View style={[styles.iconContainer, { backgroundColor: menu.colorIcon }]}>
+                                        <MaterialIcons name={getIconName(menu.name)} size={24} color="#ffffff" />
+                                    </View>
+                                    <Text style={styles.menuText}>{menu.name}</Text>
+                                    <View style={styles.switchContainer}>
+                                        {loading && loadingItem === menu.name ? (
+                                            <ActivityIndicator size="small" color="#4CAF50" />
                                         ) : (
                                             <Switch
                                                 value={isEnabled[menu.field] || false}
                                                 onValueChange={() => {
-                                                    setLoadingItem(menu.name)
-                                                    toggleSwitch(menu.field)
+                                                    setLoadingItem(menu.name);
+                                                    toggleSwitch(menu.field).then(() => setLoadingItem(""));
                                                 }}
+                                                trackColor={{ false: "#767577", true: "#3a7f41" }}
+                                                thumbColor={isEnabled[menu.field] ? "#ffffff" : "#f4f3f4"}
+                                                ios_backgroundColor="#3e3e3e"
+                                                accessibilityLabel={`Toggle ${menu.name}`}
                                             />
                                         )}
                                     </View>
@@ -172,21 +227,130 @@ const PaymentMethodPage = () => {
                         ))}
                     </View>
 
-                    <View style={tw`hidden sm:flex w-1/3 border-l border-gray-200 p-4`}>
-                        <View style={tw`bg-gray-50 p-3 rounded-md`}>
-                            <View style={tw`flex-row items-center`}>
-                                {/* <Info size={20} style={tw`mr-2`} /> */}
-                                <Text>Info</Text>
+                    {/* Info Section */}
+                    {isLargeScreen && (
+                        <View style={styles.infoSection}>
+                            <View style={styles.infoBox}>
+                                <View style={styles.infoHeader}>
+                                    {/* You can add an icon here if needed */}
+                                    <Text style={styles.infoTitle}>Info</Text>
+                                </View>
+                                <Text style={styles.infoText}>
+                                    You can enable or disable payment methods by toggling the switches on the left.
+                                </Text>
                             </View>
-                            <Text style={tw`mt-3 text-sm`}>
-                                You can enable or disable payment methods by toggling the switches on the left.
-                            </Text>
                         </View>
-                    </View>
+                    )}
                 </View>
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </SafeAreaView>
     );
 };
+
+// Define shadowStyles before styles
+const shadowStyles = {
+    small: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    medium: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 4,
+    },
+    large: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 6,
+    },
+};
+
+const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#f9f9f9', // Light Gray Background
+    },
+    container: {
+        padding: 20,
+    },
+    headerContainer: {
+        marginBottom: 20,
+        alignItems: 'center',
+    },
+    headerTitle: {
+        fontSize: 28,
+        fontWeight: '700',
+        color: '#333333', // Dark Gray Text
+    },
+    contentRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    paymentMethodsContainer: {
+        flex: 1,
+    },
+    menuItemWrapper: {
+        backgroundColor: '#ffffff', // White Card Background
+        borderRadius: 12,
+        marginBottom: 20,
+        ...shadowStyles.medium,
+    },
+    menuItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+    },
+    iconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    menuText: {
+        flex: 1,
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#333333', // Dark Gray Text
+    },
+    switchContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    infoSection: {
+        width: '30%',
+        borderLeftWidth: 1,
+        borderLeftColor: '#e0e0e0', // Light Gray Border
+        paddingLeft: 16,
+    },
+    infoBox: {
+        backgroundColor: '#f5f5f5',
+        padding: 16,
+        borderRadius: 8,
+        ...shadowStyles.small,
+    },
+    infoHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    infoTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#333333',
+    },
+    infoText: {
+        fontSize: 14,
+        color: '#666666',
+    },
+});
 
 export default PaymentMethodPage;

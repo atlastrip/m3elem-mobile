@@ -1,83 +1,75 @@
-import React, { useEffect, useState } from 'react'
-import { Alert, Switch, Text, TouchableOpacity, View } from 'react-native'
-import * as Device from 'expo-device';
-import {
-    Ionicons,
-    MaterialCommunityIcons,
-    SimpleLineIcons,
-    MaterialIcons,
-    FontAwesome6
-} from "@expo/vector-icons";
-import { COLORS } from 'constants/theme';
+import React, { useEffect, useState } from 'react';
+import { 
+    Alert, 
+    Switch, 
+    Text, 
+    View, 
+    StyleSheet, 
+    ScrollView, 
+    SafeAreaView 
+} from 'react-native';
+import { MaterialIcons } from "@expo/vector-icons";
 import { getToken, getUser } from '@/helpers/getToken';
 import { useIsFocused } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import SetNotificationWithInfoDevice from '@/components/SetNotificationWithInfoDevice';
-import { registerForPushNotificationsAsyncBro } from 'navigation';
 
 const NotificationsPage = () => {
-
-
     const isFocused = useIsFocused();
     const [isEnabled, setIsEnabled] = useState<any>({});
+
+    useEffect(() => {
+        if (isFocused) {
+            getInfo();
+        }
+    }, [isFocused]);
+
     const toggleSwitch = async (name: string) => {
-        setIsEnabled((prev: any) => ({ ...prev, [name]: !prev?.[name] }));
-        await EditUser(name, !isEnabled?.[name]);
-    }
+        const newValue = !isEnabled?.[name];
+        setIsEnabled((prev: any) => ({ ...prev, [name]: newValue }));
+        await EditUser(name, newValue);
+    };
 
-
-    const Menu2 = [
+    const MenuItems = [
         {
-            name: "Application Push notifications",
+            name: "Application Push Notifications",
             field: "pushUsingAppNotification",
-            icon: <MaterialIcons name="notifications" color="white" size={20} />,
-            colorIcon: "red",
-            onPress: () => { }
+            icon: "notifications",
+            colorIcon: "#3a7f41", // Primary Green
         },
         {
-            name: "Email",
+            name: "Email Notifications",
             field: "pushUsingEmailNotification",
-            icon: <MaterialIcons name="email" color="white" size={20} />,
-            colorIcon: "blue",
-            onPress: () => { }
+            icon: "email",
+            colorIcon: "#1e90ff", // Dodger Blue
         },
         {
-            name: "Phone",
+            name: "Phone Notifications",
             field: "pushUsingPhoneNotification",
-            icon: <MaterialIcons name="phone" color="white" size={20} />,
-            colorIcon: "green",
-            onPress: () => { }
+            icon: "phone",
+            colorIcon: "#4CAF50", // Success Green
         },
-    ]
-
-
+    ];
 
     const EditUser = async (method: any, status: any) => {
         const token = await getToken();
         const user: any = await getUser();
 
         if (!token) {
+            Alert.alert("Authentication Error", "User token not found. Please log in again.");
             return;
         }
+
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
         headers.append("Authorization", `Bearer ${token}`);
 
-
-
-
-        const methods = {
+        const updatedSettings = {
             ...isEnabled,
             [method]: status
         };
 
-
-        console.log('method', method);
-
-
         try {
-
-
             const res = await fetch(
                 Constants.expoConfig?.extra?.apiUrl as string,
                 {
@@ -85,30 +77,28 @@ const NotificationsPage = () => {
                     headers,
                     body: JSON.stringify({
                         query: `
-                            mutation updatePushNotificationSettings($input: inputUpdatePushNotificationSettings) {
+                            mutation updatePushNotificationSettings($input: inputUpdatePushNotificationSettings!) {
                                 updatePushNotificationSettings(input: $input)
                             }
                         `,
                         variables: {
-                            input: {
-                                ...methods,
-
-                            }
+                            input: updatedSettings
                         }
                     }),
                 }
             );
 
             const json = await res.json();
-            // console.log('====================================');
-            // console.log('json', json);
-            // console.log('====================================');
+
+            if (json.errors) {
+                throw new Error(json.errors[0]?.message || "Failed to update settings.");
+            }
+
             await getInfo();
 
-        } catch (err) {
-            console.log('err', err);
-
-            Alert.alert("Erreur", "Une erreur est survenue lors de la modification de votre compte.");
+        } catch (err: any) {
+            console.error('Error:', err);
+            Alert.alert("Error", err.message || "An error occurred while updating your settings.");
         }
     };
 
@@ -116,9 +106,15 @@ const NotificationsPage = () => {
         const token = await getToken();
         const user: any = await getUser();
 
+        if (!token) {
+            Alert.alert("Authentication Error", "User token not found. Please log in again.");
+            return;
+        }
+
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
         headers.append("Authorization", `Bearer ${token}`);
+
         try {
             const res = await fetch(
                 Constants.expoConfig?.extra?.apiUrl as string,
@@ -141,84 +137,143 @@ const NotificationsPage = () => {
             );
 
             const json = await res.json();
-            //         setIsEnabled((prev: any) => ({ ...prev, [name]: !prev?.[name] }));
-            // console.log('json?.data?.user', json?.data?.user);
 
-            setIsEnabled((prev: any) => ({
-                ...prev,
-                "pushUsingAppNotification": json?.data?.user?.pushUsingAppNotification,
-                "pushUsingEmailNotification": json?.data?.user?.pushUsingEmailNotification,
-                "pushUsingPhoneNotification": json?.data?.user?.pushUsingPhoneNotification
-            }));
+            if (json.errors) {
+                throw new Error(json.errors[0]?.message || "Failed to fetch user settings.");
+            }
 
-        } catch (err) {
-            Alert.alert("Erreur", "Une erreur est survenue lors de la récupération des informations de votre compte.");
+            setIsEnabled({
+                pushUsingAppNotification: json?.data?.user?.pushUsingAppNotification,
+                pushUsingEmailNotification: json?.data?.user?.pushUsingEmailNotification,
+                pushUsingPhoneNotification: json?.data?.user?.pushUsingPhoneNotification
+            });
+
+        } catch (err: any) {
+            console.error('Error:', err);
+            Alert.alert("Error", err.message || "An error occurred while fetching your settings.");
         }
     };
 
-    useEffect(() => {
-        if (isFocused) {
-            getInfo();
-        }
-    }, [isFocused]);
-
-    const getNotificationsHere = async () => {
-
-    }
-
-
-
     return (
-        <View className="">
+        <SafeAreaView style={styles.safeArea}>
+            <ScrollView contentContainerStyle={styles.container}>
+                {/* Header */}
+                <View style={styles.headerContainer}>
+                    <Text style={styles.headerTitle}>Manage Notifications</Text>
+                </View>
 
-            <View className="my-2">
-                <Text className='font-bold text-xl text-center'>Manage notifications</Text>
-            </View>
-            <View className="">
-                <SetNotificationWithInfoDevice />
-            </View>
+                {/* Device Info Section */}
+                <View style={styles.deviceInfoContainer}>
+                    <SetNotificationWithInfoDevice />
+                </View>
 
-            <View className="px-3">
-                {Menu2?.map((menu, idx) => (
-                    <View key={idx}
-                        style={{ backgroundColor: '#00000010' }}
-                        className="rounded-lg  mb-3">
-                        <View>
-                            <View className="flex-row justify-between p-4 pl-5 ">
-                                <View className="flex-row justify-center ">
-                                    <View
-                                        style={{
-                                            backgroundColor: menu.colorIcon,
-                                            aspectRatio: 1,
-                                        }}
-                                        className="p-[1px] rounded-md flex-row items-center justify-center"
-                                    >
-                                        {menu.icon}
-                                    </View>
-                                    <Text className="text-base font-bold  text-black ml-4 mt-1">
-                                        {menu.name}
-                                    </Text>
+                {/* Notification Settings */}
+                <View style={styles.menuContainer}>
+                    {MenuItems.map((menu, idx) => (
+                        <View key={idx} style={styles.menuItemWrapper}>
+                            <View style={styles.menuItem}>
+                                <View style={[styles.iconContainer, { backgroundColor: menu.colorIcon }]}>
+                                    <MaterialIcons 
+                                    // @ts-ignore
+                                    name={menu.icon} size={24} color="#ffffff" />
                                 </View>
+                                <Text style={styles.menuText}>{menu.name}</Text>
                                 <Switch
-                                    trackColor={{ false: "#767577", true: "white" }}
-                                    thumbColor={isEnabled?.[menu?.field] ? COLORS.primary : "#f4f3f4"}
-                                    ios_backgroundColor="#fef"
-                                    onValueChange={() => toggleSwitch(menu?.field)}
-                                    value={isEnabled?.[menu?.field]}
+                                    trackColor={{ false: "#767577", true: "#3a7f41" }}
+                                    thumbColor={isEnabled?.[menu.field] ? "#ffffff" : "#f4f3f4"}
+                                    ios_backgroundColor="#3e3e3e"
+                                    onValueChange={() => toggleSwitch(menu.field)}
+                                    value={isEnabled?.[menu.field]}
+                                    accessibilityLabel={`Toggle ${menu.name}`}
                                 />
                             </View>
-                            {idx !== Menu2.length - 1 && (
-                                <View className="flex-row justify-end">
-                                    <View className="w-10/12 h-[1px] bg-white/10" />
-                                </View>
-                            )}
+                            {idx !== MenuItems.length - 1 && <View style={styles.separator} />}
                         </View>
-                    </View>
-                ))}
-            </View>
+                    ))}
+                </View>
+            </ScrollView>
+        </SafeAreaView>
+    );
+};
 
-        </View>
-    )
-}
+// Define shadowStyles before styles
+const shadowStyles = {
+    small: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    medium: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 4,
+    },
+    large: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 6,
+    },
+};
 
-export default NotificationsPage
+const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#f9f9f9', // Light Gray Background
+    },
+    container: {
+        padding: 20,
+    },
+    headerContainer: {
+        // marginBottom: 30,
+        alignItems: 'center',
+    },
+    headerTitle: {
+        fontSize: 28,
+        fontWeight: '700',
+        color: '#333333', // Dark Gray Text
+    },
+    deviceInfoContainer: {
+        marginBottom: 10,
+    },
+    menuContainer: {
+        // Additional styling if needed
+    },
+    menuItemWrapper: {
+        backgroundColor: '#ffffff', // White Card Background
+        borderRadius: 12,
+        marginBottom: 10,
+        ...shadowStyles.medium,
+    },
+    menuItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+    },
+    iconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    menuText: {
+        flex: 1,
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#333333', // Dark Gray Text
+    },
+    separator: {
+        height: 1,
+        backgroundColor: '#e0e0e0', // Light Gray Separator
+        marginLeft: 72, // Align with text start (icon + margin)
+    },
+});
+
+export default NotificationsPage;

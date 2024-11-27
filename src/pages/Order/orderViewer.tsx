@@ -1299,6 +1299,729 @@
 // export default OrderView;
 
 
+
+// import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
+// import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, TextInput, Alert, Modal, ActivityIndicator, Dimensions } from 'react-native';
+// import { useSafeAreaInsets } from 'react-native-safe-area-context';
+// import { GestureHandlerRootView } from 'react-native-gesture-handler';
+// import BottomSheet, { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+// import MapView, { Marker } from 'react-native-maps';
+// import { Rating } from 'react-native-ratings';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+// import Constants from 'expo-constants';
+// import { Ionicons } from '@expo/vector-icons';
+// import { LinearGradient } from 'expo-linear-gradient';
+// import { Animated } from 'react-native';
+// import { FadeInDown, FadeInRight } from 'react-native-reanimated';
+// import { BlurView } from 'expo-blur';
+// import { getToken } from '@/helpers/getToken';
+// import { createOrRetrieveConversation } from '@/helpers/createOrRetrieveConversation';
+// import { Review } from '../Profession/artisan';
+
+// const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window');
+
+// const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+
+// const MagicButton = ({ onPress, text, style }: any) => (
+//     <TouchableOpacity onPress={onPress} style={[styles.magicButton, style]}>
+//         <LinearGradient
+//             colors={['#73c8a9', '#b3ffab']}
+//             start={{ x: 0, y: 0 }}
+//             end={{ x: 1, y: 1 }}
+//             style={styles.magicButtonGradient}
+//         >
+//             <Text style={styles.magicButtonText}>{text}</Text>
+//         </LinearGradient>
+//     </TouchableOpacity>
+// );
+
+// const SelectUnlockedArtisan = ({ visible, onClose, artisans, handlePresentModalPress, setChoosedArtisan, goTobottomSheetModalRef, setSelectedProfession, professional }: any) => {
+//     return (
+//         <Modal visible={visible} transparent animationType="fade">
+//             <BlurView intensity={20} style={StyleSheet.absoluteFill}>
+//                 <View style={styles.modalBackground}>
+//                     <Animated.View
+//                         //   @ts-ignore
+//                         entering={FadeInDown.duration(500)} style={styles.modalContainer}>
+//                         <Text style={styles.modalTitle}>Select Artisan</Text>
+//                         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.artisanScrollView}>
+//                             {artisans?.map((artisan: any, i: number) => (
+//                                 <AnimatedTouchableOpacity
+//                                     //   @ts-ignore
+//                                     entering={FadeInRight.delay(i * 100)}
+//                                     key={i}
+//                                     onPress={() => {
+//                                         setChoosedArtisan(artisan);
+//                                         setSelectedProfession(professional?.text);
+//                                         goTobottomSheetModalRef?.present();
+//                                         onClose(false);
+//                                     }}
+//                                     style={styles.artisanItem}
+//                                 >
+//                                     <Image source={{ uri: artisan.imageProfile }} style={styles.artisanImage} />
+//                                     <Text style={styles.artisanName} numberOfLines={2}>{`${artisan.firstName} ${artisan.lastName}`}</Text>
+//                                 </AnimatedTouchableOpacity>
+//                             ))}
+//                         </ScrollView>
+//                         <MagicButton onPress={() => onClose(false)} text="Cancel" style={styles.cancelButton} />
+//                     </Animated.View>
+//                 </View>
+//             </BlurView>
+//         </Modal>
+//     );
+// };
+
+// const OrderView = ({ route, navigation }: any) => {
+//     const { order, user }: any = route.params;
+//     const insets = useSafeAreaInsets();
+
+//     const [newReview, setNewReview] = useState({ comment: '', rating: 3 });
+//     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+//     const [openModal, setOpenModal] = useState(false);
+//     const [choosedArtisan, setChoosedArtisan] = useState<any>(null);
+//     const snapPoints = useMemo(() => ['50%', '80%'], []);
+//     const [artisantInfo, setArtisantInfo] = useState<any>(null);
+//     const [selectedProfession, setSelectedProfession] = useState<string | null>(null);
+//     const [loading, setLoading] = useState(false);
+
+//     const scrollY = useRef(new Animated.Value(0)).current;
+//     const headerOpacity = scrollY.interpolate({
+//         inputRange: [0, 100],
+//         outputRange: [1, 0],
+//         extrapolate: 'clamp',
+//     });
+
+//     const handlePresentModalPress = useCallback(() => {
+//         setSelectedProfession(null);
+//         bottomSheetModalRef.current?.present();
+//     }, []);
+
+//     const getInfo = async () => {
+//         try {
+//             const userInfo = await AsyncStorage.getItem('@user');
+//             setArtisantInfo(JSON.parse(userInfo || '{}'));
+//         } catch (error: any) {
+//             console.error('Failed to get user info:', error);
+//             Alert.alert('Error', 'Failed to retrieve user information.');
+//         }
+//     }
+
+//     const handleAddReview = async () => {
+//         const token = await getToken();
+//         if (!token) {
+//             Alert.alert("Error", "Authentication token not found.");
+//             return;
+//         }
+
+//         try {
+//             const res = await fetch(
+//                 Constants.expoConfig?.extra?.apiUrl as string,
+//                 {
+//                     method: "POST",
+//                     headers: {
+//                         "Content-Type": "application/json",
+//                         "Authorization": `Bearer ${token}`
+//                     },
+//                     body: JSON.stringify({
+//                         query: `
+//               mutation createReview($input: inputReview) {
+//                 createReview(input: $input) {
+//                   id
+//                 }
+//               }
+//             `,
+//                         variables: {
+//                             input: {
+//                                 reviewer: user?.id ? user?.id : choosedArtisan?.id,
+//                                 description: newReview.comment,
+//                                 rating: newReview.rating,
+//                                 order: order?.id,
+//                             }
+//                         }
+//                     }),
+//                 }
+//             );
+
+//             if (!res.ok) {
+//                 throw new Error(`Network response was not ok: ${res.statusText}`);
+//             }
+
+//             const json = await res.json();
+//             if (json.errors) {
+//                 throw new Error(json.errors[0].message || "Failed to create review.");
+//             }
+
+//             Alert.alert("Success", "Review added successfully.");
+//             navigation.goBack();
+//         } catch (err: any) {
+//             Alert.alert("Error", err.message || "Something went wrong while adding the review.");
+//         }
+//     };
+
+//     const handleCreateConversation = async (artisan?: any) => {
+//         setLoading(true);
+//         try {
+//             const User: any = await AsyncStorage.getItem('@user');
+//             const parsedUser = JSON.parse(User || '{}');
+//             const conversationId = await createOrRetrieveConversation(
+//                 order?.id,
+//                 artisan ? artisan.id : artisantInfo?.id,
+//                 order?.owner?.id
+//             );
+//             setLoading(false);
+
+//             if (parsedUser.role === 'user') {
+//                 navigation.navigate('Chat', {
+//                     conversationId,
+//                     userId: artisan ? artisan.id : artisantInfo?.id,
+//                     userName: artisan ? `${artisan.firstName} ${artisan.lastName}` : `${order?.owner?.firstName} ${order?.owner?.lastName}`,
+//                     order: {
+//                         ...order,
+//                         artisantId: artisan || artisantInfo
+//                     }
+//                 });
+//             } else {
+//                 navigation.navigate('Chat', {
+//                     conversationId,
+//                     userId: order?.owner?.id,
+//                     userName: `${artisan ? artisan.firstName : order?.owner?.firstName} ${artisan ? artisan.lastName : order?.owner?.lastName}`,
+//                     order: {
+//                         ...order,
+//                         artisantId: artisan || artisantInfo
+//                     }
+//                 });
+//             }
+//         } catch (error: any) {
+//             setLoading(false);
+//             Alert.alert("Error", "Failed to create conversation.");
+//             console.error('Failed to create conversation:', error);
+//         }
+//     };
+
+//     useEffect(() => {
+//         getInfo();
+//     }, []);
+
+//     return (
+//         <GestureHandlerRootView style={{ flex: 1 }}>
+//             {loading && (
+//                 <View style={styles.loadingOverlay}>
+//                     <ActivityIndicator size="large" color="#ffffff" />
+//                 </View>
+//             )}
+//             <BottomSheetModalProvider>
+//                 <View style={styles.container}>
+//                     <Animated.View style={[styles.header, { opacity: headerOpacity }]}>
+//                         <LinearGradient
+//                             colors={['#73c8a9', '#b3ffab']}
+//                             style={styles.headerGradient}
+//                         >
+//                             <Text style={styles.headerTitle}>{order?.title}</Text>
+//                         </LinearGradient>
+//                     </Animated.View>
+//                     <Animated.ScrollView
+//                         style={[styles.scrollView, { paddingTop: insets.top + 60 }]}
+//                         onScroll={Animated.event(
+//                             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+//                             { useNativeDriver: true }
+//                         )}
+//                         scrollEventThrottle={16}
+//                     >
+//                         <Animated.View
+//                             //   @ts-ignore
+//                             entering={FadeInDown.duration(500).delay(200)}>
+//                             <Text style={styles.description}>{order?.description}</Text>
+
+
+
+//                             <Text style={styles.sectionTitle}>Images</Text>
+//                             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageContainer}>
+//                                 {order?.images?.map((image: string, index: number) => (
+//                                     <Animated.Image
+//                                         key={index}
+//                                         //   @ts-ignore
+//                                         entering={FadeInRight.delay(index * 100)}
+//                                         source={{ uri: image }}
+//                                         style={styles.image}
+//                                     />
+//                                 ))}
+//                             </ScrollView>
+
+//                             <Text style={styles.sectionTitle}>Location</Text>
+//                             {order?.locationType === 'currentLocation' ? (
+//                                 (() => {
+//                                     let coordinates: any = null;
+//                                     try {
+//                                         coordinates = JSON.parse(order?.location);
+//                                     } catch (error) {
+//                                         console.error('Invalid location format:', order?.location);
+//                                         coordinates = null;
+//                                     }
+
+//                                     if (coordinates && coordinates.latitude && coordinates.longitude) {
+//                                         return (
+//                                             <View style={styles.mapContainer}>
+//                                                 <MapView
+//                                                     style={styles.map}
+//                                                     initialRegion={{
+//                                                         latitude: coordinates.latitude,
+//                                                         longitude: coordinates.longitude,
+//                                                         latitudeDelta: 0.0922,
+//                                                         longitudeDelta: 0.0421,
+//                                                     }}
+//                                                 >
+//                                                     <Marker
+//                                                         coordinate={{
+//                                                             latitude: coordinates.latitude,
+//                                                             longitude: coordinates.longitude,
+//                                                         }}
+//                                                         title="Order Location"
+//                                                     />
+//                                                 </MapView>
+//                                             </View>
+//                                         );
+//                                     } else {
+//                                         return <Text style={styles.invalidLocationText}>Invalid location data.</Text>;
+//                                     }
+//                                 })()
+//                             ) : (
+//                                 <Text style={styles.locationDetail}>{order?.location}</Text>
+//                             )}
+
+//                             {(user?.id && order?.review == null) && (
+//                                 <MagicButton onPress={handlePresentModalPress} text="Add Review" style={styles.addReviewButton} />
+//                             )}
+
+//                             {order?.review && (
+//                                 <Animated.View
+//                                     //   @ts-ignore
+//                                     entering={FadeInDown.duration(500)} style={styles.reviewContainer}>
+//                                     <Review
+//                                         key={order?.review?.id}
+//                                         name={`${order?.owner?.firstName} ${order?.owner?.lastName}`}
+//                                         comment={order?.review?.description}
+//                                         rating={order?.review?.rating}
+//                                         timeAgo={order?.timeAgo}
+//                                         image={order?.owner?.imageProfile || 'https://via.placeholder.com/40'}
+//                                     />
+//                                 </Animated.View>
+//                             )}
+
+//                             {order?.artisantUnlockedLead?.length > 0 && artisantInfo?.role !== 'artisant' && !order?.review && (
+//                                 <MagicButton onPress={() => setOpenModal(true)} text="Add Review" style={styles.addReviewButton} />
+//                             )}
+
+//                             <Text style={styles.sectionTitle}>
+//                                 {artisantInfo?.role === 'user' ? 'Conversations with artisans:' : 'Conversation:'}
+//                             </Text>
+//                             {artisantInfo?.role === 'user' ? (
+//                                 order?.artisantUnlockedLead?.map((artisan: any, i: number) => (
+//                                     <AnimatedTouchableOpacity
+//                                         key={i}
+//                                         //   @ts-ignore
+//                                         entering={FadeInRight.delay(i * 100)}
+//                                         onPress={() => handleCreateConversation(artisan)}
+//                                         style={styles.conversationButton}
+//                                     >
+//                                         <LinearGradient
+//                                             colors={['rgba(99, 102, 241, 0.1)', 'rgba(139, 92, 246, 0.1)']}
+//                                             start={{ x: 0, y: 0 }}
+//                                             end={{ x: 1, y: 1 }}
+//                                             style={styles.conversationGradient}
+//                                         >
+//                                             <View style={styles.conversationContent}>
+//                                                 <View style={styles.artisanInfoRow}>
+//                                                     <Image source={{ uri: artisan?.imageProfile }} style={styles.conversationImage} />
+//                                                     <View style={styles.artisanTextContainer}>
+//                                                         <Text style={styles.artisanName}>{artisan?.firstName} {artisan?.lastName}</Text>
+//                                                         <Text style={styles.conversationLabel}>Conversation</Text>
+//                                                     </View>
+//                                                 </View>
+//                                                 <Ionicons name="chevron-forward" size={24} color="#6366f1" />
+//                                             </View>
+//                                         </LinearGradient>
+//                                     </AnimatedTouchableOpacity>
+//                                 ))
+//                             ) : (
+//                                 <AnimatedTouchableOpacity
+//                                     //   @ts-ignore
+//                                     entering={FadeInRight}
+//                                     onPress={() => handleCreateConversation()}
+//                                     style={styles.conversationButton}
+//                                 >
+//                                     <LinearGradient
+//                                         colors={['rgba(99, 102, 241, 0.1)', 'rgba(139, 92, 246, 0.1)']}
+//                                         start={{ x: 0, y: 0 }}
+//                                         end={{ x: 1, y: 1 }}
+//                                         style={styles.conversationGradient}
+//                                     >
+//                                         <View style={styles.conversationContent}>
+//                                             <View style={styles.artisanInfoRow}>
+//                                                 <Image source={{ uri: order?.owner?.imageProfile }} style={styles.conversationImage} />
+//                                                 <View style={styles.artisanTextContainer}>
+//                                                     <Text style={styles.artisanName}>{order?.owner?.firstName} {order?.owner?.lastName}</Text>
+//                                                     <Text style={styles.conversationLabel}>Conversation</Text>
+//                                                 </View>
+//                                             </View>
+//                                             <Ionicons name="chevron-forward" size={24} color="#6366f1" />
+//                                         </View>
+//                                     </LinearGradient>
+//                                 </AnimatedTouchableOpacity>
+//                             )}
+
+//                             <View style={styles.spacer} />
+//                         </Animated.View>
+//                     </Animated.ScrollView>
+//                 </View>
+
+//                 <SelectUnlockedArtisan
+//                     visible={openModal}
+//                     onClose={setOpenModal}
+//                     setChoosedArtisan={setChoosedArtisan}
+//                     handlePresentModalPress={handlePresentModalPress}
+//                     artisans={order?.artisantUnlockedLead}
+//                     goTobottomSheetModalRef={bottomSheetModalRef.current}
+//                     professional={order?.professionals?.[0]}
+//                     setSelectedProfession={setSelectedProfession}
+//                 />
+
+//                 <BottomSheetModal
+//                     ref={bottomSheetModalRef}
+//                     index={1}
+//                     snapPoints={snapPoints}
+//                     backgroundStyle={styles.bottomSheetBackground}
+//                     handleIndicatorStyle={styles.bottomSheetIndicator}
+//                 >
+//                     <View style={styles.bottomSheetContent}>
+//                         <Text style={styles.bottomSheetTitle}>
+//                             {selectedProfession ? selectedProfession : 'Add Review'}
+//                         </Text>
+//                         {!selectedProfession ? (
+//                             <Animated.View
+//                                 //   @ts-ignore
+//                                 entering={FadeInDown.duration(500)}>
+//                                 <Text style={styles.bottomSheetSubtitle}>Select Professional:</Text>
+//                                 {order?.professionals?.map((profession: any, i: number) => (
+//                                     <AnimatedTouchableOpacity
+//                                         key={i}
+//                                         //   @ts-ignore
+//                                         entering={FadeInRight.delay(i * 100)}
+//                                         onPress={() => setSelectedProfession(profession?.text)}
+//                                         style={styles.professionOption}
+//                                     >
+//                                         <Text style={styles.professionOptionText}>{profession?.text}</Text>
+//                                         <Ionicons name="chevron-forward" size={20} color="#6366f1" />
+//                                     </AnimatedTouchableOpacity>
+//                                 ))}
+//                             </Animated.View>
+//                         ) : (
+//                             <Animated.View
+//                                 //   @ts-ignore
+//                                 entering={FadeInDown.duration(500)}>
+//                                 <TextInput
+//                                     style={styles.reviewInput}
+//                                     placeholder="Add your review"
+//                                     placeholderTextColor="#9ca3af"
+//                                     value={newReview.comment}
+//                                     onChangeText={(text) => setNewReview({ ...newReview, comment: text })}
+//                                     multiline
+//                                 />
+//                                 <Rating
+//                                     type="custom"
+//                                     ratingColor="#6366f1"
+//                                     ratingBackgroundColor="#e5e7eb"
+//                                     ratingCount={5}
+//                                     imageSize={30}
+//                                     startingValue={newReview.rating}
+//                                     onFinishRating={(rating: any) => setNewReview({ ...newReview, rating })}
+//                                     style={styles.ratingContainer}
+//                                 />
+//                                 <MagicButton onPress={handleAddReview} text="Submit Review" style={styles.submitReviewButton} />
+//                                 <TouchableOpacity
+//                                     style={styles.cancelReviewButton}
+//                                     onPress={() => setSelectedProfession(null)}
+//                                 >
+//                                     <Text style={styles.cancelReviewButtonText}>Cancel</Text>
+//                                 </TouchableOpacity>
+//                             </Animated.View>
+//                         )}
+//                     </View>
+//                 </BottomSheetModal>
+//             </BottomSheetModalProvider>
+//         </GestureHandlerRootView>
+//     );
+// };
+
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         backgroundColor: '#f9fafb',
+//     },
+//     scrollView: {
+//         flex: 1,
+//     },
+//     header: {
+//         position: 'absolute',
+//         top: 0,
+//         left: 0,
+//         right: 0,
+//         zIndex: 10,
+//     },
+//     headerGradient: {
+//         paddingTop: 60,
+//         paddingBottom: 20,
+//         paddingHorizontal: 20,
+//     },
+//     headerTitle: {
+//         fontSize: 24,
+//         fontWeight: 'bold',
+//         color: '#ffffff',
+//     },
+//     description: {
+//         fontSize: 16,
+//         color: '#4b5563',
+//         marginBottom: 20,
+//         paddingHorizontal: 20,
+//         marginTop: 70,
+
+//     },
+//     sectionTitle: {
+//         fontSize: 20,
+//         fontWeight: '600',
+//         color: '#111827',
+//         marginTop: 10,
+//         marginBottom: 15,
+//         paddingHorizontal: 20,
+//     },
+//     professionContainer: {
+//         flexDirection: 'row',
+//         flexWrap: 'wrap',
+//         paddingHorizontal: 20,
+//     },
+//     professionTag: {
+//         backgroundColor: 'rgba(99, 102, 241, 0.1)',
+//         borderRadius: 20,
+//         paddingHorizontal: 15,
+//         paddingVertical: 8,
+//         marginRight: 10,
+//         marginBottom: 10,
+//     },
+//     professionText: {
+//         color: '#6366f1',
+//         fontSize: 14,
+//         fontWeight: '500',
+//     },
+//     imageContainer: {
+//         paddingHorizontal: 20,
+//         marginBottom: 20,
+//     },
+//     image: {
+//         width: 200,
+//         height: 200,
+//         borderRadius: 10,
+//         marginRight: 15,
+//     },
+//     mapContainer: {
+//         height: 200,
+//         borderRadius: 10,
+//         overflow: 'hidden',
+//         marginHorizontal: 20,
+//         marginBottom: 20,
+//     },
+//     map: {
+//         ...StyleSheet.absoluteFillObject,
+//     },
+//     invalidLocationText: {
+//         color: '#ef4444',
+//         fontSize: 16,
+//         paddingHorizontal: 20,
+//     },
+//     locationDetail: {
+//         fontSize: 16,
+//         color: '#4b5563',
+//         paddingHorizontal: 20,
+//     },
+//     reviewContainer: {
+//         backgroundColor: 'rgba(99, 102, 241, 0.05)',
+//         borderRadius: 10,
+//         padding: 20,
+//         marginVertical: 20,
+//         marginHorizontal: 20,
+//     },
+//     conversationButton: {
+//         marginHorizontal: 20,
+//         marginBottom: 15,
+//         borderRadius: 10,
+//         overflow: 'hidden',
+//     },
+//     conversationGradient: {
+//         padding: 15,
+
+//     },
+//     conversationContent: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         alignItems: 'center',
+//     },
+//     artisanInfoRow: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//     },
+//     conversationImage: {
+//         width: 50,
+//         height: 50,
+//         borderRadius: 25,
+//         marginRight: 15,
+//     },
+//     artisanTextContainer: {
+//         flexDirection: 'column',
+//     },
+//     conversationLabel: {
+//         fontSize: 14,
+//         color: '#6b7280',
+//     },
+//     spacer: {
+//         height: 40,
+//         marginBottom: 20,
+
+//     },
+//     loadingOverlay: {
+//         ...StyleSheet.absoluteFillObject,
+//         backgroundColor: 'rgba(0, 0, 0, 0.5)',
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         zIndex: 1000,
+//     },
+//     modalBackground: {
+//         flex: 1,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//     },
+//     modalContainer: {
+//         width: '90%',
+//         backgroundColor: 'rgba(255, 255, 255, 0.9)',
+//         borderRadius: 20,
+//         padding: 30,
+//         alignItems: 'center',
+//     },
+//     modalTitle: {
+//         fontSize: 24,
+//         fontWeight: 'bold',
+//         color: '#111827',
+//         marginBottom: 20,
+//     },
+//     artisanScrollView: {
+//         maxHeight: 300,
+//     },
+//     artisanItem: {
+//         alignItems: 'center',
+//         marginRight: 20,
+//         width: 100,
+//     },
+//     artisanImage: {
+//         width: 80,
+//         height: 80,
+//         borderRadius: 40,
+//         marginBottom: 10,
+//     },
+//     artisanName: {
+//         fontSize: 14,
+//         fontWeight: '600',
+//         color: '#4b5563',
+//         textAlign: 'center',
+//     },
+//     magicButton: {
+//         borderRadius: 25,
+//         overflow: 'hidden',
+//         marginHorizontal: 20,
+//         marginVertical: 10,
+//     },
+//     magicButtonGradient: {
+//         paddingVertical: 12,
+//         paddingHorizontal: 20,
+//         alignItems: 'center',
+//     },
+//     magicButtonText: {
+//         color: '#ffffff',
+//         fontWeight: '600',
+//         fontSize: 16,
+//     },
+//     cancelButton: {
+//         marginTop: 20,
+//     },
+//     bottomSheetBackground: {
+//         backgroundColor: 'rgba(255, 255, 255, 0.9)',
+//         borderTopLeftRadius: 20,
+//         borderTopRightRadius: 20,
+//     },
+//     bottomSheetIndicator: {
+//         backgroundColor: '#6366f1',
+//     },
+//     bottomSheetContent: {
+//         padding: 24,
+//     },
+//     bottomSheetTitle: {
+//         fontSize: 24,
+//         fontWeight: 'bold',
+//         color: '#111827',
+//         marginBottom: 20,
+//         textAlign: 'center',
+//     },
+//     bottomSheetSubtitle: {
+//         fontSize: 18,
+//         fontWeight: '600',
+//         color: '#4b5563',
+//         marginBottom: 15,
+//     },
+//     professionOption: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         alignItems: 'center',
+//         paddingVertical: 15,
+//         paddingHorizontal: 20,
+//         backgroundColor: 'rgba(99, 102, 241, 0.05)',
+//         borderRadius: 10,
+//         marginBottom: 10,
+//     },
+//     professionOptionText: {
+//         fontSize: 16,
+//         color: '#4b5563',
+//         fontWeight: '500',
+//     },
+//     reviewInput: {
+//         borderWidth: 1,
+//         borderColor: '#d1d5db',
+//         borderRadius: 10,
+//         padding: 15,
+//         fontSize: 16,
+//         color: '#111827',
+//         marginBottom: 20,
+//         minHeight: 100,
+//         textAlignVertical: 'top',
+//     },
+//     ratingContainer: {
+//         alignItems: 'flex-start',
+//         marginBottom: 20,
+//     },
+//     submitReviewButton: {
+//         marginBottom: 15,
+//     },
+//     cancelReviewButton: {
+//         alignItems: 'center',
+//     },
+//     cancelReviewButtonText: {
+//         color: '#6b7280',
+//         fontSize: 16,
+//         fontWeight: '600',
+//     },
+//     addReviewButton: {
+//         marginTop: 20,
+//     },
+// });
+
+// export default OrderView;
+
+
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, TextInput, Alert, Modal, ActivityIndicator, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -1310,29 +2033,55 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Animated } from 'react-native';
-import { FadeInDown, FadeInRight } from 'react-native-reanimated';
+import { Animated, Easing } from 'react-native';
+import { FadeInDown, FadeInRight, FadeIn } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { getToken } from '@/helpers/getToken';
 import { createOrRetrieveConversation } from '@/helpers/createOrRetrieveConversation';
 import { Review } from '../Profession/artisan';
+import { COLORS } from '../../constants/theme';
 
 const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window');
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
-const MagicButton = ({ onPress, text, style }: any) => (
-    <TouchableOpacity onPress={onPress} style={[styles.magicButton, style]}>
-        <LinearGradient
-            colors={['#73c8a9', '#b3ffab']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.magicButtonGradient}
+const MagicButton = ({ onPress, text, style }: any) => {
+    const scaleAnim = useRef(new Animated.Value(1)).current;
+
+    const handlePressIn = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 0.95,
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const handlePressOut = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 1,
+            friction: 3,
+            tension: 40,
+            useNativeDriver: true,
+        }).start();
+    };
+
+    return (
+        <AnimatedTouchableOpacity
+            onPress={onPress}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            style={[styles.magicButton, style, { transform: [{ scale: scaleAnim }] }]}
         >
-            <Text style={styles.magicButtonText}>{text}</Text>
-        </LinearGradient>
-    </TouchableOpacity>
-);
+            <LinearGradient
+                colors={[COLORS.primary, '#22c55e']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.magicButtonGradient}
+            >
+                <Text style={styles.magicButtonText}>{text}</Text>
+            </LinearGradient>
+        </AnimatedTouchableOpacity>
+    );
+};
 
 const SelectUnlockedArtisan = ({ visible, onClose, artisans, handlePresentModalPress, setChoosedArtisan, goTobottomSheetModalRef, setSelectedProfession, professional }: any) => {
     return (
@@ -1340,13 +2089,13 @@ const SelectUnlockedArtisan = ({ visible, onClose, artisans, handlePresentModalP
             <BlurView intensity={20} style={StyleSheet.absoluteFill}>
                 <View style={styles.modalBackground}>
                     <Animated.View
-                        //   @ts-ignore
+                        // @ts-ignore
                         entering={FadeInDown.duration(500)} style={styles.modalContainer}>
                         <Text style={styles.modalTitle}>Select Artisan</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.artisanScrollView}>
                             {artisans?.map((artisan: any, i: number) => (
                                 <AnimatedTouchableOpacity
-                                    //   @ts-ignore
+                                    // @ts-ignore
                                     entering={FadeInRight.delay(i * 100)}
                                     key={i}
                                     onPress={() => {
@@ -1501,18 +2250,39 @@ const OrderView = ({ route, navigation }: any) => {
         getInfo();
     }, []);
 
+    const SectionTitle = ({ children }: any) => {
+        const opacity = useRef(new Animated.Value(0)).current;
+
+        useEffect(() => {
+            Animated.timing(opacity, {
+                toValue: 1,
+                duration: 500,
+                useNativeDriver: true,
+            }).start();
+        }, []);
+
+        return (
+            <Animated.Text style={[styles.sectionTitle, { opacity }]}>
+                {children}
+            </Animated.Text>
+        );
+    };
+
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             {loading && (
                 <View style={styles.loadingOverlay}>
-                    <ActivityIndicator size="large" color="#ffffff" />
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#4ade80" />
+                        <Text style={styles.loadingText}>Loading...</Text>
+                    </View>
                 </View>
             )}
             <BottomSheetModalProvider>
                 <View style={styles.container}>
                     <Animated.View style={[styles.header, { opacity: headerOpacity }]}>
                         <LinearGradient
-                            colors={['#73c8a9', '#b3ffab']}
+                            colors={[COLORS.primary, '#22c55e']}
                             style={styles.headerGradient}
                         >
                             <Text style={styles.headerTitle}>{order?.title}</Text>
@@ -1527,18 +2297,16 @@ const OrderView = ({ route, navigation }: any) => {
                         scrollEventThrottle={16}
                     >
                         <Animated.View
-                            //   @ts-ignore
+                            // @ts-ignore
                             entering={FadeInDown.duration(500).delay(200)}>
                             <Text style={styles.description}>{order?.description}</Text>
 
-                            
-
-                            <Text style={styles.sectionTitle}>Images</Text>
+                            <SectionTitle>Images</SectionTitle>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageContainer}>
                                 {order?.images?.map((image: string, index: number) => (
                                     <Animated.Image
                                         key={index}
-                                        //   @ts-ignore
+                                        // @ts-ignore
                                         entering={FadeInRight.delay(index * 100)}
                                         source={{ uri: image }}
                                         style={styles.image}
@@ -1546,7 +2314,7 @@ const OrderView = ({ route, navigation }: any) => {
                                 ))}
                             </ScrollView>
 
-                            <Text style={styles.sectionTitle}>Location</Text>
+                            <SectionTitle>Location</SectionTitle>
                             {order?.locationType === 'currentLocation' ? (
                                 (() => {
                                     let coordinates: any = null;
@@ -1559,7 +2327,9 @@ const OrderView = ({ route, navigation }: any) => {
 
                                     if (coordinates && coordinates.latitude && coordinates.longitude) {
                                         return (
-                                            <View style={styles.mapContainer}>
+                                            <Animated.View
+                                                // @ts-ignore
+                                                entering={FadeIn.duration(500)} style={styles.mapContainer}>
                                                 <MapView
                                                     style={styles.map}
                                                     initialRegion={{
@@ -1577,7 +2347,7 @@ const OrderView = ({ route, navigation }: any) => {
                                                         title="Order Location"
                                                     />
                                                 </MapView>
-                                            </View>
+                                            </Animated.View>
                                         );
                                     } else {
                                         return <Text style={styles.invalidLocationText}>Invalid location data.</Text>;
@@ -1593,7 +2363,7 @@ const OrderView = ({ route, navigation }: any) => {
 
                             {order?.review && (
                                 <Animated.View
-                                    //   @ts-ignore
+                                    // @ts-ignore
                                     entering={FadeInDown.duration(500)} style={styles.reviewContainer}>
                                     <Review
                                         key={order?.review?.id}
@@ -1610,20 +2380,20 @@ const OrderView = ({ route, navigation }: any) => {
                                 <MagicButton onPress={() => setOpenModal(true)} text="Add Review" style={styles.addReviewButton} />
                             )}
 
-                            <Text style={styles.sectionTitle}>
+                            <SectionTitle>
                                 {artisantInfo?.role === 'user' ? 'Conversations with artisans:' : 'Conversation:'}
-                            </Text>
+                            </SectionTitle>
                             {artisantInfo?.role === 'user' ? (
                                 order?.artisantUnlockedLead?.map((artisan: any, i: number) => (
                                     <AnimatedTouchableOpacity
                                         key={i}
-                                        //   @ts-ignore
+                                        // @ts-ignore
                                         entering={FadeInRight.delay(i * 100)}
                                         onPress={() => handleCreateConversation(artisan)}
                                         style={styles.conversationButton}
                                     >
                                         <LinearGradient
-                                            colors={['rgba(99, 102, 241, 0.1)', 'rgba(139, 92, 246, 0.1)']}
+                                            colors={['rgba(74, 222, 128, 0.1)', 'rgba(34, 197, 94, 0.1)']}
                                             start={{ x: 0, y: 0 }}
                                             end={{ x: 1, y: 1 }}
                                             style={styles.conversationGradient}
@@ -1636,20 +2406,20 @@ const OrderView = ({ route, navigation }: any) => {
                                                         <Text style={styles.conversationLabel}>Conversation</Text>
                                                     </View>
                                                 </View>
-                                                <Ionicons name="chevron-forward" size={24} color="#6366f1" />
+                                                <Ionicons name="chevron-forward" size={24} color="#22c55e" />
                                             </View>
                                         </LinearGradient>
                                     </AnimatedTouchableOpacity>
                                 ))
                             ) : (
                                 <AnimatedTouchableOpacity
-                                    //   @ts-ignore
+                                    // @ts-ignore
                                     entering={FadeInRight}
                                     onPress={() => handleCreateConversation()}
                                     style={styles.conversationButton}
                                 >
                                     <LinearGradient
-                                        colors={['rgba(99, 102, 241, 0.1)', 'rgba(139, 92, 246, 0.1)']}
+                                        colors={['rgba(74, 222, 128, 0.1)', 'rgba(34, 197, 94, 0.1)']}
                                         start={{ x: 0, y: 0 }}
                                         end={{ x: 1, y: 1 }}
                                         style={styles.conversationGradient}
@@ -1662,12 +2432,11 @@ const OrderView = ({ route, navigation }: any) => {
                                                     <Text style={styles.conversationLabel}>Conversation</Text>
                                                 </View>
                                             </View>
-                                            <Ionicons name="chevron-forward" size={24} color="#6366f1" />
+                                            <Ionicons name="chevron-forward" size={24} color="#22c55e" />
                                         </View>
                                     </LinearGradient>
                                 </AnimatedTouchableOpacity>
                             )}
-
                             <View style={styles.spacer} />
                         </Animated.View>
                     </Animated.ScrollView>
@@ -1697,25 +2466,25 @@ const OrderView = ({ route, navigation }: any) => {
                         </Text>
                         {!selectedProfession ? (
                             <Animated.View
-                                //   @ts-ignore
+                                // @ts-ignore
                                 entering={FadeInDown.duration(500)}>
                                 <Text style={styles.bottomSheetSubtitle}>Select Professional:</Text>
                                 {order?.professionals?.map((profession: any, i: number) => (
                                     <AnimatedTouchableOpacity
                                         key={i}
-                                        //   @ts-ignore
+                                        // @ts-ignore
                                         entering={FadeInRight.delay(i * 100)}
                                         onPress={() => setSelectedProfession(profession?.text)}
                                         style={styles.professionOption}
                                     >
                                         <Text style={styles.professionOptionText}>{profession?.text}</Text>
-                                        <Ionicons name="chevron-forward" size={20} color="#6366f1" />
+                                        <Ionicons name="chevron-forward" size={20} color="#22c55e" />
                                     </AnimatedTouchableOpacity>
                                 ))}
                             </Animated.View>
                         ) : (
                             <Animated.View
-                                //   @ts-ignore
+                                // @ts-ignore
                                 entering={FadeInDown.duration(500)}>
                                 <TextInput
                                     style={styles.reviewInput}
@@ -1727,7 +2496,7 @@ const OrderView = ({ route, navigation }: any) => {
                                 />
                                 <Rating
                                     type="custom"
-                                    ratingColor="#6366f1"
+                                    ratingColor="#22c55e"
                                     ratingBackgroundColor="#e5e7eb"
                                     ratingCount={5}
                                     imageSize={30}
@@ -1754,7 +2523,7 @@ const OrderView = ({ route, navigation }: any) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f9fafb',
+        backgroundColor: '#f0fdf4',
     },
     scrollView: {
         flex: 1,
@@ -1778,16 +2547,15 @@ const styles = StyleSheet.create({
     },
     description: {
         fontSize: 16,
-        color: '#4b5563',
+        color: '#374151',
         marginBottom: 20,
         paddingHorizontal: 20,
         marginTop: 70,
-
     },
     sectionTitle: {
         fontSize: 20,
         fontWeight: '600',
-        color: '#111827',
+        color: '#065f46',
         marginTop: 10,
         marginBottom: 15,
         paddingHorizontal: 20,
@@ -1798,7 +2566,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     professionTag: {
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        backgroundColor: 'rgba(74, 222, 128, 0.1)',
         borderRadius: 20,
         paddingHorizontal: 15,
         paddingVertical: 8,
@@ -1806,7 +2574,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     professionText: {
-        color: '#6366f1',
+        color: '#22c55e',
         fontSize: 14,
         fontWeight: '500',
     },
@@ -1837,11 +2605,11 @@ const styles = StyleSheet.create({
     },
     locationDetail: {
         fontSize: 16,
-        color: '#4b5563',
+        color: '#374151',
         paddingHorizontal: 20,
     },
     reviewContainer: {
-        backgroundColor: 'rgba(99, 102, 241, 0.05)',
+        backgroundColor: 'rgba(74, 222, 128, 0.05)',
         borderRadius: 10,
         padding: 20,
         marginVertical: 20,
@@ -1855,7 +2623,6 @@ const styles = StyleSheet.create({
     },
     conversationGradient: {
         padding: 15,
-        
     },
     conversationContent: {
         flexDirection: 'row',
@@ -1877,12 +2644,11 @@ const styles = StyleSheet.create({
     },
     conversationLabel: {
         fontSize: 14,
-        color: '#6b7280',
+        color: '#4b5563',
     },
     spacer: {
         height: 40,
         marginBottom: 20,
-
     },
     loadingOverlay: {
         ...StyleSheet.absoluteFillObject,
@@ -1890,6 +2656,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1000,
+    },
+    loadingContainer: {
+        alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: 10,
+        color: '#4ade80',
+        fontSize: 16,
+        fontWeight: '600',
     },
     modalBackground: {
         flex: 1,
@@ -1906,7 +2681,7 @@ const styles = StyleSheet.create({
     modalTitle: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#111827',
+        color: '#065f46',
         marginBottom: 20,
     },
     artisanScrollView: {
@@ -1926,7 +2701,7 @@ const styles = StyleSheet.create({
     artisanName: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#4b5563',
+        color: '#374151',
         textAlign: 'center',
     },
     magicButton: {
@@ -1954,7 +2729,7 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 20,
     },
     bottomSheetIndicator: {
-        backgroundColor: '#6366f1',
+        backgroundColor: '#22c55e',
     },
     bottomSheetContent: {
         padding: 24,
@@ -1962,14 +2737,14 @@ const styles = StyleSheet.create({
     bottomSheetTitle: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#111827',
+        color: '#065f46',
         marginBottom: 20,
         textAlign: 'center',
     },
     bottomSheetSubtitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#4b5563',
+        color: '#374151',
         marginBottom: 15,
     },
     professionOption: {
@@ -1978,13 +2753,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 15,
         paddingHorizontal: 20,
-        backgroundColor: 'rgba(99, 102, 241, 0.05)',
+        backgroundColor: 'rgba(74, 222, 128, 0.05)',
         borderRadius: 10,
         marginBottom: 10,
     },
     professionOptionText: {
         fontSize: 16,
-        color: '#4b5563',
+        color: '#374151',
         fontWeight: '500',
     },
     reviewInput: {
@@ -2009,7 +2784,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     cancelReviewButtonText: {
-        color: '#6b7280',
+        color: '#4b5563',
         fontSize: 16,
         fontWeight: '600',
     },
@@ -2019,3 +2794,4 @@ const styles = StyleSheet.create({
 });
 
 export default OrderView;
+

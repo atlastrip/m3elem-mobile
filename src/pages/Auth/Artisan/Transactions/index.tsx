@@ -413,8 +413,8 @@ const Transactions = ({ navigation }: any) => {
                     method: "POST",
                     headers,
                     body: JSON.stringify({
-                        query: `query Transactions {
-                    Transactions {
+                        query: `query AllTransactionByUser {
+                    AllTransactionByUser {
                       transactionType
                       transactionRef
                       status
@@ -430,7 +430,7 @@ const Transactions = ({ navigation }: any) => {
             );
             const json: any = await res.json();
             console.log(json)
-            setTransactions(json?.data?.Transactions || [])
+            setTransactions(json?.data?.AllTransactionByUser || [])
         } catch (err) {
             console.log("error", JSON.stringify(err, undefined, 2));
         }
@@ -487,7 +487,7 @@ const Transactions = ({ navigation }: any) => {
 
     const handleNavigationStateChange = (navState: any) => {
         setCurrentUrl(navState.url);
-    }; 
+    };
 
     const reloadWebView = () => {
         webViewRef.current?.reload();
@@ -617,6 +617,15 @@ const Transactions = ({ navigation }: any) => {
                                     ))}
                                 </View>
                             )}
+                            ListEmptyComponent={
+                                <View
+                                className='flex justify-center items-center p-16'
+                                >
+                                    <Text>
+                                        No Transaction Found!
+                                    </Text>
+                                </View>
+                            }
                             keyExtractor={item => item.monthYear}
                         />
 

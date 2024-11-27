@@ -1,4 +1,4 @@
-import { COLORS } from 'constants/theme';
+import { COLORS } from '../../constants/theme';
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, Image, Linking, Platform, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Constants from 'expo-constants';
