@@ -71,7 +71,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "About us",
-          Url: "https://serviceday.ma/about",
+          Url: "https://www.m3alempro.com/en/about",
         }),
     },
     {
@@ -84,7 +84,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "Terms of use",
-          Url: "https://www.serviceday.ma/terms-of-use",
+          Url: "https://www.m3alempro.com/en/terms",
         }),
     },
     {
@@ -94,7 +94,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "A HOUSE GURU Blog",
-          Url: "https://www.byteforce.ma",
+          Url: "https://www.m3alempro.com/en/blog",
         }),
     },
     // {
@@ -179,7 +179,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "Contact",
-          Url: "https://www.serviceday.ma/contact",
+          Url: "https://www.m3alempro.com/en/partner",
         }),
     }
     // {

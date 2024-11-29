@@ -997,9 +997,9 @@ export default function Navigation() {
   const navigationRef = useRef<any>(null);
   const routeNameRef = useRef();
 
-  useEffect(() => {
-    registerForPushNotificationsAsyncBro();
-  }, []);
+  // useEffect(() => {
+  //   registerForPushNotificationsAsyncBro();
+  // }, []);
 
 
   // useEffect(() => {

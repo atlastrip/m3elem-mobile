@@ -208,13 +208,13 @@ export default function HomeScreen({ navigation }: any) {
   const [searchCategory, setSearchCategory] = React.useState('countertops');
   const [searchZipCode, setSearchZipCode] = React.useState('10001');
 
-  React.useEffect(() => {
-    (async () => {
-      const { status }: any = await BarCodeScanner.requestPermissionsAsync();
-      // @ts-ignore
-      setHasPermission(status == 'granted');
-    })();
-  }, []);
+  // React.useEffect(() => {
+  //   (async () => {
+  //     const { status }: any = await BarCodeScanner.requestPermissionsAsync();
+  //     // @ts-ignore
+  //     setHasPermission(status == 'granted');
+  //   })();
+  // }, []);
 
   const handleBarCodeScanned = ({ type, data }: any) => {
     setScanned(true);

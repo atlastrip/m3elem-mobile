@@ -72,7 +72,7 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "About us",
-          Url: "https://serviceday.ma/about",
+          Url: "https://www.m3alempro.com/en/about",
         }),
     },
     {
@@ -85,7 +85,7 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "Terms of use",
-          Url: "https://www.serviceday.ma/terms-of-use",
+          Url: "https://www.m3alempro.com/en/terms",
         }),
     },
     // {
@@ -120,7 +120,7 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "Contact",
-          Url: "https://www.serviceday.ma/contact",
+          Url: "https://www.m3alempro.com/en/partner",
         }),
     },
     {
@@ -154,7 +154,7 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "A HOUSE GURU Blog",
-          Url: "https://blog.ahouseguru.com",
+          Url: "https://www.m3alempro.com/en/blog",
         }),
     },
   ];
