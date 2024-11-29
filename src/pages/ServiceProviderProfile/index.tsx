@@ -1547,8 +1547,8 @@ const DisplayServiceProviders = ({ data, navigation, selectedCategories, title, 
 
     const handleEditReview = useCallback(() => {
         setIsEditing(true);
-        setReviewRating(currentUserReview.rating);
-        setReviewDescription(currentUserReview.description);
+        setReviewRating(currentUserReview?.rating);
+        setReviewDescription(currentUserReview?.description);
     }, [currentUserReview]);
 
     const makePhoneCall = useCallback((phoneNumber: any) => {
@@ -1874,6 +1874,7 @@ const DisplayServiceProviders = ({ data, navigation, selectedCategories, title, 
                     <View>
                         {sortedReviews.slice(0, !ViewAllReviews ? 5 : sortedReviews?.length)
                             .map((review: any) => (
+                                review?.id &&
                                 <View key={review?.id} style={styles.reviewContainer}>
                                     <View style={styles.reviewHeader}>
                                         <Text style={styles.reviewAuthor}>
@@ -2325,8 +2326,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         // padding: 4,
-        gap:2,
-        marginBottom:6
+        gap: 2,
+        marginBottom: 6
     },
     chatCallButton: {
         flex: 1,

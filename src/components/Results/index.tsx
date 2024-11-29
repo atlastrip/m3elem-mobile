@@ -41,12 +41,12 @@ const getRatingCategory = (rating: any) => {
 };
 
 const calculateAverageRating = (reviews: any) => {
-    if (!reviews || reviews.length === 0) return 0;
-    const totalRating = reviews.reduce(
-        (acc: any, review: any) => acc + parseInt(review.rating),
+    if (!reviews || reviews?.length === 0) return 0;
+    const totalRating = reviews?.reduce(
+        (acc: any, review: any) => acc + parseInt(review?.rating),
         0
     );
-    return Math.round(totalRating / reviews.length);
+    return Math.round(totalRating / reviews?.length);
 };
 
 const AverageRatingDisplay = React.memo(({ reviews }: any) => {
@@ -87,9 +87,9 @@ const ArtisanCard = React.memo(({ artisan, title, selectedCategories, navigation
     const handleCallPress = useCallback(() => {
         let phoneNumber = '';
         if (Platform.OS === 'android') {
-            phoneNumber = `tel:${artisan.phone}`;
+            phoneNumber = `tel:${artisan?.phone}`;
         } else {
-            phoneNumber = `telprompt:${artisan.phone}`;
+            phoneNumber = `telprompt:${artisan?.phone}`;
         }
         Linking.openURL(phoneNumber);
     }, [artisan.phone]);
