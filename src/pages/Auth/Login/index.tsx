@@ -526,7 +526,7 @@
 //           await AsyncStorage.setItem('@imageProfile', json.data.login.user.imageProfile);
 //         }
 //         await AsyncStorage.setItem('@user', JSON.stringify(json.data.login.user));
-        
+
 //         if (rememberMe) {
 //           await AsyncStorage.setItem('@signed-user', JSON.stringify({ email: username, password }));
 //         }
@@ -726,6 +726,7 @@ import {
   StyleSheet,
   ScrollView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -734,7 +735,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
-import { isLogin, IUser, setUser } from "../../../store/User"; 
+import { isLogin, IUser, setUser } from "../../../store/User";
 const { width } = Dimensions.get('window');
 const COLORS = {
   primary: '#4CAF50',
@@ -742,7 +743,7 @@ const COLORS = {
   background: '#f0f4f0',
 };
 
-export default function MagicalLoginScreen({ navigation }:any) {
+export default function MagicalLoginScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -771,6 +772,7 @@ export default function MagicalLoginScreen({ navigation }:any) {
                   phone
                   role
                   imageProfile
+                  AccountStatus
                   pushToken
                 }
                 token
@@ -788,13 +790,22 @@ export default function MagicalLoginScreen({ navigation }:any) {
 
       const json = await response.json();
 
+      if (json.data?.login?.user?.AccountStatus == 'Deleted') {
+        Alert.alert(
+          "Account Deleted",
+          "Your account has been deleted. If you believe this is a mistake, please contact our support team for assistance.",
+          [{ text: "OK" }]
+        );
+        return;
+      }
+
       if (json.data?.login?.user) {
         await AsyncStorage.setItem('@token', json.data.login.token);
         if (json.data.login.user.imageProfile) {
           await AsyncStorage.setItem('@imageProfile', json.data.login.user.imageProfile);
         }
         await AsyncStorage.setItem('@user', JSON.stringify(json.data.login.user));
-        
+
         if (rememberMe) {
           await AsyncStorage.setItem('@signed-user', JSON.stringify({ email: username, password }));
         }
@@ -870,7 +881,7 @@ export default function MagicalLoginScreen({ navigation }:any) {
               </View>
               <Text style={styles.rememberMeText}>Remember me</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => {/* Handle forgot password */}}>
+            <TouchableOpacity onPress={() => {/* Handle forgot password */ }}>
               <Text style={styles.forgotPassword}>Forgot password?</Text>
             </TouchableOpacity>
           </View>

@@ -100,12 +100,12 @@
 // //         fetchConversations();
 // //     }, [isFocused]);
 
-  
+
 // //     const renderConversationItem = ({ item }: any) => {
 // //         const profileImage = item?.images[0];
 // //         const name = item?.title;
 // //         // console.log('item', item);
-        
+
 // //         return (
 // //             <TouchableOpacity
 // //                 style={styles.conversationItem}
@@ -793,8 +793,17 @@ const OrdersUserWithConversationsScreen = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
+      {/* <View style={styles.header}>
+        <Text style={styles.headerText}>Projects</Text>
+      </View> */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>Leads</Text>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#2E3A59" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Projects</Text>
       </View>
       {loading && !refreshing ? (
         <View style={styles.loadingContainer}>
@@ -812,7 +821,8 @@ const OrdersUserWithConversationsScreen = ({ navigation }: any) => {
         />
       ) : (
         <View style={styles.noConversationsContainer}>
-          <Text style={styles.noConversationsText}>No Leads available.</Text>
+
+          <Text style={styles.noConversationsText}>No Projects  available.</Text>
         </View>
       )}
     </View>
@@ -825,11 +835,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F7FA',
   },
   header: {
-    paddingVertical: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 16,
+    paddingTop: 24,
+    paddingBottom: 12,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E9F0',
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2E3A59',
   },
   headerText: {
     fontSize: 24,

@@ -136,7 +136,7 @@ const ArtisanCard = React.memo(({ artisan, title, selectedCategories, navigation
                 </View>
 
                 {/* Average Rating */}
-                <AverageRatingDisplay reviews={artisan?.reviews} />
+                <AverageRatingDisplay reviews={artisan?.reviews?.filter((e: any) => e)} />
 
                 {/* About Me */}
                 <Text style={styles.aboutText}>
@@ -245,7 +245,7 @@ const Results = ({ Artisants, selectedCategories, title, navigation }: any) => {
                     offset: 200 * index,
                     index,
                 })}
-                ListFooterComponent={<View 
+                ListFooterComponent={<View
                     className='mb-20'
                 />}
             />

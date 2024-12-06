@@ -59,7 +59,7 @@ import Portfolio from "@/pages/Portfolio";
 import City from "@/pages/City";
 import { PaperProvider } from "react-native-paper";
 import ProfessionPage from "@/pages/Profession";
-import Order from "@/pages/Order";
+// import Order from "@/pages/Order";
 import Orders from "@/pages/Order/orders";
 import OrderView from "@/pages/Order/orderViewer";
 import ArtisanPage from "@/pages/Profession/artisan";
@@ -370,13 +370,13 @@ const GroupHome = () => {
           headerShown: false,
         }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="Order"
         component={Order}
         options={{
           headerShown: false,
         }}
-      />
+      /> */}
     </Stack.Navigator>
   );
 };
@@ -761,6 +761,13 @@ function RootNavigator() {
                           headerShown: false,
                         }}
                       />
+                      <Stack.Screen
+                        name="Orders"
+                        component={Orders}
+                        options={{
+                          headerShown: false,
+                        }}
+                      />
 
                     </>
                   ) : (
@@ -1103,10 +1110,21 @@ export default function Navigation() {
 
 
 
+  const linking = {
+    prefixes: ['com.serviceday.serviceday://'],
+    config: {
+      screens: {
+        Profile: 'profile/artisant/:id'
+      }
+    }
+  };
+
+
 
   return (
     <PaperProvider>
       <NavigationContainer
+        linking={linking}
         ref={(navigatorRef) => {
           onLayoutRootView();
           navigationRef.current = navigatorRef;
@@ -1114,6 +1132,7 @@ export default function Navigation() {
         onReady={() => {
           routeNameRef.current = navigationRef?.current?.getCurrentRoute()?.name;
         }}
+
         onStateChange={async () => {
           const previousRouteName = routeNameRef.current;
           const currentRouteName =

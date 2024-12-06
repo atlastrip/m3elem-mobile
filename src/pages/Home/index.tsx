@@ -205,8 +205,8 @@ export default function HomeScreen({ navigation }: any) {
   const [order, setOrder] = React.useState(null);
   const [hasPermission, setHasPermission] = React.useState(null);
   const [scanned, setScanned] = React.useState(false);
-  const [searchCategory, setSearchCategory] = React.useState('countertops');
-  const [searchZipCode, setSearchZipCode] = React.useState('10001');
+  const [searchCategory, setSearchCategory] = React.useState('');
+  const [searchZipCode, setSearchZipCode] = React.useState('');
 
   // React.useEffect(() => {
   //   (async () => {

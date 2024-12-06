@@ -453,7 +453,7 @@ const USAsvg = memo(({ onStatePress, ...props }: any) => {
                     d={path?.d}
                     strokeWidth={path?.strokeWidth}
                     fill={path?.fill}
-                    onPress={() => onStatePress(path?.id)}
+                    // onPress={() => onStatePress(path?.id)}
                 />
             ))}
         </Svg>

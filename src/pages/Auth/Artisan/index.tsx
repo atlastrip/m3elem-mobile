@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Alert, Button, Dimensions, Image, Modal, ScrollView, Switch, TouchableOpacity, View } from 'react-native'
+import { Alert, Button, Dimensions, Image, Modal, ScrollView, StyleSheet, Switch, TouchableOpacity, View } from 'react-native'
 import { Text } from 'react-native'
 import { FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,6 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getToken, getUser } from '@/helpers/getToken';
 import { useIsFocused } from '@react-navigation/native';
 import { IsCompleteProfile } from '@/components/IsCompleteProfile';
+
 
 
 const ArtisanHomePage = ({ navigation }: any) => {
@@ -30,6 +31,12 @@ const ArtisanHomePage = ({ navigation }: any) => {
     const [scanned, setScanned] = React.useState(false);
     const [LoadingAcceptedLeads, setLoadingAcceptedLeads] = React.useState(false);
     const [Leads, setLeads] = React.useState<any>([]);
+    const [reviews, setReviews] = useState([])
+    const [infoPro, setInfoPro] = useState({
+        firstName: '',
+        lastName: '',
+        id: ''
+    })
 
 
     const EditUser = async () => {
@@ -101,7 +108,19 @@ const ArtisanHomePage = ({ navigation }: any) => {
                             query user {
                                 user{
                                     id
+                                    firstName
+                                    lastName
                                     available
+                                    reviews{
+                                        id
+                                    reviewer{
+                                        id 
+                                        firstName
+                                        lastName
+                                    }
+                                    description
+                                    rating
+                                    }
                                 }
                             }
                         `,
@@ -111,6 +130,17 @@ const ArtisanHomePage = ({ navigation }: any) => {
 
             const json = await res.json();
             setIsEnabled(json?.data?.user?.available);
+            console.log('====================================');
+            console.log('json?.data?.user?.reviews', json?.data?.user?.reviews);
+            console.log('====================================');
+            setReviews(json?.data?.user?.reviews)
+            // setLastName(json?.data?.user?.lastName)
+            // setFirstName(json?.data?.user?.firstName)
+            setInfoPro({
+                firstName: json?.data?.user?.firstName,
+                lastName: json?.data?.user?.lastName,
+                id: json?.data?.user?.id
+            })
 
         } catch (err1) {
             Alert.alert("Erreur", "Une erreur est servenue lors de modification de votre compte.");
@@ -170,7 +200,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
         }
     }
 
-    
+
 
     useEffect(() => {
         getProfileCompleted()
@@ -241,7 +271,7 @@ const ArtisanHomePage = ({ navigation }: any) => {
 
     return (
         <ScrollView style={{ flex: 1 }}>
-            
+
 
             <IsCompleteProfile
                 profileCompletedData={isCompleted}
@@ -294,7 +324,10 @@ const ArtisanHomePage = ({ navigation }: any) => {
                                 </LinearGradient>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                onPress={() => navigation.navigate('MyQrCode')}
+                                onPress={() => navigation.push('MyQrCode', {
+                                    reviews,
+                                    infoPro
+                                })}
                                 className="flex-1 ml-2">
                                 <LinearGradient
                                     colors={['#4caf50', '#4fa866']}
@@ -338,10 +371,10 @@ const ArtisanHomePage = ({ navigation }: any) => {
 
 
                         </View>
-                        
+
                     </View>
                 </View>
-                
+
 
             </View>
         </ScrollView>
@@ -349,3 +382,6 @@ const ArtisanHomePage = ({ navigation }: any) => {
 }
 
 export default ArtisanHomePage
+
+
+

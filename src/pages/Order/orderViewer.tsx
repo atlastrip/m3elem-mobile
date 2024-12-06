@@ -2022,6 +2022,8 @@
 // export default OrderView;
 
 
+
+
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, TextInput, Alert, Modal, ActivityIndicator, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -2040,6 +2042,8 @@ import { getToken } from '@/helpers/getToken';
 import { createOrRetrieveConversation } from '@/helpers/createOrRetrieveConversation';
 import { Review } from '../Profession/artisan';
 import { COLORS } from '../../constants/theme';
+import ImageGallery from '@/components/ImageGallery';
+import { useLocation } from 'hooks/useLocations';
 
 const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window');
 
@@ -2122,6 +2126,8 @@ const SelectUnlockedArtisan = ({ visible, onClose, artisans, handlePresentModalP
 const OrderView = ({ route, navigation }: any) => {
     const { order, user }: any = route.params;
     const insets = useSafeAreaInsets();
+    const location = useLocation(order?.zipCode);
+
 
     const [newReview, setNewReview] = useState({ comment: '', rating: 3 });
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -2147,6 +2153,9 @@ const OrderView = ({ route, navigation }: any) => {
     const getInfo = async () => {
         try {
             const userInfo = await AsyncStorage.getItem('@user');
+            console.log('====================================');
+            console.log('user',JSON.parse(userInfo || '{}'));
+            console.log('====================================');
             setArtisantInfo(JSON.parse(userInfo || '{}'));
         } catch (error: any) {
             console.error('Failed to get user info:', error);
@@ -2301,7 +2310,7 @@ const OrderView = ({ route, navigation }: any) => {
                             entering={FadeInDown.duration(500).delay(200)}>
                             <Text style={styles.description}>{order?.description}</Text>
 
-                            <SectionTitle>Images</SectionTitle>
+                            {/* <SectionTitle>Images</SectionTitle>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageContainer}>
                                 {order?.images?.map((image: string, index: number) => (
                                     <Animated.Image
@@ -2312,50 +2321,28 @@ const OrderView = ({ route, navigation }: any) => {
                                         style={styles.image}
                                     />
                                 ))}
-                            </ScrollView>
+                            </ScrollView> */}
+
+                            <View style={styles.card}>
+                                <View style={styles.cardContent}>
+                                    <Text style={styles.title}>Images:</Text>
+                                    <ImageGallery images={order?.images?.map((e: any, index: any) => ({
+                                        id: index,
+                                        source: e
+                                    })) || []} />
+                                </View>
+                            </View>
 
                             <SectionTitle>Location</SectionTitle>
-                            {order?.locationType === 'currentLocation' ? (
-                                (() => {
-                                    let coordinates: any = null;
-                                    try {
-                                        coordinates = JSON.parse(order?.location);
-                                    } catch (error) {
-                                        console.error('Invalid location format:', order?.location);
-                                        coordinates = null;
-                                    }
+                            <Animated.View
+                                // @ts-ignore
+                                entering={FadeInDown.duration(500)} 
+                                style={styles.conversationButton}
+                                >
 
-                                    if (coordinates && coordinates.latitude && coordinates.longitude) {
-                                        return (
-                                            <Animated.View
-                                                // @ts-ignore
-                                                entering={FadeIn.duration(500)} style={styles.mapContainer}>
-                                                <MapView
-                                                    style={styles.map}
-                                                    initialRegion={{
-                                                        latitude: coordinates.latitude,
-                                                        longitude: coordinates.longitude,
-                                                        latitudeDelta: 0.0922,
-                                                        longitudeDelta: 0.0421,
-                                                    }}
-                                                >
-                                                    <Marker
-                                                        coordinate={{
-                                                            latitude: coordinates.latitude,
-                                                            longitude: coordinates.longitude,
-                                                        }}
-                                                        title="Order Location"
-                                                    />
-                                                </MapView>
-                                            </Animated.View>
-                                        );
-                                    } else {
-                                        return <Text style={styles.invalidLocationText}>Invalid location data.</Text>;
-                                    }
-                                })()
-                            ) : (
-                                <Text style={styles.locationDetail}>{order?.location}</Text>
-                            )}
+                                <Text >{location}</Text>
+                            </Animated.View>
+
 
                             {(user?.id && order?.review == null) && (
                                 <MagicButton onPress={handlePresentModalPress} text="Add Review" style={styles.addReviewButton} />
@@ -2384,33 +2371,44 @@ const OrderView = ({ route, navigation }: any) => {
                                 {artisantInfo?.role === 'user' ? 'Conversations with artisans:' : 'Conversation:'}
                             </SectionTitle>
                             {artisantInfo?.role === 'user' ? (
-                                order?.artisantUnlockedLead?.map((artisan: any, i: number) => (
-                                    <AnimatedTouchableOpacity
-                                        key={i}
-                                        // @ts-ignore
-                                        entering={FadeInRight.delay(i * 100)}
-                                        onPress={() => handleCreateConversation(artisan)}
-                                        style={styles.conversationButton}
-                                    >
-                                        <LinearGradient
-                                            colors={['rgba(74, 222, 128, 0.1)', 'rgba(34, 197, 94, 0.1)']}
-                                            start={{ x: 0, y: 0 }}
-                                            end={{ x: 1, y: 1 }}
-                                            style={styles.conversationGradient}
+                                order?.artisantUnlockedLead?.length > 0 ?
+                                    order?.artisantUnlockedLead?.map((artisan: any, i: number) => (
+                                        <AnimatedTouchableOpacity
+                                            key={i}
+                                            // @ts-ignore
+                                            entering={FadeInRight.delay(i * 100)}
+                                            onPress={() => handleCreateConversation(artisan)}
+                                            style={styles.conversationButton}
                                         >
-                                            <View style={styles.conversationContent}>
-                                                <View style={styles.artisanInfoRow}>
-                                                    <Image source={{ uri: artisan?.imageProfile }} style={styles.conversationImage} />
-                                                    <View style={styles.artisanTextContainer}>
-                                                        <Text style={styles.artisanName}>{artisan?.firstName} {artisan?.lastName}</Text>
-                                                        <Text style={styles.conversationLabel}>Conversation</Text>
+                                            <LinearGradient
+                                                colors={['rgba(74, 222, 128, 0.1)', 'rgba(34, 197, 94, 0.1)']}
+                                                start={{ x: 0, y: 0 }}
+                                                end={{ x: 1, y: 1 }}
+                                                style={styles.conversationGradient}
+                                            >
+                                                <View style={styles.conversationContent}>
+                                                    <View style={styles.artisanInfoRow}>
+                                                        <Image source={{ uri: artisan?.imageProfile }} style={styles.conversationImage} />
+                                                        <View style={styles.artisanTextContainer}>
+                                                            <Text style={styles.artisanName}>{artisan?.firstName} {artisan?.lastName}</Text>
+                                                            <Text style={styles.conversationLabel}>Conversation</Text>
+                                                        </View>
                                                     </View>
+                                                    <Ionicons name="chevron-forward" size={24} color="#22c55e" />
                                                 </View>
-                                                <Ionicons name="chevron-forward" size={24} color="#22c55e" />
-                                            </View>
-                                        </LinearGradient>
-                                    </AnimatedTouchableOpacity>
-                                ))
+                                            </LinearGradient>
+                                        </AnimatedTouchableOpacity>
+                                    ))
+                                    :
+
+                                    <View
+                                        style={styles.conversationButton}
+
+                                    >
+                                        <Text>
+                                            No Pros Found !
+                                        </Text>
+                                    </View>
                             ) : (
                                 <AnimatedTouchableOpacity
                                     // @ts-ignore
@@ -2521,6 +2519,31 @@ const OrderView = ({ route, navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
+    card: {
+        // marginBottom: 2,
+        padding: 2
+        // borderRadius: 8,
+        // backgroundColor: "#fff",
+        // shadowColor: "#000",
+        // shadowOffset: { width: 0, height: 2 },
+        // shadowOpacity: 0.1,
+        // shadowRadius: 4,
+        // elevation: 3, // Shadow for Android
+    },
+    cardContent: {
+        padding: 16,
+    },
+    cardHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: 16,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: "600",
+        padding: 2
+    },
     container: {
         flex: 1,
         backgroundColor: '#f0fdf4',

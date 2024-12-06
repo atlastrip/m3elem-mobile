@@ -482,6 +482,7 @@ import { COLORS } from 'constants/theme';
 import { storage } from '../../firebase/index'; // Ensure Firebase is properly configured
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+import { getUser } from '@/helpers/getToken';
 
 interface Professional {
   id: string;
@@ -502,6 +503,7 @@ const NewOrderComponent = ({ route, navigation }: any) => {
   const [zipCode, setZipCode] = useState(route.params.zipCode);
   const [professionals, setProfessionals]: any = useState([]);
   const [selectedProfessionals, setSelectedProfessionals] = useState<string[]>([]);
+
 
   const [loading, setLoading] = useState(false);
   const [orderCreated, setOrderCreated] = useState(false);
@@ -549,7 +551,7 @@ const NewOrderComponent = ({ route, navigation }: any) => {
       return;
     }
 
-    setLoading(true);
+    // setLoading(true);
 
     const newOrder = {
       title,
@@ -562,7 +564,10 @@ const NewOrderComponent = ({ route, navigation }: any) => {
 
     try {
       const authToken = await AsyncStorage.getItem('@token');
+      const newUser: any = await getUser()
 
+
+     
       if (!authToken) {
         Alert.alert('Authentication Error', 'User is not authenticated. Please log in.');
         setLoading(false);
@@ -656,6 +661,8 @@ const NewOrderComponent = ({ route, navigation }: any) => {
               status: "NEW",
               categoryId: JSON.parse(categoryId)?.id || '',
               zipCode: location,
+              forTest: JSON.parse(newUser)?.AccountStatus == 'Tester' ? true : false,
+
             },
           },
         }),

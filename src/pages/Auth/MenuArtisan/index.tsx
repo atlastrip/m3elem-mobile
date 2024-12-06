@@ -121,7 +121,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "How to use",
-          Url: "https://www.byteforce.ma/portfolio",
+          Url: "https://www.m3alempro.com/en/how-to-use",
         }),
     },
   ];
@@ -142,7 +142,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
         navigation.navigate("Transactions"),
     },
     {
-      name: "Direct Leads",
+      name: "Direct Orders",
       icon: <MaterialIcons name="chat" color="white" size={20} />,
       colorIcon: "blue",
       onPress: () =>
@@ -179,7 +179,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "Contact",
-          Url: "https://www.m3alempro.com/en/partner",
+          Url: "https://www.m3alempro.com/en/contact",
         }),
     }
     // {

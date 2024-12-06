@@ -36,12 +36,12 @@ const getRatingCategory = (rating: any) => {
 };
 
 const calculateAverageRating = (reviews: any) => {
-    if (!reviews || reviews.length === 0) return 0;
-    const totalRating = reviews.reduce(
-        (acc: any, review: any) => acc + parseInt(review.rating),
+    if (!reviews || reviews?.length === 0) return 0;
+    const totalRating = reviews?.reduce(
+        (acc: any, review: any) => acc + parseInt(review?.rating),
         0
     );
-    return Math.round(totalRating / reviews.length);
+    return Math.round(totalRating / reviews?.length);
 };
 
 const AverageRatingDisplay = React.memo(({ reviews }: any) => {
@@ -75,21 +75,21 @@ const ArtisanCard = React.memo(({ artisan, title, navigation }: any) => {
 
     const handleChatPress = useCallback(() => {
         navigation.navigate('ServiceProviderProfile', {
-            id: artisan.id,
+            id: artisan?.id,
             selectedCategories: title,
             role: 'artisant',
         });
-    }, [navigation, artisan.id, title]);
+    }, [navigation, artisan?.id, title]);
 
     const handleCallPress = useCallback(() => {
         let phoneNumber = '';
         if (Platform.OS === 'android') {
-            phoneNumber = `tel:${artisan.phone}`;
+            phoneNumber = `tel:${artisan?.phone}`;
         } else {
-            phoneNumber = `telprompt:${artisan.phone}`;
+            phoneNumber = `telprompt:${artisan?.phone}`;
         }
         Linking.openURL(phoneNumber);
-    }, [artisan.phone]);
+    }, [artisan?.phone]);
     const [ViewAllReviews, setViewAllReviews] = useState(false);
 
     const userCategory = useMemo(() => getUserCategory(artisan?.createdAt), [
@@ -137,7 +137,7 @@ const ArtisanCard = React.memo(({ artisan, title, navigation }: any) => {
                 </View>
 
                 {/* Average Rating */}
-                <AverageRatingDisplay reviews={artisan?.reviews} />
+                <AverageRatingDisplay reviews={artisan?.reviews?.filter((e:any)=>e)} />
 
                 {/* About Me */}
                 <Text style={styles.aboutText}>
@@ -238,7 +238,8 @@ const ArtisanCard = React.memo(({ artisan, title, navigation }: any) => {
                             )}
                         </Text>
                         <View className="space-y-4">
-                            {sortedReviews.slice(0, !ViewAllReviews ? 5 : sortedReviews?.length).map((review: any) => (
+                            {sortedReviews?.slice(0, !ViewAllReviews ? 5 : sortedReviews?.length).map((review: any) => (
+                                review?.id &&
                                 <View key={review?.id} className="p-4 border rounded-lg border-gray-200">
                                     <View className="flex  gap-2 mb-2">
                                         <Text className="font-semibold">{review?.owner?.firstName} {review?.owner?.lastName}</Text>
@@ -318,7 +319,7 @@ const ShareLink = ({ url = "" }) => {
     return <TouchableOpacity className='border border-gray-200 p-1 mt-1 px-2 rounded-md' onPress={shareLink} >
         <Text className='text-lg text-blue-500'>
 
-        <FontAwesome name="share" size={14} color="blue" />
+            <FontAwesome name="share" size={14} color="blue" />
             {" "}Share
         </Text>
     </TouchableOpacity>

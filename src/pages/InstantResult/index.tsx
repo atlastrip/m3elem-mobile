@@ -507,12 +507,23 @@ const InstantResult = ({ route, navigation }: any) => {
             return loadingArtisants ? (
                 <ActivityIndicator size="large" color={COLORS.primary} style={styles.loader} />
             ) : (
-                <Results
-                    navigation={navigation}
-                    Artisants={Artisants}
-                    selectedCategories={selectedCategories}
-                    title={category}
-                />
+                Artisants.length > 0 ?
+                    <Results
+                        navigation={navigation}
+                        Artisants={Artisants}
+                        selectedCategories={selectedCategories}
+                        title={category}
+                    />
+                    :
+                    <View className="flex-1 justify-center items-center w-full px-4">
+                        <Text className="text-center text-lg text-gray-700 mb-4">
+                            No professionals found!.
+                        </Text>
+                        <Text className="text-center text-md text-gray-600 mb-6">
+                            Don't see what you're looking for? Create your own project and attract the right experts!
+                        </Text>
+                        
+                    </View>
             );
         }
         return null;

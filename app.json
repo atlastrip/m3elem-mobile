@@ -2,23 +2,15 @@
   "expo": {
     "name": "A HOUSE GURU",
     "slug": "serviceday",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "scheme": "com.serviceday.serviceday",
     "plugins": [
       "./react-native-maps-plugin.js",
       "expo-apple-authentication",
       [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
-          "isIosForegroundLocationEnabled": "Allow $(PRODUCT_NAME) to use your location",
-          "isAndroidForegroundLocationEnabled": "Allow $(PRODUCT_NAME) to use your location"
-        }
-      ],
-      [
         "expo-notifications",
         {
-          "expo-notifications": "Autorisez les notifications de m3elem."
+          "expo-notifications": "Allow A HOUSE GURU to send notifications for important updates and service alerts."
         }
       ],
       [
@@ -49,18 +41,16 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.serviceday.serviceday",
-      "buildNumber": "1",
+      "buildNumber": "10",
       "infoPlist": {
-        "UIBackgroundModes": [
-          "audio"
-        ]
+        "NSPhotoLibraryUsageDescription": "Allow A HOUSE GURU to access your photo library to upload images for service requests."
       },
       "config": {
         "googleMapsApiKey": "AIzaSyBbsVJHtVc2hdsc4tf2vl34q9zShB_-ZNA"
       }
     },
     "android": {
-      "versionCode": 1,
+      "versionCode": 10,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

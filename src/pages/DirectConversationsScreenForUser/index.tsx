@@ -763,7 +763,7 @@ const DirectConversationsScreenForUser = ({ navigation }: any) => {
   const ListEmptyComponent = useCallback(() => (
     <View style={styles.noConversationsContainer}>
       <Ionicons name="chatbubbles-outline" size={48} color="#A0A0A0" />
-      <Text style={styles.noConversationsText}>No direct leads available.</Text>
+      <Text style={styles.noConversationsText}>No direct Contacts available.</Text>
       <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
         <Text style={styles.refreshButtonText}>Refresh</Text>
       </TouchableOpacity>
@@ -779,8 +779,17 @@ const DirectConversationsScreenForUser = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      {/* <View style={styles.header}>
+        <Text style={styles.headerText}>Direct Contacts</Text>
+      </View> */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>Direct Leads</Text>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#2E3A59" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Direct Contacts</Text>
       </View>
 
       {loading && !refreshing ? (
@@ -819,7 +828,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F7FA',
   },
+ 
+  backButton: {
+    marginRight: 16,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2E3A59',
+  },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
@@ -835,6 +855,14 @@ const styles = StyleSheet.create({
         elevation: 4,
       },
     }),
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2E3A59',
   },
   headerText: {
     fontSize: 24,

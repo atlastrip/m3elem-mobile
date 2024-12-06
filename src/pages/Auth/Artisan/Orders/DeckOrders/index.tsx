@@ -915,7 +915,7 @@ export default function EnchantedSwiperComponent({ navigation }: { navigation: a
     return (
         <View style={styles.container}>
             {leads.length === 0 && !loading ? (
-                <Text style={styles.loadingText}>No leads found</Text>
+                <Text style={styles.loadingText}>No Orders found</Text>
             ) : (
                 <>
                     {loading ? (

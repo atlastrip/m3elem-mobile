@@ -19,7 +19,6 @@ import {
   TextInput,
 } from "react-native";
 import * as LinkingExpo from "expo-linking";
-import * as Location from "expo-location";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import MapView, {
