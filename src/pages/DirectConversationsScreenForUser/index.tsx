@@ -779,8 +779,7 @@ const DirectConversationsScreenForUser = ({ navigation }: any) => {
 
   return (
     <View style={{
-      ...styles.container,
-      paddingTop: Platform.OS === 'ios' ? insets.top + 10 : 0,
+      ...styles.container
 
     }
 
@@ -790,7 +789,10 @@ const DirectConversationsScreenForUser = ({ navigation }: any) => {
       {/* <View style={styles.header}>
         <Text style={styles.headerText}>Direct Contacts</Text>
       </View> */}
-      <View style={styles.header}>
+      <View style={{
+        ...styles.header,
+        paddingTop: Platform.OS === 'ios' ? insets.top + 10 : 0,
+      }}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}

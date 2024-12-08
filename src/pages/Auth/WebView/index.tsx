@@ -42,7 +42,7 @@ const WebViewer = ({
       </View>
       <View style={{ flex: 1 }}>
         <WebView
-          injectedJavaScript="(function() { var head = document.getElementsByTagName('header')[0]; head.parentNode.removeChild(head); var footer = document.getElementsByTagName('footer')[0]; footer.parentNode.removeChild(footer);})()"
+          // injectedJavaScript="(function() { var head = document.getElementsByTagName('header')[0]; head.parentNode.removeChild(head); var footer = document.getElementsByTagName('footer')[0]; footer.parentNode.removeChild(footer);})()"
           style={{}}
           source={{
             uri: Params?.Url,

@@ -472,6 +472,7 @@ import { getToken } from "@/helpers/getToken";
 const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
   const dispatch = useDispatch();
   const [User, setUser] = useState<IUser | null>(null);
+  const [newTokem, setNewToken] = useState('');
   const insets = useSafeAreaInsets();
   const [imageProfile, setImageProfile] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false); // State for delete operation
@@ -491,13 +492,15 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
 
   useEffect(() => {
     (async () => {
+      const token: any = await getToken();
       const user = await AsyncStorage.getItem("@user");
+      setNewToken(token)
       // @ts-ignore
       setUser(JSON.parse(user));
     })();
   }, []);
 
-  
+
   const Menus = [
     {
       name: "About us",
@@ -506,7 +509,7 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "About us",
-          Url: "https://www.m3alempro.com/en/about",
+          Url: `https://www.m3alempro.com/en/aboutForMobile`,
         }),
     },
     {
@@ -516,7 +519,7 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "Terms of use",
-          Url: "https://www.m3alempro.com/en/terms",
+          Url: "https://www.m3alempro.com/en/termsForMobile",
         }),
     },
     {
@@ -535,7 +538,7 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "Contact",
-          Url: "https://www.m3alempro.com/en/contact",
+          Url: "https://www.m3alempro.com/en/contactForMobile",
         }),
     },
     {
@@ -559,7 +562,7 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "A HOUSE GURU Blog",
-          Url: "https://www.m3alempro.com/en/blog",
+          Url: "https://www.m3alempro.com/en/blogForMobile",
         }),
     },
   ];
@@ -674,8 +677,8 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
       }
 
       const headers = new Headers();
-              headers.append("Content-Type", "application/json");
-              headers.append("Authorization", `Bearer ${token}`);
+      headers.append("Content-Type", "application/json");
+      headers.append("Authorization", `Bearer ${token}`);
       const response = await fetch(Constants.expoConfig?.extra?.apiUrl as string, {
 
         method: "POST",

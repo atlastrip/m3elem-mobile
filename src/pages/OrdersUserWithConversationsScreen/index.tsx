@@ -797,14 +797,16 @@ const OrdersUserWithConversationsScreen = ({ navigation }: any) => {
   return (
     <View style={{
       ...styles.container,
-      paddingTop: Platform.OS === 'ios' ? insets.top + 10 : 0,
 
     }
     }>
       {/* <View style={styles.header}>
         <Text style={styles.headerText}>Projects</Text>
       </View> */}
-      <View style={styles.header}>
+      <View style={{
+        ...styles.header,
+        paddingTop: Platform.OS === 'ios' ? insets.top + 10 : 0,
+      }}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}

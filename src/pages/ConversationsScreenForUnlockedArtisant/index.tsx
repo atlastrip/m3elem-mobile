@@ -491,11 +491,13 @@ const ConversationsScreenForUnlockedArtisant = ({ route, navigation }: any) => {
   return (
     <View style={{
       ...styles.container,
-      paddingTop: Platform.OS === 'ios' ? insets.top + 10 : 0,
 
     }}>
       {/* Custom Header with Back Button */}
-      <View style={styles.header}>
+      <View style={{
+        ...styles.header,
+        paddingTop: Platform.OS === 'ios' ? insets.top + 10 : 0,
+      }}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}

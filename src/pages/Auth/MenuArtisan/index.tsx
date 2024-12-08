@@ -71,7 +71,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "About us",
-          Url: "https://www.m3alempro.com/en/about",
+          Url: `https://www.m3alempro.com/en/aboutForMobile`,
         }),
     },
     {
@@ -84,7 +84,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "Terms of use",
-          Url: "https://www.m3alempro.com/en/terms",
+          Url: "https://www.m3alempro.com/en/termsForMobile",
         }),
     },
     {
@@ -94,7 +94,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "A HOUSE GURU Blog",
-          Url: "https://www.m3alempro.com/en/blog",
+          Url: "https://www.m3alempro.com/en/blogForMobile",
         }),
     },
     // {
@@ -121,7 +121,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "How to use",
-          Url: "https://www.m3alempro.com/en/how-to-use",
+          Url: "https://www.m3alempro.com/en/how-to-useForMobile",
         }),
     },
   ];
@@ -155,7 +155,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       name: "Manage my account",
       icon: <SimpleLineIcons name="user" color="white" size={20} />,
       colorIcon: "#39c559",
-      
+
       onPress: () => navigation.navigate("GestionDeCompteArtisant"),
     },
     {
@@ -179,7 +179,7 @@ const MenuArtisan = ({ navigation, route }: { navigation: Navigate; route: any }
       onPress: () =>
         navigation.navigate("WebView", {
           PageName: "Contact",
-          Url: "https://www.m3alempro.com/en/contact",
+          Url: "https://www.m3alempro.com/en/contactForMobile",
         }),
     }
     // {
