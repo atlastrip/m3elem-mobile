@@ -497,6 +497,7 @@ const Menu = ({ navigation, route }: { navigation: Navigate; route: any }) => {
     })();
   }, []);
 
+  
   const Menus = [
     {
       name: "About us",

@@ -544,17 +544,17 @@
 //       const uri = await viewShotRef.current.capture(); 
 //       const base64Data = uri.replace('data:image/png;base64,', '');
 //       const fileUri = FileSystem.cacheDirectory + 'QRCode.png';
-      
+
 //       await FileSystem.writeAsStringAsync(fileUri, base64Data, {
 //         encoding: FileSystem.EncodingType.Base64,
 //       });
-  
+
 //       await Sharing.shareAsync(fileUri);
 //     } catch (error) {
 //       console.error('Error sharing QR code:', error);
 //     }
 //   };
-  
+
 
 //   return (
 //     <View style={styles.container}>
@@ -660,7 +660,7 @@
 // });
 
 import React, { useRef } from 'react';
-import { View, Text, Dimensions, StyleSheet, TouchableOpacity, Share } from 'react-native';
+import { View, Text, Dimensions, StyleSheet, TouchableOpacity, Share, Platform, Alert } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ButtonPrimary } from '@/components/index';
@@ -720,11 +720,11 @@ const AverageRatingDisplay = React.memo(({ reviews }: any) => {
 
 const MyQrCode = ({ navigation, route }: any) => {
   const Params = route.params;
-  
+
   // Use Linking to create a deep link URL
   // Make sure the scheme is defined in app.json and that your navigation config matches this route
-  const deepLinkUrl = Linking.createURL(`/profile/artisant/${Params?.infoPro?.id}`);
-  
+  const deepLinkUrl = "https://www.ahouseguru.com/en/profile/pro/" + Params?.infoPro?.id
+
   const insets = useSafeAreaInsets();
   const { width } = Dimensions.get('window');
   const viewShotRef = useRef<any>();
@@ -732,7 +732,7 @@ const MyQrCode = ({ navigation, route }: any) => {
   const shareQrCode = async () => {
     try {
       // Capture the QR code as a base64 data URI
-      const uri = await viewShotRef.current.capture(); 
+      const uri = await viewShotRef.current.capture();
       const base64Data = uri.replace('data:image/png;base64,', '');
       const fileUri = FileSystem.cacheDirectory + 'QRCode.png';
 
@@ -752,6 +752,52 @@ const MyQrCode = ({ navigation, route }: any) => {
     }
   };
 
+
+  const ShareLink = async () => {
+    // const shareLink = async () => {
+    if (Platform.OS === 'web') {
+      Alert.alert('Sharing is not supported on web');
+      return;
+    }
+
+    let url = "https://www.ahouseguru.com/en/profile/pro/" + Params?.infoPro?.id
+
+
+    try {
+      // const result = await Share.share({
+      //     message: `Check out this user: ${url}`,
+      // });
+
+
+      const uri = await viewShotRef.current.capture();
+      const base64Data = uri.replace('data:image/png;base64,', '');
+      const fileUri = FileSystem.cacheDirectory + 'QRCode.png';
+
+      // Write the file to the device's cache
+      await FileSystem.writeAsStringAsync(fileUri, base64Data, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Use React Native's Share API to share both text (message) and the file (via url).
+      // Note: On some platforms, the `url` might be treated differently.
+      let result = await Share.share({
+        message: `Check out this profile: ${url}`, // Deep link included in the message
+        url: fileUri, // The QR code image
+      });
+      if (result.action === Share.sharedAction) {
+        console.log('Link shared successfully!');
+      } else if (result.action === Share.dismissedAction) {
+        console.log('Link sharing dismissed');
+      }
+    } catch (error: any) {
+      console.error('Error sharing link:', error);
+      Alert.alert('Error sharing the link:', error.message);
+    }
+    // };
+
+
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.contentWrapper}>
@@ -765,8 +811,8 @@ const MyQrCode = ({ navigation, route }: any) => {
           </View>
         </View>
         <View style={styles.qrCodeWrapper}>
-          <ViewShot 
-            ref={viewShotRef} 
+          <ViewShot
+            ref={viewShotRef}
             options={{ format: 'png', quality: 1, result: 'data-uri' }}
           >
             <QRCode value={deepLinkUrl} size={width > 300 ? width * 0.8 : 300} />
@@ -776,9 +822,9 @@ const MyQrCode = ({ navigation, route }: any) => {
           text="OK"
           onPress={() => navigation.goBack()}
           Loading={false}
-          setLoading={() => {}}
+          setLoading={() => { }}
         />
-        <TouchableOpacity onPress={shareQrCode} style={styles.shareButton}>
+        <TouchableOpacity onPress={ShareLink} style={styles.shareButton}>
           <Text style={styles.shareButtonText}>Share QR Code</Text>
         </TouchableOpacity>
       </View>

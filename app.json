@@ -56,6 +56,7 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.serviceday.serviceday",
+      "googleServicesFile": "./google-services.json",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyAmaB15kxOfK3LJDTdwOcgS5c4M5IOWMWE"

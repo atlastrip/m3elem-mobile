@@ -81,7 +81,7 @@
 
 // //                 const response = await res.json();
 // //                 console.log('response', response?.data?.getDirectedLeadsForUser);
-                
+
 // //                 setConversations(response?.data?.getDirectedLeadsForUser);
 // //                 setLoading(false); // Turn off loading
 // //             } catch (error) {
@@ -100,7 +100,7 @@
 // //         console.log('item yooooooooo', item);
 // //         console.log('item name', item.name);
 // //         console.log('====================================');
-       
+
 // //         return (
 // //             <TouchableOpacity
 // //                 style={styles.conversationItem}
@@ -112,7 +112,7 @@
 // //                             item?.owner?.id
 // //                         );
 
-                        
+
 // //                         if (role === 'user') {
 // //                             navigation.navigate('Chat', {
 // //                                 conversationId,
@@ -384,7 +384,7 @@
 //     const renderConversationItem = useCallback(({ item }: any) => {
 //         const profileImage = item?.images[0];
 //         const name = item?.title;
-       
+
 //         return (
 //             <TouchableOpacity
 //                 style={styles.conversationItem}
@@ -566,6 +566,7 @@ import Constants from 'expo-constants';
 import { useIsFocused, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { format, isToday, isYesterday } from 'date-fns';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
@@ -576,7 +577,7 @@ const DirectConversationsScreenForUser = ({ navigation }: any) => {
   const [role, setRole] = useState<string>('');
   const isFocused = useIsFocused();
   const scrollY = useRef(new Animated.Value(0)).current;
-
+  const insets = useSafeAreaInsets()
   const fetchConversations = useCallback(async () => {
     setLoading(true);
     const token = await getToken();
@@ -720,7 +721,7 @@ const DirectConversationsScreenForUser = ({ navigation }: any) => {
       inputRange,
       outputRange: [1, 1, 1, 0],
     });
-   
+
     return (
       <Animated.View style={[styles.conversationItemContainer, { opacity, transform: [{ scale }] }]}>
         <TouchableOpacity
@@ -777,14 +778,21 @@ const DirectConversationsScreenForUser = ({ navigation }: any) => {
   ), []);
 
   return (
-    <View style={styles.container}>
+    <View style={{
+      ...styles.container,
+      paddingTop: Platform.OS === 'ios' ? insets.top + 10 : 0,
+
+    }
+
+    }
+    >
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       {/* <View style={styles.header}>
         <Text style={styles.headerText}>Direct Contacts</Text>
       </View> */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()} 
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
           <Ionicons name="arrow-back" size={24} color="#2E3A59" />
@@ -811,7 +819,7 @@ const DirectConversationsScreenForUser = ({ navigation }: any) => {
           }
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={ListEmptyComponent}
-        //   ListHeaderComponent={ListHeaderComponent}
+          //   ListHeaderComponent={ListHeaderComponent}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
             { useNativeDriver: true }
@@ -828,7 +836,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F7FA',
   },
- 
+
   backButton: {
     marginRight: 16,
   },

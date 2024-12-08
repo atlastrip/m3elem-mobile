@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "785553569160",
+    "project_id": "house-guru-b1e57",
+    "storage_bucket": "house-guru-b1e57.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:785553569160:android:e5e1bcc0c7accde640b63d",
+        "android_client_info": {
+          "package_name": "com.serviceday.serviceday"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "785553569160-ct9vjubgfqt4k9tmhblu6rdp8rk0je9s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNirO8HC_2Z40h_yP4g9dHFHcUEOkuknA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "785553569160-ct9vjubgfqt4k9tmhblu6rdp8rk0je9s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

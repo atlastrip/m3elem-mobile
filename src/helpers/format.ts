@@ -17,7 +17,7 @@
 import Constants from 'expo-constants';
 
 // Define the currency constant first
-export const CURRENCY = Constants?.manifest2?.extra?.expoClient?.extra?.currency;
+export const CURRENCY = Constants?.manifest2?.extra?.expoClient?.extra?.currency || "$";
 
 /**
  * Formats a number to the desired style with comma as thousands separator and dot as decimal separator.

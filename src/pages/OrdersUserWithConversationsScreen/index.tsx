@@ -652,18 +652,21 @@ import {
   Image,
   ActivityIndicator,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import { getToken, getUser } from '@/helpers/getToken';
 import Constants from 'expo-constants';
 import { useIsFocused } from '@react-navigation/native';
 import { format } from 'date-fns';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const OrdersUserWithConversationsScreen = ({ navigation }: any) => {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const isFocused = useIsFocused();
+  const insets = useSafeAreaInsets()
 
   const fetchConversations = async () => {
     setLoading(true);
@@ -792,13 +795,18 @@ const OrdersUserWithConversationsScreen = ({ navigation }: any) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{
+      ...styles.container,
+      paddingTop: Platform.OS === 'ios' ? insets.top + 10 : 0,
+
+    }
+    }>
       {/* <View style={styles.header}>
         <Text style={styles.headerText}>Projects</Text>
       </View> */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()} 
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
           <Ionicons name="arrow-back" size={24} color="#2E3A59" />

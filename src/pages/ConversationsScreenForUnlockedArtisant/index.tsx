@@ -7,8 +7,8 @@
 //     const { leads, order } = route.params;
 
 //     const [role, setRole] = React.useState('');
-    
-    
+
+
 
 //     const getRole = async () => {
 //         const newUser: any = await getUser();
@@ -379,24 +379,27 @@
 
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  View, 
-  Text, 
-  FlatList, 
-  TouchableOpacity, 
-  StyleSheet, 
-  Image, 
-  ActivityIndicator 
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  Platform
 } from 'react-native';
 import { createOrRetrieveConversation } from '@/helpers/createOrRetrieveConversation';
 import { getUser } from '@/helpers/getToken';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ConversationsScreenForUnlockedArtisant = ({ route, navigation }: any) => {
   const { leads, order } = route.params;
   const [role, setRole] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+  const insets = useSafeAreaInsets()
 
   const getRole = useCallback(async () => {
     try {
@@ -486,11 +489,15 @@ const ConversationsScreenForUnlockedArtisant = ({ route, navigation }: any) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={{
+      ...styles.container,
+      paddingTop: Platform.OS === 'ios' ? insets.top + 10 : 0,
+
+    }}>
       {/* Custom Header with Back Button */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()} 
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
           <Ionicons name="arrow-back" size={24} color="#2E3A59" />
